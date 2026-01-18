@@ -1,0 +1,23 @@
+# Backend .dockerignore
+**/bin/
+**/obj/
+**/out/
+**/TestResults/
+**/.vs/
+**/.vscode/
+**/*.user
+**/*.suo
+**/*.cache
+**/.git/
+**/.gitignore
+**/README.md
+
+# Frontend .dockerignore
+**/node_modules/
+**/dist/
+**/.angular/
+**/coverage/
+**/.git/
+**/.gitignore
+**/README.md
+**/*.md

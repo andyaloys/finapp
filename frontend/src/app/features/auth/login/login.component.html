@@ -1,0 +1,33 @@
+<div class="login-container">
+  <nz-card class="login-card" [nzTitle]="'Login - FinApp'">
+    <form nz-form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="24" nzRequired>Username</nz-form-label>
+        <nz-form-control [nzSpan]="24" nzErrorTip="Please input your username!">
+          <input nz-input formControlName="username" placeholder="Username" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="24" nzRequired>Password</nz-form-label>
+        <nz-form-control [nzSpan]="24" nzErrorTip="Please input your password!">
+          <input nz-input type="password" formControlName="password" placeholder="Password" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control [nzSpan]="24">
+          <button nz-button nzType="primary" nzBlock [nzLoading]="isLoading" [disabled]="!loginForm.valid">
+            Login
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+
+    <div class="login-hint">
+      <p><strong>Default Login:</strong></p>
+      <p>Username: admin</p>
+      <p>Password: Admin123!</p>
+    </div>
+  </nz-card>
+</div>

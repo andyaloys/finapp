@@ -1,0 +1,20 @@
+<div class="header-container">
+  <div class="logo">
+    <h1>FinApp</h1>
+  </div>
+  <div class="right-content">
+    <div *ngIf="currentUser$ | async as user" nz-dropdown [nzDropdownMenu]="menu" nzTrigger="click" class="user-menu">
+      <nz-avatar nzIcon="user"></nz-avatar>
+      <span class="username">{{ user.fullName }}</span>
+      <span nz-icon nzType="down"></span>
+    </div>
+    <nz-dropdown-menu #menu="nzDropdownMenu">
+      <ul nz-menu>
+        <li nz-menu-item (click)="logout()">
+          <span nz-icon nzType="logout"></span>
+          Logout
+        </li>
+      </ul>
+    </nz-dropdown-menu>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+.form-container {
+  max-width: 600px;
+}
+
+:host ::ng-deep {
+  .ant-form-item-label > label {
+    font-weight: 500;
+  }
+}

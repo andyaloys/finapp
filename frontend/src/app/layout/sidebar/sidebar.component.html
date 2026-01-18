@@ -1,0 +1,12 @@
+<div class="sidebar-logo">
+  <h1 *ngIf="!isCollapsed">Finance App</h1>
+  <h1 *ngIf="isCollapsed">FA</h1>
+</div>
+<ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed" nzTheme="dark">
+  <li nz-menu-item nzMatchRouter>
+    <a routerLink="/dashboard/stpb">
+      <span nz-icon nzType="file-text"></span>
+      <span>STPB</span>
+    </a>
+  </li>
+</ul>
