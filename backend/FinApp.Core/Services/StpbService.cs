@@ -34,7 +34,7 @@ public class StpbService : IStpbService
         };
     }
 
-    public async Task<StpbDto?> GetByIdAsync(int id)
+    public async Task<StpbDto?> GetByIdAsync(Guid id)
     {
         var stpb = await _unitOfWork.Stpbs.GetByIdAsync(id);
         
@@ -46,12 +46,23 @@ public class StpbService : IStpbService
         return _mapper.Map<StpbDto>(stpb);
     }
 
-    public async Task<StpbDto> CreateAsync(CreateStpbDto dto, int userId)
+    public async Task<StpbDto> CreateAsync(CreateStpbDto dto, Guid userId)
     {
-        var existingStpb = await _unitOfWork.Stpbs.GetByNomorAsync(dto.NomorSTPB);
-        if (existingStpb != null)
+        // Auto-generate nomor STPB if not provided
+        if (string.IsNullOrWhiteSpace(dto.NomorSTPB))
         {
-            throw new ValidationException($"STPB dengan nomor {dto.NomorSTPB} sudah ada");
+            var year = dto.Tanggal.Year;
+            var nextNumber = await _unitOfWork.SequenceNumbers.GetNextNumberAsync("STPB", year);
+            dto.NomorSTPB = $"STPB-{nextNumber:D3}/{year}";
+        }
+        else
+        {
+            // Check if manually entered nomor already exists
+            var existingStpb = await _unitOfWork.Stpbs.GetByNomorAsync(dto.NomorSTPB);
+            if (existingStpb != null)
+            {
+                throw new ValidationException($"STPB dengan nomor {dto.NomorSTPB} sudah ada");
+            }
         }
 
         var stpb = _mapper.Map<Stpb>(dto);
@@ -63,7 +74,7 @@ public class StpbService : IStpbService
         return _mapper.Map<StpbDto>(stpb);
     }
 
-    public async Task<StpbDto> UpdateAsync(int id, UpdateStpbDto dto)
+    public async Task<StpbDto> UpdateAsync(Guid id, UpdateStpbDto dto)
     {
         var stpb = await _unitOfWork.Stpbs.GetByIdAsync(id);
         
@@ -88,7 +99,7 @@ public class StpbService : IStpbService
         return _mapper.Map<StpbDto>(stpb);
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(Guid id)
     {
         var exists = await _unitOfWork.Stpbs.ExistsAsync(id);
         
@@ -103,7 +114,7 @@ public class StpbService : IStpbService
         return true;
     }
 
-    public async Task<IEnumerable<StpbDto>> GetByUserIdAsync(int userId)
+    public async Task<IEnumerable<StpbDto>> GetByUserIdAsync(Guid userId)
     {
         var stpbs = await _unitOfWork.Stpbs.GetByUserIdAsync(userId);
         return _mapper.Map<IEnumerable<StpbDto>>(stpbs);

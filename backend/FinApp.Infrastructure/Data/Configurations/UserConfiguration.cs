@@ -40,11 +40,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.IsActive)
             .HasDefaultValue(true);
 
-        builder.Property(x => x.CreatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        builder.Property(x => x.CreatedAt);
 
         builder.Property(x => x.UpdatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP")
             .ValueGeneratedOnAddOrUpdate();
 
         // Relationships

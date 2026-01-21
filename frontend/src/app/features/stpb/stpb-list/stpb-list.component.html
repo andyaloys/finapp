@@ -1,63 +1,84 @@
-<app-page-header title="Surat Tanda Pertanggungjawaban Belanja (STPB)" subtitle="Daftar STPB">
-  <button nz-button nzType="primary" (click)="createNew()">
-    <span nz-icon nzType="plus"></span>
-    Tambah STPB
-  </button>
-</app-page-header>
+<div class="stpb-list-container">
+  <app-page-header title="Surat Tanda Pertanggungjawaban Belanja (STPB)" subtitle="Kelola data STPB">
+    <button nz-button nzType="primary" class="add-button" (click)="createNew()">
+      <span nz-icon nzType="plus"></span>
+      Tambah STPB Baru
+    </button>
+  </app-page-header>
 
-<div class="search-container">
-  <nz-input-group [nzSuffix]="suffixIconSearch">
-    <input 
-      type="text" 
-      nz-input 
-      placeholder="Cari nomor STPB..." 
-      [(ngModel)]="searchTerm" 
-      (keyup.enter)="onSearch()" 
-    />
-  </nz-input-group>
-  <ng-template #suffixIconSearch>
-    <span nz-icon nzType="search" (click)="onSearch()" style="cursor: pointer;"></span>
-  </ng-template>
+  <div class="content-wrapper">
+    <div class="search-container">
+      <nz-input-group [nzPrefix]="prefixIconSearch" class="search-input">
+        <input 
+          type="text" 
+          nz-input 
+          placeholder="Cari nomor STPB atau deskripsi..." 
+          [(ngModel)]="searchTerm" 
+          (keyup.enter)="onSearch()" 
+        />
+      </nz-input-group>
+      <ng-template #prefixIconSearch>
+        <span nz-icon nzType="search"></span>
+      </ng-template>
+      <button nz-button nzType="text" class="refresh-button" (click)="loadStpbs()">
+        <span nz-icon nzType="reload"></span>
+      </button>
+    </div>
+
+    <nz-table 
+      #basicTable 
+      [nzData]="stpbs" 
+      [nzLoading]="loading"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageSize]="pageSize"
+      [nzPageIndex]="pageIndex"
+      (nzPageIndexChange)="onPageChange($event)"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50]"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+      class="modern-table">
+      <thead>
+        <tr>
+          <th>Nomor STPB</th>
+          <th>Tanggal</th>
+          <th>Uraian</th>
+          <th>Nilai Bersih</th>
+          <th>Status</th>
+          <th>Tanggal Dibuat</th>
+          <th nzWidth="120px" nzAlign="center">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data">
+          <td>
+            <span class="stpb-number">{{ data.nomorSTPB }}</span>
+          </td>
+          <td>{{ data.tanggal | date: 'dd/MM/yyyy' }}</td>
+          <td>
+            <span class="description-text">{{ data.uraian || '-' }}</span>
+          </td>
+          <td>
+            <span class="amount-text">{{ data.nilaiBersih | currency: 'IDR':'symbol':'1.0-0' }}</span>
+          </td>
+          <td>
+            <nz-tag [nzColor]="data.isLocked ? 'red' : 'green'" class="status-tag">
+              {{ data.isLocked ? 'Terkunci' : 'Aktif' }}
+            </nz-tag>
+          </td>
+          <td>{{ data.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td nzAlign="center">
+            <div class="action-buttons">
+              <button nz-button nzType="text" nzSize="small" nz-tooltip="Edit" (click)="edit(data.id)" class="action-btn edit-btn" [disabled]="data.isLocked">
+                <span nz-icon nzType="edit"></span>
+              </button>
+              <button nz-button nzType="text" nzSize="small" nz-tooltip="Hapus" (click)="delete(data.id, data.nomorSTPB)" class="action-btn delete-btn" [disabled]="data.isLocked">
+                <span nz-icon nzType="delete"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
 </div>
-
-<nz-table 
-  #basicTable 
-  [nzData]="stpbs" 
-  [nzLoading]="loading"
-  [nzFrontPagination]="false"
-  [nzTotal]="total"
-  [nzPageSize]="pageSize"
-  [nzPageIndex]="pageIndex"
-  (nzPageIndexChange)="onPageChange($event)">
-  <thead>
-    <tr>
-      <th>Nomor STPB</th>
-      <th>Tanggal</th>
-      <th>Deskripsi</th>
-      <th>Nilai Total</th>
-      <th>Status</th>
-      <th>Dibuat Oleh</th>
-      <th>Aksi</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let data of basicTable.data">
-      <td>{{ data.nomorSTPB }}</td>
-      <td>{{ data.tanggal | date: 'dd/MM/yyyy' }}</td>
-      <td>{{ data.deskripsi || '-' }}</td>
-      <td>{{ data.nilaiTotal | currency: 'IDR' }}</td>
-      <td>
-        <nz-tag [nzColor]="getStatusColor(data.status)">{{ data.status }}</nz-tag>
-      </td>
-      <td>{{ data.creatorName }}</td>
-      <td>
-        <button nz-button nzType="link" nzSize="small" (click)="edit(data.id)">
-          <span nz-icon nzType="edit"></span>
-        </button>
-        <button nz-button nzType="link" nzSize="small" nzDanger (click)="delete(data.id, data.nomorSTPB)">
-          <span nz-icon nzType="delete"></span>
-        </button>
-      </td>
-    </tr>
-  </tbody>
-</nz-table>

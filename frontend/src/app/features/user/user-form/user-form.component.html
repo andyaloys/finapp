@@ -1,0 +1,90 @@
+<div class="user-form-container">
+  <div class="content-wrapper">
+    <div class="page-header">
+      <h2>{{ isEditMode ? 'Edit User' : 'Tambah User Baru' }}</h2>
+      <p class="subtitle">{{ isEditMode ? 'Ubah data pengguna' : 'Tambahkan pengguna baru ke sistem' }}</p>
+    </div>
+
+    <nz-card>
+      <form nz-form [formGroup]="userForm" (ngSubmit)="onSubmit()" [nzLayout]="'vertical'">
+        <div nz-row [nzGutter]="16">
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Username</nz-form-label>
+              <nz-form-control nzErrorTip="Username minimal 3 karakter">
+                <input nz-input formControlName="username" placeholder="Masukkan username" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label [nzRequired]="!isEditMode">Password</nz-form-label>
+              <nz-form-control [nzErrorTip]="isEditMode ? 'Kosongkan jika tidak ingin mengubah password' : 'Password minimal 6 karakter'">
+                <input 
+                  nz-input 
+                  type="password" 
+                  formControlName="password" 
+                  [placeholder]="isEditMode ? 'Kosongkan jika tidak ingin mengubah' : 'Masukkan password'" 
+                />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+
+        <div nz-row [nzGutter]="16">
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Nama Lengkap</nz-form-label>
+              <nz-form-control nzErrorTip="Nama lengkap harus diisi">
+                <input nz-input formControlName="fullName" placeholder="Masukkan nama lengkap" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Email</nz-form-label>
+              <nz-form-control nzErrorTip="Email harus valid">
+                <input nz-input type="email" formControlName="email" placeholder="Masukkan email" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+
+        <div nz-row [nzGutter]="16">
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Role</nz-form-label>
+              <nz-form-control>
+                <nz-select formControlName="role" nzPlaceHolder="Pilih role">
+                  <nz-option nzValue="Admin" nzLabel="Admin"></nz-option>
+                  <nz-option nzValue="User" nzLabel="User"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label>Status</nz-form-label>
+              <nz-form-control>
+                <nz-switch formControlName="isActive"></nz-switch>
+                <span class="status-label">{{ userForm.get('isActive')?.value ? 'Aktif' : 'Nonaktif' }}</span>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+
+        <nz-form-item class="form-actions">
+          <button nz-button nzType="default" type="button" (click)="cancel()" [disabled]="isLoading">
+            Batal
+          </button>
+          <button nz-button nzType="primary" type="submit" [nzLoading]="isLoading">
+            {{ isEditMode ? 'Update' : 'Simpan' }}
+          </button>
+        </nz-form-item>
+      </form>
+    </nz-card>
+  </div>
+</div>

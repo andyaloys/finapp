@@ -16,7 +16,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         _dbSet = context.Set<T>();
     }
 
-    public virtual async Task<T?> GetByIdAsync(int id)
+    public virtual async Task<T?> GetByIdAsync(Guid id)
     {
         return await _dbSet.FindAsync(id);
     }
@@ -38,7 +38,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         await Task.CompletedTask;
     }
 
-    public virtual async Task DeleteAsync(int id)
+    public virtual async Task DeleteAsync(Guid id)
     {
         var entity = await GetByIdAsync(id);
         if (entity != null)
@@ -47,7 +47,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         }
     }
 
-    public virtual async Task<bool> ExistsAsync(int id)
+    public virtual async Task<bool> ExistsAsync(Guid id)
     {
         return await _dbSet.AnyAsync(e => e.Id == id);
     }

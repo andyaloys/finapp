@@ -37,7 +37,7 @@ public class StpbController : BaseApiController
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ApiResponse<StpbDto>>> GetById(int id)
+    public async Task<ActionResult<ApiResponse<StpbDto>>> GetById(Guid id)
     {
         try
         {
@@ -79,7 +79,7 @@ public class StpbController : BaseApiController
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<ApiResponse<StpbDto>>> Update(int id, [FromBody] UpdateStpbDto dto)
+    public async Task<ActionResult<ApiResponse<StpbDto>>> Update(Guid id, [FromBody] UpdateStpbDto dto)
     {
         try
         {
@@ -100,7 +100,7 @@ public class StpbController : BaseApiController
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<ApiResponse<bool>>> Delete(int id)
+    public async Task<ActionResult<ApiResponse<bool>>> Delete(Guid id)
     {
         try
         {

@@ -1,0 +1,68 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>Data Subkomponen</h2>
+    <button nz-button nzType="primary" (click)="onCreate()">
+      <span nz-icon nzType="plus"></span>
+      Tambah Subkomponen
+    </button>
+  </div>
+
+  <div class="table-operations">
+    <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton" style="width: 300px;">
+      <input type="text" nz-input placeholder="Cari subkomponen..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" />
+    </nz-input-group>
+    <ng-template #suffixIconButton>
+      <button nz-button nzType="primary" nzSearch (click)="onSearch()">
+        <span nz-icon nzType="search"></span>
+      </button>
+    </ng-template>
+  </div>
+
+  <nz-table
+    #subkomponenTable
+    [nzData]="subkomponens"
+    [nzLoading]="loading"
+    [nzTotal]="total"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageIndex"
+    [nzFrontPagination]="false"
+    (nzPageIndexChange)="onPageChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
+    [nzShowSizeChanger]="true"
+    [nzPageSizeOptions]="[10, 20, 50, 100]"
+  >
+    <thead>
+      <tr>
+        <th>Kode</th>
+        <th>Nama Subkomponen</th>
+        <th>Komponen</th>
+        <th>Status</th>
+        <th>Tanggal Dibuat</th>
+        <th nzWidth="150px">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let subkomponen of subkomponenTable.data">
+        <td>{{ subkomponen.kode }}</td>
+        <td>{{ subkomponen.nama }}</td>
+        <td>{{ subkomponen.komponen?.nama || '-' }}</td>
+        <td>
+          <nz-tag [nzColor]="subkomponen.isActive ? 'success' : 'default'">
+            {{ subkomponen.isActive ? 'Aktif' : 'Nonaktif' }}
+          </nz-tag>
+        </td>
+        <td>{{ subkomponen.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <button nz-button nzType="link" nzSize="small" (click)="onEdit(subkomponen.id)">
+            <span nz-icon nzType="edit"></span>
+            Edit
+          </button>
+          <button nz-button nzType="link" nzSize="small" nzDanger (click)="onDelete(subkomponen.id, subkomponen.nama)">
+            <span nz-icon nzType="delete"></span>
+            Hapus
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>

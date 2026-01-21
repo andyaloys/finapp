@@ -1,0 +1,53 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>{{ isEditMode ? 'Edit Akun' : 'Tambah Akun' }}</h2>
+  </div>
+
+  <form nz-form [formGroup]="form" (ngSubmit)="onSubmit()" nzLayout="vertical">
+    <div class="form-container">
+      <nz-form-item>
+        <nz-form-label nzRequired>Subkomponen</nz-form-label>
+        <nz-form-control nzErrorTip="Subkomponen wajib dipilih">
+          <nz-select formControlName="subkomponenId" nzPlaceHolder="Pilih subkomponen" nzShowSearch>
+            <nz-option *ngFor="let subkomponen of subkomponens" [nzValue]="subkomponen.id" [nzLabel]="subkomponen.kode + ' - ' + subkomponen.nama"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Kode Akun</nz-form-label>
+        <nz-form-control nzErrorTip="Kode akun wajib diisi (maksimal 20 karakter)">
+          <input nz-input formControlName="kode" placeholder="Masukkan kode akun" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Nama Akun</nz-form-label>
+        <nz-form-control nzErrorTip="Nama akun wajib diisi (maksimal 500 karakter)">
+          <input nz-input formControlName="nama" placeholder="Masukkan nama akun" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Status</nz-form-label>
+        <nz-form-control>
+          <nz-switch formControlName="isActive" 
+                     [nzCheckedChildren]="'Aktif'" 
+                     [nzUnCheckedChildren]="'Nonaktif'">
+          </nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control>
+          <button nz-button nzType="primary" type="submit" [nzLoading]="submitting">
+            {{ isEditMode ? 'Perbarui' : 'Simpan' }}
+          </button>
+          <button nz-button type="button" (click)="onCancel()" [disabled]="submitting" style="margin-left: 8px;">
+            Batal
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </form>
+</div>

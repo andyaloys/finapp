@@ -1,0 +1,68 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>Data Komponen</h2>
+    <button nz-button nzType="primary" (click)="onCreate()">
+      <span nz-icon nzType="plus"></span>
+      Tambah Komponen
+    </button>
+  </div>
+
+  <div class="table-operations">
+    <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton" style="width: 300px;">
+      <input type="text" nz-input placeholder="Cari komponen..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" />
+    </nz-input-group>
+    <ng-template #suffixIconButton>
+      <button nz-button nzType="primary" nzSearch (click)="onSearch()">
+        <span nz-icon nzType="search"></span>
+      </button>
+    </ng-template>
+  </div>
+
+  <nz-table
+    #komponenTable
+    [nzData]="komponens"
+    [nzLoading]="loading"
+    [nzTotal]="total"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageIndex"
+    [nzFrontPagination]="false"
+    (nzPageIndexChange)="onPageChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
+    [nzShowSizeChanger]="true"
+    [nzPageSizeOptions]="[10, 20, 50, 100]"
+  >
+    <thead>
+      <tr>
+        <th>Kode</th>
+        <th>Nama Komponen</th>
+        <th>Suboutput</th>
+        <th>Status</th>
+        <th>Tanggal Dibuat</th>
+        <th nzWidth="150px">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let komponen of komponenTable.data">
+        <td>{{ komponen.kode }}</td>
+        <td>{{ komponen.nama }}</td>
+        <td>{{ komponen.suboutput?.nama || '-' }}</td>
+        <td>
+          <nz-tag [nzColor]="komponen.isActive ? 'success' : 'default'">
+            {{ komponen.isActive ? 'Aktif' : 'Nonaktif' }}
+          </nz-tag>
+        </td>
+        <td>{{ komponen.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <button nz-button nzType="link" nzSize="small" (click)="onEdit(komponen.id)">
+            <span nz-icon nzType="edit"></span>
+            Edit
+          </button>
+          <button nz-button nzType="link" nzSize="small" nzDanger (click)="onDelete(komponen.id, komponen.nama)">
+            <span nz-icon nzType="delete"></span>
+            Hapus
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>

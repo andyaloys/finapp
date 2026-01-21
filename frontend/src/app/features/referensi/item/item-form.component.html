@@ -1,0 +1,60 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>{{ isEditMode ? 'Edit Item' : 'Tambah Item' }}</h2>
+  </div>
+
+  <form nz-form [formGroup]="form" (ngSubmit)="onSubmit()" nzLayout="vertical">
+    <div class="form-container">
+      <nz-form-item>
+        <nz-form-label nzRequired>Akun</nz-form-label>
+        <nz-form-control nzErrorTip="Akun wajib dipilih">
+          <nz-select formControlName="akunId" nzPlaceHolder="Pilih akun" nzShowSearch>
+            <nz-option *ngFor="let akun of akuns" [nzValue]="akun.id" [nzLabel]="akun.kode + ' - ' + akun.nama"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Nama Item</nz-form-label>
+        <nz-form-control nzErrorTip="Nama item wajib diisi (maksimal 500 karakter)">
+          <input nz-input formControlName="nama" placeholder="Masukkan nama item" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Satuan</nz-form-label>
+        <nz-form-control nzErrorTip="Satuan wajib diisi (maksimal 50 karakter)">
+          <input nz-input formControlName="satuan" placeholder="Masukkan satuan (contoh: Buah, Kg, Unit)" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Harga Satuan</nz-form-label>
+        <nz-form-control nzErrorTip="Harga satuan wajib diisi dan harus lebih dari 0">
+          <nz-input-number formControlName="hargaSatuan" [nzMin]="0" [nzStep]="1000" placeholder="Masukkan harga satuan" style="width: 100%;"></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Status</nz-form-label>
+        <nz-form-control>
+          <nz-switch formControlName="isActive" 
+                     [nzCheckedChildren]="'Aktif'" 
+                     [nzUnCheckedChildren]="'Nonaktif'">
+          </nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control>
+          <button nz-button nzType="primary" type="submit" [nzLoading]="submitting">
+            {{ isEditMode ? 'Perbarui' : 'Simpan' }}
+          </button>
+          <button nz-button type="button" (click)="onCancel()" [disabled]="submitting" style="margin-left: 8px;">
+            Batal
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </form>
+</div>

@@ -1,20 +1,207 @@
-.sidebar-logo {
-  height: 64px;
+.sidebar-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, .2);
-  
-  h1 {
-    color: #fff;
-    font-size: 18px;
+  padding: 16px;
+  background: #2d3748;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  min-height: 64px;
+  transition: all 0.3s;
+
+  .sidebar-logo-icon {
+    font-size: 32px;
+    color: white;
+    margin-right: 12px;
+    transition: all 0.3s;
+  }
+
+  .sidebar-logo-icon-small {
+    font-size: 28px;
+    color: white;
     margin: 0;
-    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .sidebar-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    transition: opacity 0.3s, visibility 0.3s;
   }
 }
 
-:host ::ng-deep {
-  .ant-menu-dark {
-    background: #001529;
+.sidebar-menu {
+  background: #2d3748 !important;
+  border-right: none;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  /* Custom Scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(249, 115, 22, 0.3);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(249, 115, 22, 0.5);
+    }
+  }
+  
+  ::ng-deep {
+    .ant-menu {
+      background: #2d3748 !important;
+    }
+    
+    .ant-menu-item {
+      margin: 0;
+      border-radius: 0;
+      height: 48px;
+      line-height: 48px !important;
+      padding: 0 24px !important;
+      border-left: 4px solid transparent;
+      transition: all 0.3s;
+      
+      &:hover {
+        background: rgba(249, 115, 22, 0.1) !important;
+        border-left-color: rgba(249, 115, 22, 0.3);
+      }
+
+      &.ant-menu-item-selected {
+        background: transparent !important;
+        border-left-color: #f97316;
+        
+        &::after {
+          display: none;
+        }
+        
+        a {
+          color: #f97316 !important;
+        }
+      }
+
+      a {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+        color: rgba(255, 255, 255, 0.85) !important;
+        width: 100%;
+
+        i {
+          font-size: 20px;
+          min-width: 20px;
+        }
+        
+        span {
+          font-size: 14px;
+          font-weight: 400;
+        }
+      }
+    }
+    
+    &.ant-menu-inline-collapsed {
+      .ant-menu-item {
+        padding: 0 calc(50% - 10px) !important;
+        border-left: none !important;
+        
+        a {
+          justify-content: center;
+        }
+        
+        &.ant-menu-item-selected {
+          background: rgba(249, 115, 22, 0.15) !important;
+        }
+      }
+      
+      .ant-menu-submenu-title {
+        padding: 0 calc(50% - 10px) !important;
+      }
+    }
+    
+    .ant-menu-submenu {
+      margin: 0;
+      
+      > .ant-menu-submenu-title {
+        height: 48px;
+        line-height: 48px !important;
+        padding: 0 24px !important;
+        color: rgba(255, 255, 255, 0.85) !important;
+        border-left: 4px solid transparent;
+        transition: all 0.3s;
+        
+        &:hover {
+          background: rgba(249, 115, 22, 0.1) !important;
+          border-left-color: rgba(249, 115, 22, 0.3);
+          color: rgba(255, 255, 255, 0.95) !important;
+        }
+        
+        .anticon:not(.ant-menu-submenu-arrow) {
+          font-size: 20px;
+          min-width: 20px;
+          margin-right: 12px;
+        }
+        
+        .ant-menu-submenu-arrow {
+          color: rgba(255, 255, 255, 0.65);
+          right: 16px;
+        }
+        
+        .ant-menu-title-content {
+          font-size: 14px;
+        }
+      }
+      
+      &.ant-menu-submenu-open {
+        > .ant-menu-submenu-title {
+          color: #f97316 !important;
+          border-left-color: #f97316;
+          
+          .anticon {
+            color: #f97316 !important;
+          }
+        }
+      }
+      
+      .ant-menu-sub {
+        background: rgba(0, 0, 0, 0.15) !important;
+        
+        .ant-menu-item {
+          padding-left: 52px !important;
+          height: 40px;
+          line-height: 40px !important;
+          border-left: none !important;
+          
+          &:hover {
+            background: rgba(249, 115, 22, 0.15) !important;
+          }
+          
+          &.ant-menu-item-selected {
+            background: rgba(249, 115, 22, 0.2) !important;
+            
+            &::after {
+              display: none;
+            }
+            
+            a {
+              color: #f97316 !important;
+            }
+          }
+          
+          a {
+            font-size: 13px;
+          }
+        }
+      }
+    }
   }
 }

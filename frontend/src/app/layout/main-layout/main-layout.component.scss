@@ -1,29 +1,119 @@
 .app-layout {
   min-height: 100vh;
+  background: #f5f5f5;
 }
 
 .menu-sidebar {
-  overflow: auto;
+  overflow: hidden;
   height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
   bottom: 0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #2d3748 !important;
+  
+  ::ng-deep {
+    .ant-layout-sider-children {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    &.ant-layout-sider-collapsed {
+      .sidebar-title {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+  }
+}
+
+.main-content-layout {
+  margin-left: 250px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::ng-deep {
+  .menu-sidebar.ant-layout-sider-collapsed + .main-content-layout {
+    margin-left: 80px;
+  }
 }
 
 nz-header {
-  background: #fff;
+  background: #ffffff;
+  padding: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  height: 64px;
+  width: 100%;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  width: 100%;
+}
+
+.trigger {
+  font-size: 22px;
   padding: 0 24px;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  min-width: 64px;
+  background: #f97316 !important;
+  border: none;
+  outline: none;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #ea580c !important;
+  }
+  
+  &:active {
+    background: #c2410c !important;
+  }
+  
+  .hamburger-icon {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    
+    span {
+      display: block;
+      width: 100%;
+      height: 3px;
+      background: #ffffff;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+  }
+}
+
+app-header {
+  flex: 1;
+  display: flex;
 }
 
 nz-content {
-  margin: 24px 16px 0;
+  margin: 0;
   overflow: initial;
+  background: transparent;
 }
 
 .inner-content {
-  padding: 24px;
-  background: #fff;
-  min-height: calc(100vh - 88px);
+  padding: 0;
+  background: transparent;
+  min-height: calc(100vh - 64px);
 }

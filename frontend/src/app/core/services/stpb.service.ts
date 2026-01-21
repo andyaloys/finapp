@@ -25,7 +25,7 @@ export class StpbService {
     return this.http.get<ApiResponse<PagedResult<Stpb>>>(this.apiUrl, { params });
   }
 
-  getById(id: number): Observable<ApiResponse<Stpb>> {
+  getById(id: string): Observable<ApiResponse<Stpb>> {
     return this.http.get<ApiResponse<Stpb>>(`${this.apiUrl}/${id}`);
   }
 
@@ -33,11 +33,11 @@ export class StpbService {
     return this.http.post<ApiResponse<Stpb>>(this.apiUrl, stpb);
   }
 
-  update(id: number, stpb: UpdateStpb): Observable<ApiResponse<Stpb>> {
+  update(id: string, stpb: UpdateStpb): Observable<ApiResponse<Stpb>> {
     return this.http.put<ApiResponse<Stpb>>(`${this.apiUrl}/${id}`, stpb);
   }
 
-  delete(id: number): Observable<ApiResponse<boolean>> {
+  delete(id: string): Observable<ApiResponse<boolean>> {
     return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/${id}`);
   }
 

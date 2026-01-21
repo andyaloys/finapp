@@ -1,18 +1,31 @@
-<div class="header-container">
-  <div class="logo">
-    <h1>FinApp</h1>
-  </div>
-  <div class="right-content">
+<div class="app-header">
+  <div class="header-right">
+    <i nz-icon nzType="bulb" nzTheme="outline" class="header-icon dark-mode-icon"></i>
+    <nz-badge [nzCount]="0" class="notification-badge">
+      <i nz-icon nzType="bell" nzTheme="outline" class="header-icon"></i>
+    </nz-badge>
     <div *ngIf="currentUser$ | async as user" nz-dropdown [nzDropdownMenu]="menu" nzTrigger="click" class="user-menu">
-      <nz-avatar nzIcon="user"></nz-avatar>
-      <span class="username">{{ user.fullName }}</span>
-      <span nz-icon nzType="down"></span>
+      <div class="user-details">
+        <span class="user-name">{{ user.fullName }}</span>
+        <small class="user-role">{{ user.role }}</small>
+      </div>
+      <nz-avatar nzIcon="user" [nzSize]="36" class="user-avatar"></nz-avatar>
+      <i nz-icon nzType="down" class="user-dropdown-icon"></i>
     </div>
     <nz-dropdown-menu #menu="nzDropdownMenu">
       <ul nz-menu>
+        <li nz-menu-item>
+          <i nz-icon nzType="user"></i>
+          <span>Profile</span>
+        </li>
+        <li nz-menu-item>
+          <i nz-icon nzType="setting"></i>
+          <span>Settings</span>
+        </li>
+        <li nz-menu-divider></li>
         <li nz-menu-item (click)="logout()">
-          <span nz-icon nzType="logout"></span>
-          Logout
+          <i nz-icon nzType="logout" style="color: #ff4d4f;"></i>
+          <span style="color: #ff4d4f;">Logout</span>
         </li>
       </ul>
     </nz-dropdown-menu>

@@ -12,6 +12,15 @@ public class StpbConfiguration : IEntityTypeConfiguration<Stpb>
 
         builder.HasKey(x => x.Id);
 
+        // Reference fields
+        builder.Property(x => x.KodeProgram).IsRequired().HasMaxLength(20);
+        builder.Property(x => x.KodeKegiatan).IsRequired().HasMaxLength(20);
+        builder.Property(x => x.KodeOutput).IsRequired().HasMaxLength(20);
+        builder.Property(x => x.KodeSuboutput).IsRequired().HasMaxLength(20);
+        builder.Property(x => x.KodeKomponen).IsRequired().HasMaxLength(20);
+        builder.Property(x => x.KodeSubkomponen).IsRequired().HasMaxLength(20);
+        builder.Property(x => x.KodeAkun).IsRequired().HasMaxLength(20);
+
         builder.Property(x => x.NomorSTPB)
             .IsRequired()
             .HasMaxLength(50);
@@ -24,30 +33,47 @@ public class StpbConfiguration : IEntityTypeConfiguration<Stpb>
 
         builder.HasIndex(x => x.Tanggal);
 
-        builder.Property(x => x.Deskripsi)
+        builder.Property(x => x.Uraian)
             .HasColumnType("text");
 
-        builder.Property(x => x.NilaiTotal)
+        builder.Property(x => x.Nominal)
             .HasColumnType("decimal(18,2)")
             .HasDefaultValue(0.00m);
 
-        builder.Property(x => x.Status)
-            .IsRequired()
-            .HasMaxLength(20)
-            .HasDefaultValue("Draft");
+        builder.Property(x => x.PPn)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0.00m);
 
-        builder.HasIndex(x => x.Status);
+        builder.Property(x => x.PPh21)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0.00m);
+
+        builder.Property(x => x.PPh22)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0.00m);
+
+        builder.Property(x => x.PPh23)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0.00m);
+
+        builder.Property(x => x.NilaiBersih)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0.00m);
+
+        builder.Property(x => x.IsLocked)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.HasIndex(x => x.IsLocked);
 
         builder.Property(x => x.CreatedBy)
             .IsRequired();
 
         builder.HasIndex(x => x.CreatedBy);
 
-        builder.Property(x => x.CreatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        builder.Property(x => x.CreatedAt);
 
         builder.Property(x => x.UpdatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP")
             .ValueGeneratedOnAddOrUpdate();
 
         // Relationships

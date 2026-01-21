@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -15,10 +17,13 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     NzFormModule,
     NzInputModule,
     NzButtonModule,
-    NzCardModule
+    NzCardModule,
+    NzCheckboxModule,
+    NzIconModule
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -26,6 +31,8 @@ import { AuthService } from '../../../core/services/auth.service';
 export class LoginComponent {
   loginForm: FormGroup;
   isLoading = false;
+  passwordVisible = false;
+  rememberMe = false;
 
   constructor(
     private fb: FormBuilder,
@@ -46,15 +53,20 @@ export class LoginComponent {
         next: (response) => {
           if (response.success) {
             this.message.success('Login berhasil!');
-            this.router.navigate(['/dashboard']);
+            // Navigate after a short delay to ensure token is stored
+            setTimeout(() => {
+              this.router.navigate(['/stpb']).then(() => {
+                this.isLoading = false;
+              });
+            }, 100);
+          } else {
+            this.isLoading = false;
+            this.message.error('Login gagal. Periksa username dan password Anda.');
           }
         },
         error: (error) => {
           this.isLoading = false;
           this.message.error('Login gagal. Periksa username dan password Anda.');
-        },
-        complete: () => {
-          this.isLoading = false;
         }
       });
     } else {

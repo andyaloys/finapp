@@ -4,12 +4,14 @@ import { Router } from '@angular/router';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, NzDropDownModule, NzIconModule, NzAvatarModule],
+  imports: [CommonModule, NzDropDownModule, NzIconModule, NzAvatarModule, NzBadgeModule, NzDividerModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

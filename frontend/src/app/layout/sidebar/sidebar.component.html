@@ -1,12 +1,67 @@
-<div class="sidebar-logo">
-  <h1 *ngIf="!isCollapsed">Finance App</h1>
-  <h1 *ngIf="isCollapsed">FA</h1>
+<div class="sidebar-header">
+  <i nz-icon nzType="wallet" nzTheme="twotone" *ngIf="!isCollapsed" class="sidebar-logo-icon"></i>
+  <h1 *ngIf="!isCollapsed" class="sidebar-title">Finance App</h1>
+  <i nz-icon nzType="wallet" nzTheme="twotone" *ngIf="isCollapsed" class="sidebar-logo-icon-small"></i>
 </div>
-<ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed" nzTheme="dark">
-  <li nz-menu-item nzMatchRouter>
-    <a routerLink="/dashboard/stpb">
-      <span nz-icon nzType="file-text"></span>
-      <span>STPB</span>
-    </a>
+
+<ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed" nzTheme="dark" class="sidebar-menu">
+  <li nz-submenu nzTitle="Transaksi" nzIcon="dollar">
+    <ul>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/stpb">
+          <span>STPB</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+  
+  <li nz-submenu nzTitle="Referensi" nzIcon="database">
+    <ul>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/referensi/program">
+          <span>Program</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/referensi/kegiatan">
+          <span>Kegiatan</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/referensi/output">
+          <span>Output</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/referensi/suboutput">
+          <span>Suboutput</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/referensi/komponen">
+          <span>Komponen</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/referensi/subkomponen">
+          <span>Subkomponen</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/referensi/akun">
+          <span>Akun</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/referensi/item">
+          <span>Item</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/user">
+          <span>User</span>
+        </a>
+      </li>
+    </ul>
   </li>
 </ul>

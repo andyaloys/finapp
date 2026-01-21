@@ -1,0 +1,96 @@
+<div class="user-list-container">
+  <div class="content-wrapper">
+    <div class="page-header">
+      <h2>Manajemen User</h2>
+      <p class="subtitle">Kelola data pengguna sistem</p>
+    </div>
+
+    <div class="search-container">
+      <nz-input-group [nzPrefix]="prefixIconSearch" class="search-input">
+        <input 
+          type="text" 
+          nz-input 
+          placeholder="Cari username, nama, atau email..." 
+          [(ngModel)]="searchText"
+          (keyup.enter)="onSearch()"
+        />
+      </nz-input-group>
+      <ng-template #prefixIconSearch>
+        <span nz-icon nzType="search"></span>
+      </ng-template>
+      
+      <button nz-button nzType="text" class="refresh-button" (click)="refresh()">
+        <span nz-icon nzType="reload"></span>
+      </button>
+      
+      <button nz-button nzType="primary" class="add-button" (click)="addUser()">
+        <span nz-icon nzType="plus"></span>
+        Tambah User
+      </button>
+    </div>
+
+    <nz-table 
+      #userTable 
+      [nzData]="filteredUsers" 
+      [nzLoading]="isLoading"
+      [nzPageSize]="pageSize"
+      [nzPageIndex]="pageIndex"
+      [nzTotal]="filteredUsers.length"
+      class="modern-table"
+      nzShowSizeChanger
+      [nzPageSizeOptions]="[10, 20, 50]"
+    >
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Nama Lengkap</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th nzAlign="center">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of userTable.data">
+          <td>
+            <span class="username-text">{{ user.username }}</span>
+          </td>
+          <td>{{ user.fullName }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <nz-tag [nzColor]="user.role === 'Admin' ? 'red' : 'blue'">
+              {{ user.role }}
+            </nz-tag>
+          </td>
+          <td>
+            <nz-tag [nzColor]="user.isActive ? 'success' : 'default'">
+              {{ user.isActive ? 'Aktif' : 'Nonaktif' }}
+            </nz-tag>
+          </td>
+          <td nzAlign="center">
+            <div class="action-buttons">
+              <button 
+                nz-button 
+                nzType="text" 
+                class="action-btn edit-btn"
+                (click)="editUser(user.id)"
+                nz-tooltip="Edit"
+              >
+                <span nz-icon nzType="edit"></span>
+              </button>
+              <button 
+                nz-button 
+                nzType="text" 
+                class="action-btn delete-btn"
+                (click)="deleteUser(user.id)"
+                nz-tooltip="Hapus"
+              >
+                <span nz-icon nzType="delete"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>

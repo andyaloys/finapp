@@ -1,5 +1,6 @@
 using FinApp.Core.Interfaces;
 using FinApp.Core.Services;
+using FinApp.Core.Mappings;
 using FinApp.Domain.Interfaces;
 using FinApp.Infrastructure.Data;
 using FinApp.Infrastructure.Services;
@@ -29,10 +30,19 @@ public static class ServiceExtensions
         // Services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IStpbService, StpbService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IProgramService, ProgramService>();
+        services.AddScoped<IKegiatanService, KegiatanService>();
+        services.AddScoped<IOutputService, OutputService>();
+        services.AddScoped<ISuboutputService, SuboutputService>();
+        services.AddScoped<IKomponenService, KomponenService>();
+        services.AddScoped<ISubkomponenService, SubkomponenService>();
+        services.AddScoped<IAkunService, AkunService>();
+        services.AddScoped<IItemService, ItemService>();
         services.AddScoped<IJwtService, JwtService>();
 
         // AutoMapper
-        services.AddAutoMapper(typeof(FinApp.Core.Mappings.MappingProfile).Assembly);
+        services.AddAutoMapper(typeof(MappingProfile));
 
         // FluentValidation
         services.AddFluentValidationAutoValidation();

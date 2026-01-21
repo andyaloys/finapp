@@ -1,14 +1,25 @@
 <nz-layout class="app-layout">
   <nz-sider class="menu-sidebar"
             nzCollapsible
-            nzWidth="250px"
+            nzWidth="250"
+            [nzCollapsedWidth]="80"
             nzBreakpoint="md"
-            [(nzCollapsed)]="isCollapsed">
+            [(nzCollapsed)]="isCollapsed"
+            [nzTrigger]="null">
     <app-sidebar [isCollapsed]="isCollapsed"></app-sidebar>
   </nz-sider>
-  <nz-layout>
+  <nz-layout class="main-content-layout">
     <nz-header>
-      <app-header></app-header>
+      <div class="header-container">
+        <button class="trigger" (click)="toggleSidebar()" type="button" title="Toggle Sidebar">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+        <app-header></app-header>
+      </div>
     </nz-header>
     <nz-content>
       <div class="inner-content">

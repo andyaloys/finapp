@@ -1,0 +1,66 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>Data Program</h2>
+    <button nz-button nzType="primary" (click)="onCreate()">
+      <span nz-icon nzType="plus"></span>
+      Tambah Program
+    </button>
+  </div>
+
+  <div class="table-operations">
+    <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton" style="width: 300px;">
+      <input type="text" nz-input placeholder="Cari program..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" />
+    </nz-input-group>
+    <ng-template #suffixIconButton>
+      <button nz-button nzType="primary" nzSearch (click)="onSearch()">
+        <span nz-icon nzType="search"></span>
+      </button>
+    </ng-template>
+  </div>
+
+  <nz-table
+    #programTable
+    [nzData]="programs"
+    [nzLoading]="loading"
+    [nzTotal]="total"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageIndex"
+    [nzFrontPagination]="false"
+    (nzPageIndexChange)="onPageChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
+    [nzShowSizeChanger]="true"
+    [nzPageSizeOptions]="[10, 20, 50, 100]"
+  >
+    <thead>
+      <tr>
+        <th>Kode</th>
+        <th>Nama Program</th>
+        <th>Status</th>
+        <th>Tanggal Dibuat</th>
+        <th nzWidth="150px">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let program of programTable.data">
+        <td>{{ program.kode }}</td>
+        <td>{{ program.nama }}</td>
+        <td>
+          <nz-tag [nzColor]="program.isActive ? 'success' : 'default'">
+            {{ program.isActive ? 'Aktif' : 'Nonaktif' }}
+          </nz-tag>
+        </td>
+        <td>{{ program.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <button nz-button nzType="link" nzSize="small" (click)="onEdit(program.id)">
+            <span nz-icon nzType="edit"></span>
+            Edit
+          </button>
+          <button nz-button nzType="link" nzSize="small" nzDanger (click)="onDelete(program.id, program.nama)">
+            <span nz-icon nzType="delete"></span>
+            Hapus
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>

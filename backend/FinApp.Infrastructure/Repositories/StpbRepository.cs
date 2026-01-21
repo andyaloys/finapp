@@ -11,14 +11,14 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
     {
     }
 
-    public override async Task<Stpb?> GetByIdAsync(int id)
+    public override async Task<Stpb?> GetByIdAsync(Guid id)
     {
         return await _dbSet
             .Include(s => s.Creator)
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
-    public async Task<IEnumerable<Stpb>> GetByUserIdAsync(int userId)
+    public async Task<IEnumerable<Stpb>> GetByUserIdAsync(Guid userId)
     {
         return await _dbSet
             .Include(s => s.Creator)
@@ -38,7 +38,7 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
     {
         return await _dbSet
             .Include(s => s.Creator)
-            .Where(s => s.Status == status)
+            .Where(s => s.IsLocked == (status == "Locked"))
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
     }
@@ -55,7 +55,7 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
         {
             query = query.Where(s => 
                 s.NomorSTPB.Contains(searchTerm) ||
-                s.Deskripsi!.Contains(searchTerm) ||
+                s.Uraian!.Contains(searchTerm) ||
                 s.Creator!.FullName.Contains(searchTerm)
             );
         }
@@ -69,5 +69,24 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
             .ToListAsync();
 
         return (items, totalCount);
+    }
+
+    public async Task<int> GetLastNumberByYearAsync(int year)
+    {
+        // Get the last STPB number for the given year
+        var lastStpb = await _dbSet
+            .Where(s => s.Tanggal.Year == year && !string.IsNullOrEmpty(s.NomorSTPB))
+            .OrderByDescending(s => s.CreatedAt)
+            .FirstOrDefaultAsync();
+
+        if (lastStpb == null || string.IsNullOrEmpty(lastStpb.NomorSTPB))
+            return 0;
+
+        // Parse number from format "STPB-XXX/YYYY"
+        var parts = lastStpb.NomorSTPB.Split('-', '/');
+        if (parts.Length >= 2 && int.TryParse(parts[1], out int number))
+            return number;
+
+        return 0;
     }
 }

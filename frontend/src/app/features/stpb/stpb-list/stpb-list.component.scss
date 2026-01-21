@@ -1,4 +1,223 @@
+.stpb-list-container {
+  min-height: calc(100vh - 64px);
+  background: #f5f5f5;
+}
+
+.content-wrapper {
+  background: white;
+  padding: 20px 32px 32px;
+  min-height: calc(100vh - 64px - 65px);
+}
+
 .search-container {
-  margin-bottom: 16px;
-  max-width: 400px;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  
+  .search-input {
+    flex: 1;
+    max-width: 400px;
+    
+    ::ng-deep {
+      .ant-input-affix-wrapper {
+        border-radius: 6px;
+        border: 1px solid #d9d9d9;
+        transition: all 0.3s;
+        
+        &:hover {
+          border-color: #f97316;
+        }
+        
+        &:focus-within {
+          border-color: #f97316;
+          box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.1);
+        }
+      }
+      
+      .ant-input {
+        font-size: 14px;
+      }
+      
+      .ant-input-prefix {
+        color: #8c8c8c;
+      }
+    }
+  }
+  
+  .refresh-button {
+    color: #8c8c8c;
+    
+    &:hover {
+      color: #f97316;
+    }
+  }
+}
+
+.add-button {
+  height: 36px;
+  border-radius: 4px;
+  background: #f97316;
+  border: none;
+  font-weight: 500;
+  font-size: 13px;
+  padding: 0 16px;
+  transition: all 0.3s;
+  
+  &:hover {
+    background: #ea580c;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+  }
+}
+
+.modern-table {
+  ::ng-deep {
+    .ant-table {
+      font-size: 14px;
+      
+      table {
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+    }
+    
+    .ant-table-thead > tr > th {
+      background: #2d3748;
+      color: white;
+      font-weight: 600;
+      border-bottom: none;
+      padding: 16px;
+      font-size: 13px;
+      
+      &:first-child {
+        border-top-left-radius: 0;
+      }
+      
+      &:last-child {
+        border-top-right-radius: 0;
+      }
+    }
+    
+    .ant-table-tbody > tr {
+      transition: all 0.3s;
+      
+      &:hover {
+        background: #fafafa;
+      }
+      
+      > td {
+        padding: 16px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+    }
+    
+    .ant-pagination {
+      margin-top: 24px;
+      
+      .ant-pagination-item-active {
+        background: #f97316;
+        border-color: #f97316;
+        
+        a {
+          color: white;
+        }
+      }
+      
+      .ant-pagination-item:hover {
+        border-color: #f97316;
+        
+        a {
+          color: #f97316;
+        }
+      }
+      
+      .ant-pagination-prev:hover .ant-pagination-item-link,
+      .ant-pagination-next:hover .ant-pagination-item-link {
+        color: #f97316;
+        border-color: #f97316;
+      }
+    }
+    
+    .ant-empty-description {
+      color: #8c8c8c;
+    }
+  }
+}
+
+.stpb-number {
+  font-weight: 600;
+  color: #1890ff;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.description-text {
+  color: #595959;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.amount-text {
+  font-weight: 600;
+  color: #52c41a;
+  font-size: 14px;
+}
+
+.status-tag {
+  font-weight: 500;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  border: none;
+  
+  &.ant-tag-success {
+    background: #d4f4dd;
+    color: #389e0d;
+  }
+  
+  &.ant-tag-error {
+    background: #ffe7e6;
+    color: #cf1322;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.3s;
+    color: #8c8c8c;
+    
+    &:hover {
+      transform: translateY(-1px);
+    }
+    
+    &.view-btn:hover {
+      color: #1890ff;
+      background: #e6f7ff;
+    }
+    
+    &.edit-btn:hover {
+      color: #f97316;
+      background: #fff7ed;
+    }
+    
+    &.delete-btn:hover {
+      color: #ff4d4f;
+      background: #fff1f0;
+    }
+    
+    span {
+      font-size: 16px;
+    }
+  }
 }

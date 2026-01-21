@@ -1,0 +1,70 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>Data Item</h2>
+    <button nz-button nzType="primary" (click)="onCreate()">
+      <span nz-icon nzType="plus"></span>
+      Tambah Item
+    </button>
+  </div>
+
+  <div class="table-operations">
+    <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton" style="width: 300px;">
+      <input type="text" nz-input placeholder="Cari item..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" />
+    </nz-input-group>
+    <ng-template #suffixIconButton>
+      <button nz-button nzType="primary" nzSearch (click)="onSearch()">
+        <span nz-icon nzType="search"></span>
+      </button>
+    </ng-template>
+  </div>
+
+  <nz-table
+    #itemTable
+    [nzData]="items"
+    [nzLoading]="loading"
+    [nzTotal]="total"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageIndex"
+    [nzFrontPagination]="false"
+    (nzPageIndexChange)="onPageChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
+    [nzShowSizeChanger]="true"
+    [nzPageSizeOptions]="[10, 20, 50, 100]"
+  >
+    <thead>
+      <tr>
+        <th>Nama Item</th>
+        <th>Satuan</th>
+        <th>Harga Satuan</th>
+        <th>Kode Akun</th>
+        <th>Status</th>
+        <th>Tanggal Dibuat</th>
+        <th nzWidth="150px">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of itemTable.data">
+        <td>{{ item.nama }}</td>
+        <td>{{ item.satuan }}</td>
+        <td>{{ item.hargaSatuan | number }}</td>
+        <td>{{ item.kodeAkun }}</td>
+        <td>
+          <nz-tag [nzColor]="item.isActive ? 'success' : 'default'">
+            {{ item.isActive ? 'Aktif' : 'Nonaktif' }}
+          </nz-tag>
+        </td>
+        <td>{{ item.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <button nz-button nzType="link" nzSize="small" (click)="onEdit(item.id)">
+            <span nz-icon nzType="edit"></span>
+            Edit
+          </button>
+          <button nz-button nzType="link" nzSize="small" nzDanger (click)="onDelete(item.id, item.nama)">
+            <span nz-icon nzType="delete"></span>
+            Hapus
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>

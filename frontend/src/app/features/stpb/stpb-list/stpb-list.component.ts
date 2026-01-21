@@ -8,6 +8,8 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { FormsModule } from '@angular/forms';
 import { StpbService } from '../../../core/services/stpb.service';
 import { Stpb } from '../../../core/models/stpb.model';
@@ -25,6 +27,8 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
     NzModalModule,
     NzInputModule,
     NzTagModule,
+    NzCardModule,
+    NzToolTipModule,
     PageHeaderComponent
   ],
   templateUrl: './stpb-list.component.html',
@@ -71,20 +75,26 @@ export class StpbListComponent implements OnInit {
     this.loadStpbs();
   }
 
+  onPageSizeChange(pageSize: number): void {
+    this.pageSize = pageSize;
+    this.pageIndex = 1;
+    this.loadStpbs();
+  }
+
   onSearch(): void {
     this.pageIndex = 1;
     this.loadStpbs();
   }
 
   createNew(): void {
-    this.router.navigate(['/dashboard/stpb/create']);
+    this.router.navigate(['/stpb/create']);
   }
 
-  edit(id: number): void {
-    this.router.navigate(['/dashboard/stpb/edit', id]);
+  edit(id: string): void {
+    this.router.navigate(['/stpb/edit', id]);
   }
 
-  delete(id: number, nomor: string): void {
+  delete(id: string, nomor: string): void {
     this.modal.confirm({
       nzTitle: 'Konfirmasi Hapus',
       nzContent: `Apakah Anda yakin ingin menghapus STPB ${nomor}?`,
@@ -104,6 +114,8 @@ export class StpbListComponent implements OnInit {
 
   getStatusColor(status: string): string {
     const colors: Record<string, string> = {
+      'Aktif': 'success',
+      'Nonaktif': 'error',
       'Draft': 'default',
       'Submitted': 'processing',
       'Approved': 'success',

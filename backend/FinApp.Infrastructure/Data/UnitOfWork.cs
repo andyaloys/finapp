@@ -12,12 +12,30 @@ public class UnitOfWork : IUnitOfWork
     
     public IUserRepository Users { get; }
     public IStpbRepository Stpbs { get; }
+    public IProgramRepository Programs { get; }
+    public IKegiatanRepository Kegiatans { get; }
+    public IOutputRepository Outputs { get; }
+    public ISuboutputRepository Suboutputs { get; }
+    public IKomponenRepository Komponens { get; }
+    public ISubkomponenRepository Subkomponens { get; }
+    public IAkunRepository Akuns { get; }
+    public IItemRepository Items { get; }
+    public ISequenceNumberRepository SequenceNumbers { get; }
 
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
         Users = new UserRepository(context);
         Stpbs = new StpbRepository(context);
+        Programs = new ProgramRepository(context);
+        Kegiatans = new KegiatanRepository(context);
+        Outputs = new OutputRepository(context);
+        Suboutputs = new SuboutputRepository(context);
+        Komponens = new KomponenRepository(context);
+        Subkomponens = new SubkomponenRepository(context);
+        Akuns = new AkunRepository(context);
+        Items = new ItemRepository(context);
+        SequenceNumbers = new SequenceNumberRepository(context);
     }
 
     public async Task<int> SaveChangesAsync()

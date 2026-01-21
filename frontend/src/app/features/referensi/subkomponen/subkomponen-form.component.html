@@ -1,0 +1,53 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>{{ isEditMode ? 'Edit Subkomponen' : 'Tambah Subkomponen' }}</h2>
+  </div>
+
+  <form nz-form [formGroup]="form" (ngSubmit)="onSubmit()" nzLayout="vertical">
+    <div class="form-container">
+      <nz-form-item>
+        <nz-form-label nzRequired>Komponen</nz-form-label>
+        <nz-form-control nzErrorTip="Komponen wajib dipilih">
+          <nz-select formControlName="komponenId" nzPlaceHolder="Pilih komponen" nzShowSearch>
+            <nz-option *ngFor="let komponen of komponens" [nzValue]="komponen.id" [nzLabel]="komponen.kode + ' - ' + komponen.nama"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Kode Subkomponen</nz-form-label>
+        <nz-form-control nzErrorTip="Kode subkomponen wajib diisi (maksimal 20 karakter)">
+          <input nz-input formControlName="kode" placeholder="Masukkan kode subkomponen" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Nama Subkomponen</nz-form-label>
+        <nz-form-control nzErrorTip="Nama subkomponen wajib diisi (maksimal 500 karakter)">
+          <input nz-input formControlName="nama" placeholder="Masukkan nama subkomponen" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Status</nz-form-label>
+        <nz-form-control>
+          <nz-switch formControlName="isActive" 
+                     [nzCheckedChildren]="'Aktif'" 
+                     [nzUnCheckedChildren]="'Nonaktif'">
+          </nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control>
+          <button nz-button nzType="primary" type="submit" [nzLoading]="submitting">
+            {{ isEditMode ? 'Perbarui' : 'Simpan' }}
+          </button>
+          <button nz-button type="button" (click)="onCancel()" [disabled]="submitting" style="margin-left: 8px;">
+            Batal
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </form>
+</div>

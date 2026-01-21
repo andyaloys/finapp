@@ -1,69 +1,341 @@
-<app-page-header 
-  [title]="isEditMode ? 'Edit STPB' : 'Tambah STPB'" 
-  [subtitle]="isEditMode ? 'Update data STPB' : 'Buat STPB baru'">
-</app-page-header>
+<div class="stpb-form-wrapper">
+  <app-page-header 
+    [title]="isEditMode ? 'Edit STPB' : 'Tambah STPB'" 
+    [subtitle]="isEditMode ? 'Update data STPB' : 'Buat STPB baru'">
+  </app-page-header>
 
-<div class="form-container">
-  <form nz-form [formGroup]="stpbForm" (ngSubmit)="onSubmit()" [nzLayout]="'vertical'">
-    <nz-form-item>
-      <nz-form-label nzRequired>Nomor STPB</nz-form-label>
-      <nz-form-control nzErrorTip="Nomor STPB harus diisi!">
-        <input nz-input formControlName="nomorSTPB" placeholder="Contoh: STPB/2026/001" />
-      </nz-form-control>
-    </nz-form-item>
+  <nz-card class="form-card" [nzBordered]="false">
+    <div class="form-header">
+      <span nz-icon [nzType]="isEditMode ? 'edit' : 'file-add'" class="form-icon"></span>
+      <h3>{{ isEditMode ? 'Formulir Edit STPB' : 'Formulir STPB Baru' }}</h3>
+    </div>
 
-    <nz-form-item>
-      <nz-form-label nzRequired>Tanggal</nz-form-label>
-      <nz-form-control nzErrorTip="Tanggal harus diisi!">
-        <nz-date-picker formControlName="tanggal" nzFormat="dd/MM/yyyy" style="width: 100%;"></nz-date-picker>
-      </nz-form-control>
-    </nz-form-item>
+    <form nz-form [formGroup]="stpbForm" (ngSubmit)="onSubmit()" [nzLayout]="'vertical'" class="modern-form">
+      <!-- Informasi Umum -->
+      <nz-divider nzText="Informasi Umum" nzOrientation="left"></nz-divider>
+      
+      <div class="form-row">
+        <nz-form-item class="form-item-half">
+          <nz-form-label nzRequired class="custom-label">
+            <span nz-icon nzType="calendar"></span>
+            Tanggal
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Tanggal harus diisi!">
+            <nz-date-picker 
+              formControlName="tanggal" 
+              nzFormat="dd/MM/yyyy" 
+              class="modern-input"
+              style="width: 100%;">
+            </nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
 
-    <nz-form-item>
-      <nz-form-label>Deskripsi</nz-form-label>
-      <nz-form-control>
-        <textarea 
-          nz-input 
-          formControlName="deskripsi" 
-          placeholder="Deskripsi STPB" 
-          [nzAutosize]="{ minRows: 3, maxRows: 6 }">
-        </textarea>
-      </nz-form-control>
-    </nz-form-item>
+        <nz-form-item class="form-item-half">
+          <nz-form-label class="custom-label">
+            <span nz-icon nzType="number"></span>
+            Nomor STPB
+          </nz-form-label>
+          <nz-form-control nzExtra="Akan digenerate otomatis jika dikosongkan (Format: STPB-XXX/YYYY)">
+            <input nz-input formControlName="nomorSTPB" placeholder="Otomatis: STPB-XXX/YYYY" class="modern-input" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
 
-    <nz-form-item>
-      <nz-form-label nzRequired>Nilai Total</nz-form-label>
-      <nz-form-control nzErrorTip="Nilai total harus lebih dari 0!">
-        <nz-input-number 
-          formControlName="nilaiTotal" 
-          [nzMin]="0" 
-          [nzStep]="1000"
-          [nzFormatter]="formatterIDR"
-          [nzParser]="parserIDR"
-          style="width: 100%;"
-          nzPlaceHolder="Masukkan nilai total">
-        </nz-input-number>
-      </nz-form-control>
-    </nz-form-item>
+      <!-- Cascading Referensi -->
+      <nz-divider nzText="Struktur Anggaran" nzOrientation="left"></nz-divider>
+      
+      <div class="form-row">
+        <nz-form-item class="form-item-half">
+          <nz-form-label nzRequired class="custom-label">
+            <span nz-icon nzType="project"></span>
+            Program
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Program harus dipilih!">
+            <nz-select 
+              formControlName="programId" 
+              nzPlaceHolder="Pilih Program"
+              nzShowSearch
+              nzAllowClear
+              class="modern-select">
+              <nz-option *ngFor="let item of programs" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
 
-    <nz-form-item>
-      <nz-form-label nzRequired>Status</nz-form-label>
-      <nz-form-control nzErrorTip="Status harus dipilih!">
-        <nz-select formControlName="status" nzPlaceHolder="Pilih status">
-          <nz-option *ngFor="let option of statusOptions" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
+        <nz-form-item class="form-item-half">
+          <nz-form-label nzRequired class="custom-label">
+            <span nz-icon nzType="project"></span>
+            Kegiatan
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Kegiatan harus dipilih!">
+            <nz-select 
+              formControlName="kegiatanId" 
+              nzPlaceHolder="Pilih Kegiatan"
+              nzShowSearch
+              nzAllowClear
+              [nzDisabled]="!stpbForm.get('programId')?.value"
+              class="modern-select">
+              <nz-option *ngFor="let item of kegiatans" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
 
-    <nz-form-item>
-      <nz-form-control>
-        <button nz-button nzType="primary" [nzLoading]="isLoading" [disabled]="!stpbForm.valid">
-          {{ isEditMode ? 'Update' : 'Simpan' }}
-        </button>
-        <button nz-button type="button" (click)="cancel()" style="margin-left: 8px;">
+      <div class="form-row">
+        <nz-form-item class="form-item-half">
+          <nz-form-label nzRequired class="custom-label">
+            <span nz-icon nzType="project"></span>
+            Output
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Output harus dipilih!">
+            <nz-select 
+              formControlName="outputId" 
+              nzPlaceHolder="Pilih Output"
+              nzShowSearch
+              nzAllowClear
+              [nzDisabled]="!stpbForm.get('kegiatanId')?.value"
+              class="modern-select">
+              <nz-option *ngFor="let item of outputs" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="form-item-half">
+          <nz-form-label nzRequired class="custom-label">
+            <span nz-icon nzType="project"></span>
+            Suboutput
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Suboutput harus dipilih!">
+            <nz-select 
+              formControlName="suboutputId" 
+              nzPlaceHolder="Pilih Suboutput"
+              nzShowSearch
+              nzAllowClear
+              [nzDisabled]="!stpbForm.get('outputId')?.value"
+              class="modern-select">
+              <nz-option *ngFor="let item of suboutputs" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div class="form-row">
+        <nz-form-item class="form-item-half">
+          <nz-form-label nzRequired class="custom-label">
+            <span nz-icon nzType="project"></span>
+            Komponen
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Komponen harus dipilih!">
+            <nz-select 
+              formControlName="komponenId" 
+              nzPlaceHolder="Pilih Komponen"
+              nzShowSearch
+              nzAllowClear
+              [nzDisabled]="!stpbForm.get('suboutputId')?.value"
+              class="modern-select">
+              <nz-option *ngFor="let item of komponens" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="form-item-half">
+          <nz-form-label nzRequired class="custom-label">
+            <span nz-icon nzType="project"></span>
+            Subkomponen
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Subkomponen harus dipilih!">
+            <nz-select 
+              formControlName="subkomponenId" 
+              nzPlaceHolder="Pilih Subkomponen"
+              nzShowSearch
+              nzAllowClear
+              [nzDisabled]="!stpbForm.get('komponenId')?.value"
+              class="modern-select">
+              <nz-option *ngFor="let item of subkomponens" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div class="form-row">
+        <nz-form-item class="form-item-half">
+          <nz-form-label nzRequired class="custom-label">
+            <span nz-icon nzType="project"></span>
+            Akun
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Akun harus dipilih!">
+            <nz-select 
+              formControlName="akunId" 
+              nzPlaceHolder="Pilih Akun"
+              nzShowSearch
+              nzAllowClear
+              [nzDisabled]="!stpbForm.get('subkomponenId')?.value"
+              class="modern-select">
+              <nz-option *ngFor="let item of akuns" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="form-item-half">
+          <nz-form-label class="custom-label">
+            <span nz-icon nzType="project"></span>
+            Item (Opsional)
+          </nz-form-label>
+          <nz-form-control>
+            <nz-select 
+              formControlName="itemId" 
+              nzPlaceHolder="Pilih Item (opsional)"
+              nzShowSearch
+              nzAllowClear
+              [nzDisabled]="!stpbForm.get('akunId')?.value"
+              class="modern-select">
+              <nz-option *ngFor="let item of items" [nzLabel]="item.kodeAkun + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- Uraian dan Nilai -->
+      <nz-divider nzText="Detail Transaksi" nzOrientation="left"></nz-divider>
+      
+      <nz-form-item>
+        <nz-form-label nzRequired class="custom-label">
+          <span nz-icon nzType="file-text"></span>
+          Uraian
+        </nz-form-label>
+        <nz-form-control nzErrorTip="Uraian harus diisi!">
+          <textarea 
+            nz-input 
+            formControlName="uraian" 
+            placeholder="Deskripsi detail transaksi" 
+            [nzAutosize]="{ minRows: 3, maxRows: 6 }"
+            class="modern-textarea">
+          </textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <div class="form-row">
+        <nz-form-item class="form-item-half">
+          <nz-form-label nzRequired class="custom-label">
+            <span nz-icon nzType="dollar"></span>
+            Nominal
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Nominal harus lebih dari 0!">
+            <nz-input-number 
+              formControlName="nominal" 
+              [nzMin]="0" 
+              [nzStep]="1000"
+              [nzFormatter]="formatterIDR"
+              [nzParser]="parserIDR"
+              class="modern-input"
+              style="width: 100%;"
+              nzPlaceHolder="Masukkan nominal">
+            </nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="form-item-half">
+          <nz-form-label class="custom-label">
+            <span nz-icon nzType="percentage"></span>
+            PPN
+          </nz-form-label>
+          <nz-form-control>
+            <nz-input-number 
+              formControlName="ppn" 
+              [nzMin]="0" 
+              [nzStep]="1000"
+              [nzFormatter]="formatterIDR"
+              [nzParser]="parserIDR"
+              class="modern-input"
+              style="width: 100%;"
+              nzPlaceHolder="Masukkan PPN">
+            </nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div class="form-row">
+        <nz-form-item class="form-item-third">
+          <nz-form-label class="custom-label">
+            <span nz-icon nzType="percentage"></span>
+            PPh21
+          </nz-form-label>
+          <nz-form-control>
+            <nz-input-number 
+              formControlName="pph21" 
+              [nzMin]="0" 
+              [nzStep]="1000"
+              [nzFormatter]="formatterIDR"
+              [nzParser]="parserIDR"
+              class="modern-input"
+              style="width: 100%;"
+              nzPlaceHolder="PPh21">
+            </nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="form-item-third">
+          <nz-form-label class="custom-label">
+            <span nz-icon nzType="percentage"></span>
+            PPh22
+          </nz-form-label>
+          <nz-form-control>
+            <nz-input-number 
+              formControlName="pph22" 
+              [nzMin]="0" 
+              [nzStep]="1000"
+              [nzFormatter]="formatterIDR"
+              [nzParser]="parserIDR"
+              class="modern-input"
+              style="width: 100%;"
+              nzPlaceHolder="PPh22">
+            </nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="form-item-third">
+          <nz-form-label class="custom-label">
+            <span nz-icon nzType="percentage"></span>
+            PPh23
+          </nz-form-label>
+          <nz-form-control>
+            <nz-input-number 
+              formControlName="pph23" 
+              [nzMin]="0" 
+              [nzStep]="1000"
+              [nzFormatter]="formatterIDR"
+              [nzParser]="parserIDR"
+              class="modern-input"
+              style="width: 100%;"
+              nzPlaceHolder="PPh23">
+            </nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- Summary -->
+      <nz-card nzTitle="Ringkasan" style="margin-top: 16px; background-color: #f5f5f5;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 16px; font-weight: bold;">Nilai Bersih:</span>
+          <span style="font-size: 20px; font-weight: bold; color: #f97316;">{{ formatterIDR(nilaiBersih) }}</span>
+        </div>
+        <div style="font-size: 12px; color: #666; margin-top: 8px;">
+          Nilai Bersih = Nominal - PPN - PPh21 - PPh22 - PPh23
+        </div>
+      </nz-card>
+
+      <nz-divider></nz-divider>
+
+      <div class="form-actions">
+        <button nz-button type="button" (click)="cancel()" class="cancel-button">
+          <span nz-icon nzType="close"></span>
           Batal
         </button>
-      </nz-form-control>
-    </nz-form-item>
-  </form>
+        <button nz-button nzType="primary" [nzLoading]="isLoading" [disabled]="!stpbForm.valid" class="submit-button">
+          <span nz-icon [nzType]="isEditMode ? 'save' : 'check'"></span>
+          {{ isEditMode ? 'Update STPB' : 'Simpan STPB' }}
+        </button>
+      </div>
+    </form>
+  </nz-card>
 </div>
