@@ -5,7 +5,11 @@
 </div>
 
 <ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed" nzTheme="dark" class="sidebar-menu">
-  <li nz-submenu nzTitle="Transaksi" nzIcon="dollar">
+  <li nz-submenu 
+      nzTitle="Transaksi" 
+      nzIcon="dollar"
+      [(nzOpen)]="openMap['transaksi']"
+      (nzOpenChange)="openHandler('transaksi')">
     <ul>
       <li nz-menu-item nzMatchRouter>
         <a routerLink="/stpb">
@@ -14,54 +18,25 @@
       </li>
     </ul>
   </li>
-  
-  <li nz-submenu nzTitle="Referensi" nzIcon="database">
+  <li nz-submenu 
+      nzTitle="Anggaran" 
+      nzIcon="file-done"
+      [(nzOpen)]="openMap['anggaran']"
+      (nzOpenChange)="openHandler('anggaran')">
     <ul>
       <li nz-menu-item nzMatchRouter>
-        <a routerLink="/referensi/program">
-          <span>Program</span>
-        </a>
-      </li>
-      <li nz-menu-item nzMatchRouter>
-        <a routerLink="/referensi/kegiatan">
-          <span>Kegiatan</span>
-        </a>
-      </li>
-      <li nz-menu-item nzMatchRouter>
-        <a routerLink="/referensi/output">
-          <span>Output</span>
-        </a>
-      </li>
-      <li nz-menu-item nzMatchRouter>
-        <a routerLink="/referensi/suboutput">
-          <span>Suboutput</span>
-        </a>
-      </li>
-      <li nz-menu-item nzMatchRouter>
-        <a routerLink="/referensi/komponen">
-          <span>Komponen</span>
-        </a>
-      </li>
-      <li nz-menu-item nzMatchRouter>
-        <a routerLink="/referensi/subkomponen">
-          <span>Subkomponen</span>
-        </a>
-      </li>
-      <li nz-menu-item nzMatchRouter>
-        <a routerLink="/referensi/akun">
-          <span>Akun</span>
-        </a>
-      </li>
-      <li nz-menu-item nzMatchRouter>
-        <a routerLink="/referensi/item">
-          <span>Item</span>
-        </a>
-      </li>
-      <li nz-menu-item nzMatchRouter>
-        <a routerLink="/user">
-          <span>User</span>
+        <a routerLink="/anggaran">
+          <span>Daftar Anggaran</span>
         </a>
       </li>
     </ul>
   </li>
 </ul>
+
+
+
+
+
+
+
+

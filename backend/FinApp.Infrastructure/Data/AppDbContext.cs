@@ -20,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<Akun> Akuns { get; set; }
     public DbSet<Item> Items { get; set; }
     public DbSet<SequenceNumber> SequenceNumbers { get; set; }
+    public DbSet<AnggaranMaster> AnggaranMasters { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

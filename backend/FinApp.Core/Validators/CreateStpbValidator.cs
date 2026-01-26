@@ -8,7 +8,6 @@ public class CreateStpbValidator : AbstractValidator<CreateStpbDto>
     public CreateStpbValidator()
     {
         RuleFor(x => x.NomorSTPB)
-            .NotEmpty().WithMessage("Nomor STPB is required")
             .MaximumLength(50).WithMessage("Nomor STPB must not exceed 50 characters");
 
         RuleFor(x => x.Tanggal)

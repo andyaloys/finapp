@@ -66,6 +66,10 @@ public class StpbService : IStpbService
         }
 
         var stpb = _mapper.Map<Stpb>(dto);
+        
+        // ItemId is always null (item data comes from anggaran master, stored as NoItem/NamaItem)
+        stpb.ItemId = null;
+        
         stpb.CreatedBy = userId;
 
         await _unitOfWork.Stpbs.AddAsync(stpb);

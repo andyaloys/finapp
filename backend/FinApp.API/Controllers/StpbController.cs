@@ -1,6 +1,7 @@
 using FinApp.Core.DTOs.Common;
 using FinApp.Core.DTOs.Stpb;
 using FinApp.Core.Interfaces;
+using FinApp.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +12,13 @@ public class StpbController : BaseApiController
 {
     private readonly IStpbService _stpbService;
     private readonly ILogger<StpbController> _logger;
+    private readonly StpbPdfService _pdfService;
 
-    public StpbController(IStpbService stpbService, ILogger<StpbController> logger)
+    public StpbController(IStpbService stpbService, ILogger<StpbController> logger, StpbPdfService pdfService)
     {
         _stpbService = stpbService;
         _logger = logger;
+        _pdfService = pdfService;
     }
 
     [HttpGet]
@@ -133,6 +136,29 @@ public class StpbController : BaseApiController
         {
             _logger.LogError(ex, "Error getting user STPB list");
             return StatusCode(500, ApiResponse<IEnumerable<StpbDto>>.ErrorResponse("Internal server error"));
+        }
+    }
+
+    [HttpGet("{id}/pdf")]
+    public async Task<IActionResult> DownloadPdf(Guid id)
+    {
+        try
+        {
+            var stpb = await _stpbService.GetByIdAsync(id);
+            
+            if (stpb == null)
+            {
+                return NotFound();
+            }
+
+            var pdfBytes = _pdfService.GenerateStpbPdf(stpb);
+            
+            return File(pdfBytes, "application/pdf", $"STPB-{stpb.NomorSTPB}.pdf");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating PDF for STPB {Id}", id);
+            return StatusCode(500, "Error generating PDF");
         }
     }
 }

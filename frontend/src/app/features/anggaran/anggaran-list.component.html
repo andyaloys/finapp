@@ -1,0 +1,21 @@
+<div class="anggaran-list-header">
+  <h2>Daftar Anggaran</h2>
+  <button nz-button nzType="primary" (click)="openUpload()">Upload Anggaran</button>
+</div>
+<nz-table [nzData]="(anggarans$ | async) ?? []" [nzFrontPagination]="false">
+  <thead>
+    <tr>
+      <th>Tahun</th>
+      <th>Revisi</th>
+      <th>Jumlah Data</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let a of (anggarans$ | async) ?? []">
+      <td>{{ a.tahunAnggaran }}</td>
+      <td>{{ a.revisi }}</td>
+      <td>{{ a.jumlah }}</td>
+    </tr>
+  </tbody>
+</nz-table>
+<!-- Modal upload akan diintegrasikan di langkah berikutnya -->

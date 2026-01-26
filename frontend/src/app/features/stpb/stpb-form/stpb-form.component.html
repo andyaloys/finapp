@@ -35,8 +35,8 @@
             <span nz-icon nzType="number"></span>
             Nomor STPB
           </nz-form-label>
-          <nz-form-control nzExtra="Akan digenerate otomatis jika dikosongkan (Format: STPB-XXX/YYYY)">
-            <input nz-input formControlName="nomorSTPB" placeholder="Otomatis: STPB-XXX/YYYY" class="modern-input" />
+          <nz-form-control nzExtra="Akan digenerate otomatis saat menyimpan (Format: STPB-XXX/YYYY)">
+            <input nz-input formControlName="nomorSTPB" placeholder="Otomatis: STPB-XXX/YYYY" class="modern-input" [readonly]="true" [disabled]="true" />
           </nz-form-control>
         </nz-form-item>
       </div>
@@ -57,7 +57,7 @@
               nzShowSearch
               nzAllowClear
               class="modern-select">
-              <nz-option *ngFor="let item of programs" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+              <nz-option *ngFor="let item of programs" [nzLabel]="item.kdProgram + ' - ' + item.nmProgram" [nzValue]="item.kdProgram"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
@@ -75,7 +75,7 @@
               nzAllowClear
               [nzDisabled]="!stpbForm.get('programId')?.value"
               class="modern-select">
-              <nz-option *ngFor="let item of kegiatans" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+              <nz-option *ngFor="let item of kegiatans" [nzLabel]="item.kdGiat + ' - ' + item.nmGiat" [nzValue]="item.kdGiat"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
@@ -95,7 +95,7 @@
               nzAllowClear
               [nzDisabled]="!stpbForm.get('kegiatanId')?.value"
               class="modern-select">
-              <nz-option *ngFor="let item of outputs" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+              <nz-option *ngFor="let item of outputs" [nzLabel]="item.kdOutput + ' - ' + item.nmOutput" [nzValue]="item.kdOutput"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
@@ -113,7 +113,7 @@
               nzAllowClear
               [nzDisabled]="!stpbForm.get('outputId')?.value"
               class="modern-select">
-              <nz-option *ngFor="let item of suboutputs" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+              <nz-option *ngFor="let item of suboutputs" [nzLabel]="item.kdSOutput + ' - ' + item.nmSOutput" [nzValue]="item.kdSOutput"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
@@ -133,7 +133,7 @@
               nzAllowClear
               [nzDisabled]="!stpbForm.get('suboutputId')?.value"
               class="modern-select">
-              <nz-option *ngFor="let item of komponens" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+              <nz-option *ngFor="let item of komponens" [nzLabel]="item.kdKmpnen + ' - ' + item.nmKmpnen" [nzValue]="item.kdKmpnen"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
@@ -151,7 +151,7 @@
               nzAllowClear
               [nzDisabled]="!stpbForm.get('komponenId')?.value"
               class="modern-select">
-              <nz-option *ngFor="let item of subkomponens" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+              <nz-option *ngFor="let item of subkomponens" [nzLabel]="item.kdSkmpnen + ' - ' + item.nmSkmpnen" [nzValue]="item.kdSkmpnen"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
@@ -171,7 +171,7 @@
               nzAllowClear
               [nzDisabled]="!stpbForm.get('subkomponenId')?.value"
               class="modern-select">
-              <nz-option *ngFor="let item of akuns" [nzLabel]="item.kode + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+              <nz-option *ngFor="let item of akuns" [nzLabel]="item.kdAkun + ' - ' + item.nmAkun" [nzValue]="item.kdAkun"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
@@ -189,7 +189,7 @@
               nzAllowClear
               [nzDisabled]="!stpbForm.get('akunId')?.value"
               class="modern-select">
-              <nz-option *ngFor="let item of items" [nzLabel]="item.kodeAkun + ' - ' + item.nama" [nzValue]="item.id"></nz-option>
+              <nz-option *ngFor="let item of items" [nzLabel]="item.noItem + ' - ' + item.nmItem" [nzValue]="item.noItem"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>

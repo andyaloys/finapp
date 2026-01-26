@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -14,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { StpbService } from '../../../core/services/stpb.service';
 import { Stpb } from '../../../core/models/stpb.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-stpb-list',
@@ -41,12 +44,16 @@ export class StpbListComponent implements OnInit {
   pageSize = 10;
   total = 0;
   searchTerm = '';
+  pdfModalVisible = false;
+  pdfUrl: SafeResourceUrl | null = null;
 
   constructor(
     private stpbService: StpbService,
     private router: Router,
     private message: NzMessageService,
-    private modal: NzModalService
+    private modal: NzModalService,
+    private http: HttpClient,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -111,7 +118,33 @@ export class StpbListComponent implements OnInit {
       }
     });
   }
+printPdf(id: string): void {
+    const url = `${environment.apiUrl}/Stpb/${id}/pdf`;
+    const token = localStorage.getItem('token');
+    
+    this.http.get(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      responseType: 'blob'
+    }).subscribe({
+      next: (blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl);
+        this.pdfModalVisible = true;
+      },
+      error: () => {
+        this.message.error('Gagal membuka PDF');
+      }
+    });
+  }
 
+  closePdfModal(): void {
+    this.pdfModalVisible = false;
+    this.pdfUrl = null;
+  }
+
+  
   getStatusColor(status: string): string {
     const colors: Record<string, string> = {
       'Aktif': 'success',

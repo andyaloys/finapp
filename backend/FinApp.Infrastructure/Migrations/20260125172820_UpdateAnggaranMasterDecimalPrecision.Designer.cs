@@ -3,6 +3,7 @@ using System;
 using FinApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260125172820_UpdateAnggaranMasterDecimalPrecision")]
+    partial class UpdateAnggaranMasterDecimalPrecision
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -509,16 +512,10 @@ namespace FinApp.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("NamaItem")
-                        .HasColumnType("longtext");
-
                     b.Property<decimal>("NilaiBersih")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(0.00m);
-
-                    b.Property<string>("NoItem")
-                        .HasColumnType("longtext");
 
                     b.Property<decimal>("Nominal")
                         .ValueGeneratedOnAdd()

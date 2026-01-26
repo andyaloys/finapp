@@ -22,6 +22,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/user/user.routes').then(m => m.USER_ROUTES)
       },
       {
+        path: 'anggaran',
+        loadChildren: () => import('./features/anggaran/anggaran.routes').then(m => m.ANGGARAN_ROUTES)
+      },
+      // Referensi routes dinonaktifkan
+      /*
+      {
         path: 'referensi/program',
         loadChildren: () => import('./features/referensi/program/program.routes').then(m => m.programRoutes)
       },
@@ -52,7 +58,8 @@ export const routes: Routes = [
       {
         path: 'referensi/item',
         loadChildren: () => import('./features/referensi/item/item.routes').then(m => m.itemRoutes)
-      }
+      },
+      */
     ]
   },
   { path: '**', redirectTo: '/login' }

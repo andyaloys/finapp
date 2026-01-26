@@ -30,6 +30,7 @@ public static class ServiceExtensions
         // Services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IStpbService, StpbService>();
+        services.AddScoped<StpbPdfService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IProgramService, ProgramService>();
         services.AddScoped<IKegiatanService, KegiatanService>();

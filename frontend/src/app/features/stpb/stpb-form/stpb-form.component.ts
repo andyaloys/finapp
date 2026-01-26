@@ -12,17 +12,28 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
+
 import { StpbService } from '../../../core/services/stpb.service';
-import { ProgramService } from '../../../core/services/program.service';
-import { KegiatanService } from '../../../core/services/kegiatan.service';
-import { OutputService } from '../../../core/services/output.service';
-import { SuboutputService } from '../../../core/services/suboutput.service';
-import { KomponenService } from '../../../core/services/komponen.service';
-import { SubkomponenService } from '../../../core/services/subkomponen.service';
-import { AkunService } from '../../../core/services/akun.service';
-import { ItemService } from '../../../core/services/item.service';
-import { ProgramDto, KegiatanDto, OutputDto, SuboutputDto, KomponenDto, SubkomponenDto, AkunDto, ItemDto } from '../../../core/models/referensi.model';
+import { AnggaranMasterService } from '../../../core/services/anggaran-master.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import {
+  ProgramDto,
+  KegiatanDto,
+  OutputDto,
+  SuboutputDto,
+  KomponenDto,
+  SubkomponenDto,
+  AkunDto,
+  ItemDto,
+  AnggaranProgramDto,
+  AnggaranKegiatanDto,
+  AnggaranOutputDto,
+  AnggaranSuboutputDto,
+  AnggaranKomponenDto,
+  AnggaranSubkomponenDto,
+  AnggaranAkunDto,
+  AnggaranItemDto
+} from '../../../core/models/referensi.model';
 
 @Component({
   selector: 'app-stpb-form',
@@ -51,26 +62,23 @@ export class StpbFormComponent implements OnInit {
   stpbId: string | null = null;
 
   // Dropdown options
-  programs: ProgramDto[] = [];
-  kegiatans: KegiatanDto[] = [];
-  outputs: OutputDto[] = [];
-  suboutputs: SuboutputDto[] = [];
-  komponens: KomponenDto[] = [];
-  subkomponens: SubkomponenDto[] = [];
-  akuns: AkunDto[] = [];
-  items: ItemDto[] = [];
+  programs: AnggaranProgramDto[] = [];
+  kegiatans: AnggaranKegiatanDto[] = [];
+  outputs: AnggaranOutputDto[] = [];
+  suboutputs: AnggaranSuboutputDto[] = [];
+  komponens: AnggaranKomponenDto[] = [];
+  subkomponens: AnggaranSubkomponenDto[] = [];
+  akuns: AnggaranAkunDto[] = [];
+  items: AnggaranItemDto[] = [];
+  tahunList: number[] = [];
+  revisiList: number[] = [];
+  tahunAnggaran: number = new Date().getFullYear();
+  revisi: number = 0;
 
   constructor(
     private fb: FormBuilder,
     private stpbService: StpbService,
-    private programService: ProgramService,
-    private kegiatanService: KegiatanService,
-    private outputService: OutputService,
-    private suboutputService: SuboutputService,
-    private komponenService: KomponenService,
-    private subkomponenService: SubkomponenService,
-    private akunService: AkunService,
-    private itemService: ItemService,
+    private anggaranMasterService: AnggaranMasterService,
     private router: Router,
     private route: ActivatedRoute,
     private message: NzMessageService
@@ -190,7 +198,7 @@ export class StpbFormComponent implements OnInit {
       this.items = [];
       
       if (suboutputId) {
-        this.loadKomponens(suboutputId);
+        this.loadKomponens();
       }
     });
 
@@ -206,7 +214,7 @@ export class StpbFormComponent implements OnInit {
       this.items = [];
       
       if (komponenId) {
-        this.loadSubkomponens(komponenId);
+        this.loadSubkomponens();
       }
     });
 
@@ -220,7 +228,7 @@ export class StpbFormComponent implements OnInit {
       this.items = [];
       
       if (subkomponenId) {
-        this.loadAkuns(subkomponenId);
+        this.loadAkuns();
       }
     });
 
@@ -232,17 +240,15 @@ export class StpbFormComponent implements OnInit {
       this.items = [];
       
       if (akunId) {
-        this.loadItems(akunId);
+        this.loadItems();
       }
     });
   }
 
   loadPrograms(): void {
-    this.programService.getAll(1, 1000).subscribe({
+    this.anggaranMasterService.getDistinctPrograms(this.tahunAnggaran, this.revisi).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.programs = response.data.items.filter((p: ProgramDto) => p.isActive);
-        }
+        this.programs = response?.data ?? [];
       },
       error: () => {
         this.message.error('Gagal memuat data program');
@@ -250,12 +256,10 @@ export class StpbFormComponent implements OnInit {
     });
   }
 
-  loadKegiatans(programId: string): void {
-    this.kegiatanService.getByProgramId(programId).subscribe({
+  loadKegiatans(kdProgram: string): void {
+    this.anggaranMasterService.getDistinctKegiatans(this.tahunAnggaran, this.revisi, kdProgram).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.kegiatans = response.data.filter(k => k.isActive);
-        }
+        this.kegiatans = response?.data ?? [];
       },
       error: () => {
         this.message.error('Gagal memuat data kegiatan');
@@ -263,12 +267,11 @@ export class StpbFormComponent implements OnInit {
     });
   }
 
-  loadOutputs(kegiatanId: string): void {
-    this.outputService.getByKegiatanId(kegiatanId).subscribe({
+  loadOutputs(kdGiat: string): void {
+    const kdProgram = this.stpbForm.get('programId')?.value;
+    this.anggaranMasterService.getDistinctOutputs(this.tahunAnggaran, this.revisi, kdProgram, kdGiat).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.outputs = response.data.filter(o => o.isActive);
-        }
+        this.outputs = response?.data ?? [];
       },
       error: () => {
         this.message.error('Gagal memuat data output');
@@ -276,12 +279,13 @@ export class StpbFormComponent implements OnInit {
     });
   }
 
-  loadSuboutputs(outputId: string): void {
-    this.suboutputService.getByOutputId(outputId).subscribe({
+  loadSuboutputs(kdSOutput: string): void {
+    const kdProgram = this.stpbForm.get('programId')?.value;
+    const kdGiat = this.stpbForm.get('kegiatanId')?.value;
+    const kdOutput = this.stpbForm.get('outputId')?.value;
+    this.anggaranMasterService.getDistinctSuboutputs(this.tahunAnggaran, this.revisi, kdProgram, kdGiat, kdOutput).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.suboutputs = response.data.filter(s => s.isActive);
-        }
+        this.suboutputs = response?.data ?? [];
       },
       error: () => {
         this.message.error('Gagal memuat data suboutput');
@@ -289,12 +293,17 @@ export class StpbFormComponent implements OnInit {
     });
   }
 
-  loadKomponens(suboutputId: string): void {
-    this.komponenService.getBySuboutputId(suboutputId).subscribe({
+  loadKomponens(): void {
+    const kdProgram = this.stpbForm.get('programId')?.value;
+    const kdGiat = this.stpbForm.get('kegiatanId')?.value;
+    const kdOutput = this.stpbForm.get('outputId')?.value;
+    const kdSOutput = this.stpbForm.get('suboutputId')?.value;
+    console.log('Loading komponens with:', { kdProgram, kdGiat, kdOutput, kdSOutput });
+    this.anggaranMasterService.getDistinctKomponens(this.tahunAnggaran, this.revisi, kdProgram, kdGiat, kdOutput, kdSOutput).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.komponens = response.data.filter(k => k.isActive);
-        }
+        console.log('Komponens response:', response);
+        this.komponens = response?.data ?? [];
+        console.log('Komponens array:', this.komponens);
       },
       error: () => {
         this.message.error('Gagal memuat data komponen');
@@ -302,29 +311,35 @@ export class StpbFormComponent implements OnInit {
     });
   }
 
-  loadSubkomponens(komponenId: string): void {
-    console.log('Loading subkomponens for komponenId:', komponenId);
-    this.subkomponenService.getByKomponenId(komponenId).subscribe({
+  loadSubkomponens(): void {
+    const kdProgram = this.stpbForm.get('programId')?.value;
+    const kdGiat = this.stpbForm.get('kegiatanId')?.value;
+    const kdOutput = this.stpbForm.get('outputId')?.value;
+    const kdSOutput = this.stpbForm.get('suboutputId')?.value;
+    const kdKomponen = this.stpbForm.get('komponenId')?.value;
+    console.log('Loading subkomponens with:', { kdProgram, kdGiat, kdOutput, kdSOutput, kdKomponen });
+    this.anggaranMasterService.getDistinctSubkomponens(this.tahunAnggaran, this.revisi, kdProgram, kdGiat, kdOutput, kdSOutput, kdKomponen).subscribe({
       next: (response) => {
-        console.log('Subkomponen response:', response);
-        if (response.success) {
-          this.subkomponens = response.data.filter(s => s.isActive);
-          console.log('Filtered subkomponens:', this.subkomponens);
-        }
+        console.log('Subkomponens response:', response);
+        this.subkomponens = response?.data ?? [];
+        console.log('Subkomponens array:', this.subkomponens);
       },
-      error: (err) => {
-        console.error('Error loading subkomponens:', err);
+      error: () => {
         this.message.error('Gagal memuat data subkomponen');
       }
     });
   }
 
-  loadAkuns(subkomponenId: string): void {
-    this.akunService.getBySubkomponenId(subkomponenId).subscribe({
+  loadAkuns(): void {
+    const kdProgram = this.stpbForm.get('programId')?.value;
+    const kdGiat = this.stpbForm.get('kegiatanId')?.value;
+    const kdOutput = this.stpbForm.get('outputId')?.value;
+    const kdSOutput = this.stpbForm.get('suboutputId')?.value;
+    const kdKomponen = this.stpbForm.get('komponenId')?.value;
+    const kdSubkomponen = this.stpbForm.get('subkomponenId')?.value;
+    this.anggaranMasterService.getDistinctAkuns(this.tahunAnggaran, this.revisi, kdProgram, kdGiat, kdOutput, kdSOutput, kdKomponen, kdSubkomponen).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.akuns = response.data.filter(a => a.isActive);
-        }
+        this.akuns = response?.data ?? [];
       },
       error: () => {
         this.message.error('Gagal memuat data akun');
@@ -332,12 +347,17 @@ export class StpbFormComponent implements OnInit {
     });
   }
 
-  loadItems(akunId: string): void {
-    this.itemService.getByAkunId(akunId).subscribe({
+  loadItems(): void {
+    const kdProgram = this.stpbForm.get('programId')?.value;
+    const kdGiat = this.stpbForm.get('kegiatanId')?.value;
+    const kdOutput = this.stpbForm.get('outputId')?.value;
+    const kdSOutput = this.stpbForm.get('suboutputId')?.value;
+    const kdKomponen = this.stpbForm.get('komponenId')?.value;
+    const kdSubkomponen = this.stpbForm.get('subkomponenId')?.value;
+    const kdAkun = this.stpbForm.get('akunId')?.value;
+    this.anggaranMasterService.getDistinctItems(this.tahunAnggaran, this.revisi, kdProgram, kdGiat, kdOutput, kdSOutput, kdKomponen, kdSubkomponen, kdAkun).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.items = response.data.filter(i => i.isActive);
-        }
+        this.items = response?.data ?? [];
       },
       error: () => {
         this.message.error('Gagal memuat data item');
@@ -362,20 +382,8 @@ export class StpbFormComponent implements OnInit {
           if (data.outputId) {
             this.loadSuboutputs(data.outputId);
           }
-          if (data.suboutputId) {
-            this.loadKomponens(data.suboutputId);
-          }
-          if (data.komponenId) {
-            this.loadSubkomponens(data.komponenId);
-          }
-          if (data.subkomponenId) {
-            this.loadAkuns(data.subkomponenId);
-          }
-          if (data.akunId) {
-            this.loadItems(data.akunId);
-          }
           
-          // Patch form values
+          // Patch form values first before loading remaining cascade
           this.stpbForm.patchValue({
             tanggal: new Date(data.tanggal),
             programId: data.programId,
@@ -394,6 +402,20 @@ export class StpbFormComponent implements OnInit {
             pph23: data.pph23,
             nomorSTPB: data.nomorSTPB
           });
+          
+          // After patching, load remaining cascade data
+          if (data.suboutputId) {
+            this.loadKomponens();
+          }
+          if (data.komponenId) {
+            this.loadSubkomponens();
+          }
+          if (data.subkomponenId) {
+            this.loadAkuns();
+          }
+          if (data.akunId) {
+            this.loadItems();
+          }
         }
         this.isLoading = false;
       },
@@ -418,11 +440,35 @@ export class StpbFormComponent implements OnInit {
   onSubmit(): void {
     if (this.stpbForm.valid) {
       this.isLoading = true;
+      const formValue = this.stpbForm.value;
+      
+      // Find selected item to get noItem and namaItem
+      const selectedItem = this.items.find(item => item.noItem === formValue.itemId);
+      
       const formData = {
-        ...this.stpbForm.value,
-        nilaiTotal: this.nilaiBersih,
-        deskripsi: this.stpbForm.value.uraian
+        tanggal: formValue.tanggal,
+        programId: formValue.programId,
+        kegiatanId: formValue.kegiatanId,
+        outputId: formValue.outputId,
+        suboutputId: formValue.suboutputId,
+        komponenId: formValue.komponenId,
+        subkomponenId: formValue.subkomponenId,
+        akunId: formValue.akunId,
+        itemId: formValue.itemId,
+        noItem: selectedItem?.noItem || null,
+        namaItem: selectedItem?.nmItem || null,
+        uraian: formValue.uraian,
+        nominal: formValue.nominal,
+        ppn: formValue.ppn || 0,
+        pph21: formValue.pph21 || 0,
+        pph22: formValue.pph22 || 0,
+        pph23: formValue.pph23 || 0,
+        nomorSTPB: '',
+        nilaiTotal: this.nilaiBersih
       };
+      
+      console.log('Form data to submit:', formData);
+      console.log('Nilai bersih:', this.nilaiBersih);
 
       const request = this.isEditMode && this.stpbId
         ? this.stpbService.update(this.stpbId, formData)

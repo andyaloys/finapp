@@ -11,6 +11,8 @@ public class Stpb : BaseEntity
     public string KodeSubkomponen { get; set; } = string.Empty;
     public string KodeAkun { get; set; } = string.Empty;
     public Guid? ItemId { get; set; }
+    public string? NoItem { get; set; }
+    public string? NamaItem { get; set; }
     
     // Data fields
     public DateTime Tanggal { get; set; }

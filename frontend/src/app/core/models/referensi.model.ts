@@ -208,3 +208,44 @@ export interface PagedResult<T> {
   hasPrevious: boolean;
   hasNext: boolean;
 }
+
+// Anggaran Master Distinct DTOs (from CSV data)
+export interface AnggaranProgramDto {
+  kdProgram: string;
+  nmProgram: string;
+}
+
+export interface AnggaranKegiatanDto {
+  kdGiat: string;
+  nmGiat: string;
+}
+
+export interface AnggaranOutputDto {
+  kdOutput: string;
+  nmOutput: string;
+}
+
+export interface AnggaranSuboutputDto {
+  kdSOutput: string;
+  nmSOutput: string;
+}
+
+export interface AnggaranKomponenDto {
+  kdKmpnen: string;
+  nmKmpnen: string;
+}
+
+export interface AnggaranSubkomponenDto {
+  kdSkmpnen: string;
+  nmSkmpnen: string;
+}
+
+export interface AnggaranAkunDto {
+  kdAkun: string;
+  nmAkun: string;
+}
+
+export interface AnggaranItemDto {
+  noItem: string;
+  nmItem: string;
+}

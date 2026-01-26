@@ -201,6 +201,11 @@
       transform: translateY(-1px);
     }
     
+    &.print-btn:hover {
+      color: #722ed1;
+      background: #f9f0ff;
+    }
+    
     &.view-btn:hover {
       color: #1890ff;
       background: #e6f7ff;

@@ -3,6 +3,7 @@ using System;
 using FinApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260125124804_AddAnggaranMasterTable")]
+    partial class AddAnggaranMasterTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,10 +79,10 @@ namespace FinApp.Infrastructure.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<decimal?>("HargaSat")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<decimal?>("HasilReviuKonsolidasiBaru")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("KdAkun")
                         .HasColumnType("longtext");
@@ -130,7 +133,7 @@ namespace FinApp.Infrastructure.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<decimal?>("Netto")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("NmAkun")
                         .HasColumnType("longtext");
@@ -181,7 +184,7 @@ namespace FinApp.Infrastructure.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<decimal?>("Pagu")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("Register")
                         .HasColumnType("longtext");
@@ -203,7 +206,7 @@ namespace FinApp.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AnggaranMasters", (string)null);
+                    b.ToTable("AnggaranMasters");
                 });
 
             modelBuilder.Entity("FinApp.Domain.Entities.Item", b =>
@@ -509,16 +512,10 @@ namespace FinApp.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("NamaItem")
-                        .HasColumnType("longtext");
-
                     b.Property<decimal>("NilaiBersih")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(0.00m);
-
-                    b.Property<string>("NoItem")
-                        .HasColumnType("longtext");
 
                     b.Property<decimal>("Nominal")
                         .ValueGeneratedOnAdd()

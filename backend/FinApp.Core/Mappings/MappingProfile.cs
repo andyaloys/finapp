@@ -22,7 +22,20 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.CreatorName, 
                 opt => opt.MapFrom(src => src.Creator != null ? src.Creator.FullName : string.Empty));
         
-        CreateMap<CreateStpbDto, Stpb>();
+        CreateMap<CreateStpbDto, Stpb>()
+            .ForMember(dest => dest.KodeProgram, opt => opt.MapFrom(src => src.ProgramId))
+            .ForMember(dest => dest.KodeKegiatan, opt => opt.MapFrom(src => src.KegiatanId))
+            .ForMember(dest => dest.KodeOutput, opt => opt.MapFrom(src => src.OutputId))
+            .ForMember(dest => dest.KodeSuboutput, opt => opt.MapFrom(src => src.SuboutputId))
+            .ForMember(dest => dest.KodeKomponen, opt => opt.MapFrom(src => src.KomponenId))
+            .ForMember(dest => dest.KodeSubkomponen, opt => opt.MapFrom(src => src.SubkomponenId))
+            .ForMember(dest => dest.KodeAkun, opt => opt.MapFrom(src => src.AkunId))
+            .ForMember(dest => dest.ItemId, opt => opt.Ignore())
+            .ForMember(dest => dest.PPn, opt => opt.MapFrom(src => src.Ppn))
+            .ForMember(dest => dest.PPh21, opt => opt.MapFrom(src => src.Pph21))
+            .ForMember(dest => dest.PPh22, opt => opt.MapFrom(src => src.Pph22))
+            .ForMember(dest => dest.PPh23, opt => opt.MapFrom(src => src.Pph23))
+            .ForMember(dest => dest.NilaiBersih, opt => opt.MapFrom(src => src.NilaiTotal));
         
         CreateMap<UpdateStpbDto, Stpb>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
