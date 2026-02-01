@@ -1,0 +1,81 @@
+<app-page-header [title]="isEditMode ? 'Edit PPK/Bendahara' : 'Tambah PPK/Bendahara'">
+</app-page-header>
+
+<div class="content-wrapper">
+  <nz-card [nzTitle]="isEditMode ? 'Edit Data PPK/Bendahara' : 'Tambah Data PPK/Bendahara'" [nzLoading]="isLoading">
+    <form nz-form [formGroup]="ppkForm" (ngSubmit)="onSubmit()" nzLayout="vertical">
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Nama</nz-form-label>
+            <nz-form-control nzErrorTip="Nama harus diisi (max 200 karakter)">
+              <input
+                nz-input
+                formControlName="nama"
+                placeholder="Masukkan nama lengkap">
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>NIP</nz-form-label>
+            <nz-form-control nzErrorTip="NIP harus diisi dan hanya berisi angka (max 20 digit)">
+              <input
+                nz-input
+                formControlName="nip"
+                placeholder="Masukkan NIP (hanya angka)">
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Jabatan</nz-form-label>
+            <nz-form-control nzErrorTip="Jabatan harus dipilih">
+              <nz-select formControlName="jabatan" nzPlaceHolder="Pilih Jabatan">
+                <nz-option
+                  *ngFor="let opt of jabatanOptions"
+                  [nzValue]="opt.value"
+                  [nzLabel]="opt.label">
+                </nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label>Status</nz-form-label>
+            <nz-form-control>
+              <nz-switch formControlName="isActive"></nz-switch>
+              <span style="margin-left: 12px;">{{ ppkForm.get('isActive')?.value ? 'Aktif' : 'Nonaktif' }}</span>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <nz-form-item>
+        <nz-form-control>
+          <button
+            nz-button
+            nzType="primary"
+            type="submit"
+            [nzLoading]="isLoading">
+            <i nz-icon nzType="save"></i>
+            {{ isEditMode ? 'Update' : 'Simpan' }}
+          </button>
+          <button
+            nz-button
+            type="button"
+            (click)="onCancel()"
+            style="margin-left: 8px;">
+            Batal
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </nz-card>
+</div>

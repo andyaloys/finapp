@@ -13,7 +13,9 @@ public class UnitOfWork : IUnitOfWork
     public IUserRepository Users { get; }
     public IRoleRepository Roles { get; }
     public IRoleSuboutputRepository RoleSuboutputs { get; }
+    public IPpkBendaharaRepository PpkBendaharas { get; }
     public IStpbRepository Stpbs { get; }
+    public IStpbDetailRepository StpbDetails { get; }
     public IProgramRepository Programs { get; }
     public IKegiatanRepository Kegiatans { get; }
     public IOutputRepository Outputs { get; }
@@ -23,6 +25,7 @@ public class UnitOfWork : IUnitOfWork
     public IAkunRepository Akuns { get; }
     public IItemRepository Items { get; }
     public ISequenceNumberRepository SequenceNumbers { get; }
+    public IAnggaranMasterRepository AnggaranMasters { get; }
 
     public UnitOfWork(AppDbContext context)
     {
@@ -30,7 +33,9 @@ public class UnitOfWork : IUnitOfWork
         Users = new UserRepository(context);
         Roles = new RoleRepository(context);
         RoleSuboutputs = new RoleSuboutputRepository(context);
+        PpkBendaharas = new PpkBendaharaRepository(context);
         Stpbs = new StpbRepository(context);
+        StpbDetails = new StpbDetailRepository(context);
         Programs = new ProgramRepository(context);
         Kegiatans = new KegiatanRepository(context);
         Outputs = new OutputRepository(context);
@@ -40,6 +45,7 @@ public class UnitOfWork : IUnitOfWork
         Akuns = new AkunRepository(context);
         Items = new ItemRepository(context);
         SequenceNumbers = new SequenceNumberRepository(context);
+        AnggaranMasters = new AnggaranMasterRepository(context);
     }
 
     public async Task<int> SaveChangesAsync()

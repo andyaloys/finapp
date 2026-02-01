@@ -12,7 +12,9 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<RoleSuboutput> RoleSuboutputs { get; set; }
+    public DbSet<PpkBendahara> PpkBendaharas { get; set; }
     public DbSet<Stpb> Stpbs { get; set; }
+    public DbSet<StpbDetail> StpbDetails { get; set; }
     public DbSet<Program> Programs { get; set; }
     public DbSet<Kegiatan> Kegiatans { get; set; }
     public DbSet<Output> Outputs { get; set; }
@@ -71,7 +73,7 @@ public class AppDbContext : DbContext
                 FullName = "Administrator",
                 RoleId = adminRoleId,
                 // BCrypt hash for "Admin123!"
-                PasswordHash = "$2a$11$6mtygzX7D/O53nh87B5W3O3ro/wBXjAF64kFyYrthx5vpWsg9vfmO",
+                PasswordHash = "$2a$11$VyFHd84rlCboUP.RPn25qeR7gw9i39bjj65fARIUvG6JkSjv.E2mW",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)

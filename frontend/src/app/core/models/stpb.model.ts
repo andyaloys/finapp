@@ -1,68 +1,35 @@
+import { StpbStatus } from './stpb-status.enum';
+import { StpbDetailDto, CreateStpbDetailDto } from './stpb-detail.model';
+import { PpkBendaharaDto } from './ppk-bendahara.model';
+
 export interface Stpb {
   id: string;
-  tanggal: Date;
-  kodeProgram: string;
-  kodeKegiatan: string;
-  kodeOutput: string;
-  kodeSuboutput: string;
-  kodeKomponen: string;
-  kodeSubkomponen: string;
-  kodeAkun: string;
-  itemId?: string;
-  uraian: string;
-  nominal: number;
-  ppn: number;
-  pph21: number;
-  pph22: number;
-  pph23: number;
-  nilaiBersih: number;
+  tahun: number;
+  tanggalSTPB: Date;
   nomorSTPB: string;
-  isLocked: boolean;
+  keterangan?: string;
+  totalNilai: number;
+  status: StpbStatus;
+  statusDisplay: string;
+  ppkBendaharaId?: string;
+  ppkBendahara?: PpkBendaharaDto;
+  details: StpbDetailDto[];
   createdAt: Date;
   updatedAt: Date;
-  programId?: string;
-  kegiatanId?: string;
-  outputId?: string;
-  suboutputId?: string;
-  komponenId?: string;
-  subkomponenId?: string;
-  akunId?: string;
+  createdBy: string;
+  updatedBy?: string;
 }
 
 export interface CreateStpb {
-  tanggal: Date;
-  programId: string;
-  kegiatanId: string;
-  outputId: string;
-  suboutputId: string;
-  komponenId: string;
-  subkomponenId: string;
-  akunId: string;
-  itemId?: string;
-  uraian: string;
-  nominal: number;
-  ppn: number;
-  pph21: number;
-  pph22: number;
-  pph23: number;
-  nomorSTPB?: string;
+  tahun: number;
+  tanggalSTPB: Date;
+  keterangan?: string;
+  ppkBendaharaId?: string;
 }
 
 export interface UpdateStpb {
-  tanggal: Date;
-  programId: string;
-  kegiatanId: string;
-  outputId: string;
-  suboutputId: string;
-  komponenId: string;
-  subkomponenId: string;
-  akunId: string;
-  itemId?: string;
-  uraian: string;
-  nominal: number;
-  ppn: number;
-  pph21: number;
-  pph22: number;
-  pph23: number;
-  nomorSTPB?: string;
+  tahun: number;
+  tanggalSTPB: Date;
+  keterangan?: string;
+  ppkBendaharaId?: string;
 }

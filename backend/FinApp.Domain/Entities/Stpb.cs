@@ -2,33 +2,24 @@ namespace FinApp.Domain.Entities;
 
 public class Stpb : BaseEntity
 {
-    // Reference fields
-    public string KodeProgram { get; set; } = string.Empty;
-    public string KodeKegiatan { get; set; } = string.Empty;
-    public string KodeOutput { get; set; } = string.Empty;
-    public string KodeSuboutput { get; set; } = string.Empty;
-    public string KodeKomponen { get; set; } = string.Empty;
-    public string KodeSubkomponen { get; set; } = string.Empty;
-    public string KodeAkun { get; set; } = string.Empty;
-    public Guid? ItemId { get; set; }
-    public string? NoItem { get; set; }
-    public string? NamaItem { get; set; }
-    
-    // Data fields
-    public DateTime Tanggal { get; set; }
-    public string Uraian { get; set; } = string.Empty;
-    public decimal Nominal { get; set; }
-    public decimal PPn { get; set; }
-    public decimal PPh21 { get; set; }
-    public decimal PPh22 { get; set; }
-    public decimal PPh23 { get; set; }
-    public decimal NilaiBersih { get; set; }
+    // Header Information
     public string NomorSTPB { get; set; } = string.Empty;
-    public bool IsLocked { get; set; } = false;
+    public DateTime TanggalSTPB { get; set; }
+    public int Tahun { get; set; }
+    public StpbStatus Status { get; set; } = StpbStatus.Draft;
     
+    // Foreign Keys
+    public Guid PpkBendaharaId { get; set; }
     public Guid CreatedBy { get; set; }
-
+    
+    // Computed/Cached Field
+    public decimal TotalNilai { get; set; }
+    
+    // Additional Information
+    public string? Keterangan { get; set; }
+    
     // Navigation properties
-    public Item? Item { get; set; }
-    public User? Creator { get; set; }
+    public PpkBendahara PpkBendahara { get; set; } = null!;
+    public User Creator { get; set; } = null!;
+    public ICollection<StpbDetail> StpbDetails { get; set; } = new List<StpbDetail>();
 }

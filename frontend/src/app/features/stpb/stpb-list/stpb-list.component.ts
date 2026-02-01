@@ -15,6 +15,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { FormsModule } from '@angular/forms';
 import { StpbService } from '../../../core/services/stpb.service';
 import { Stpb } from '../../../core/models/stpb.model';
+import { StpbStatus, getStatusClass } from '../../../core/models/stpb-status.enum';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { environment } from '../../../../environments/environment';
 
@@ -118,7 +119,8 @@ export class StpbListComponent implements OnInit {
       }
     });
   }
-printPdf(id: string): void {
+
+  printPdf(id: string): void {
     const url = `${environment.apiUrl}/Stpb/${id}/pdf`;
     const token = localStorage.getItem('token');
     
@@ -144,16 +146,11 @@ printPdf(id: string): void {
     this.pdfUrl = null;
   }
 
-  
-  getStatusColor(status: string): string {
-    const colors: Record<string, string> = {
-      'Aktif': 'success',
-      'Nonaktif': 'error',
-      'Draft': 'default',
-      'Submitted': 'processing',
-      'Approved': 'success',
-      'Rejected': 'error'
-    };
-    return colors[status] || 'default';
+  canEdit(stpb: Stpb): boolean {
+    return stpb.status === StpbStatus.Draft || stpb.status === StpbStatus.Dikembalikan;
+  }
+
+  getStatusClass(status: StpbStatus): string {
+    return getStatusClass(status);
   }
 }

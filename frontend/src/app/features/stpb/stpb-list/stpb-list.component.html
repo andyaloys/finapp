@@ -42,9 +42,10 @@
         <tr>
           <th>Nomor STPB</th>
           <th>Tanggal</th>
-          <th>Uraian</th>
-          <th nzAlign="right">Nilai Bersih</th>
+          <th>Keterangan</th>
+          <th nzAlign="right">Total Nilai</th>
           <th>Status</th>
+          <th>PPK/Bendahara</th>
           <th>Tanggal Dibuat</th>
           <th nzWidth="120px" nzAlign="center">Aksi</th>
         </tr>
@@ -54,28 +55,29 @@
           <td>
             <span class="stpb-number">{{ data.nomorSTPB }}</span>
           </td>
-          <td>{{ data.tanggal | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ data.tanggalSTPB | date: 'dd/MM/yyyy' }}</td>
           <td>
-            <span class="description-text">{{ data.uraian || '-' }}</span>
+            <span class="description-text">{{ data.keterangan || '-' }}</span>
           </td>
           <td nzAlign="right">
-            <span class="amount-text">{{ data.nilaiBersih | number: '1.0-0' }}</span>
+            <span class="amount-text">{{ data.totalNilai | number: '1.0-0' }}</span>
           </td>
           <td>
-            <nz-tag [nzColor]="data.isLocked ? 'red' : 'green'" class="status-tag">
-              {{ data.isLocked ? 'Terkunci' : 'Aktif' }}
+            <nz-tag [nzColor]="getStatusClass(data.status)" class="status-tag">
+              {{ data.statusDisplay }}
             </nz-tag>
           </td>
+          <td>{{ data.ppkBendahara?.nama || '-' }}</td>
           <td>{{ data.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
           <td nzAlign="center">
             <div class="action-buttons">
               <button nz-button nzType="text" nzSize="small" nz-tooltip="Print PDF" (click)="printPdf(data.id)" class="action-btn print-btn">
-                <span nz-icon nzType="file"></span>
+                <span nz-icon nzType="printer"></span>
               </button>
-              <button nz-button nzType="text" nzSize="small" nz-tooltip="Edit" (click)="edit(data.id)" class="action-btn edit-btn" [disabled]="data.isLocked">
+              <button nz-button nzType="text" nzSize="small" nz-tooltip="Edit" (click)="edit(data.id)" class="action-btn edit-btn" [disabled]="!canEdit(data)">
                 <span nz-icon nzType="edit"></span>
               </button>
-              <button nz-button nzType="text" nzSize="small" nz-tooltip="Hapus" (click)="delete(data.id, data.nomorSTPB)" class="action-btn delete-btn" [disabled]="data.isLocked">
+              <button nz-button nzType="text" nzSize="small" nz-tooltip="Hapus" (click)="delete(data.id, data.nomorSTPB)" class="action-btn delete-btn" [disabled]="!canEdit(data)">
                 <span nz-icon nzType="delete"></span>
               </button>
             </div>

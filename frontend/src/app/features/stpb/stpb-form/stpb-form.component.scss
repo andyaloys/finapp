@@ -194,3 +194,86 @@
     border-color: #e1e4e8;
   }
 }
+
+// New component styles
+.content-wrapper {
+  padding: 24px;
+}
+
+.status-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  .nomor-stpb {
+    font-weight: 600;
+    font-size: 16px;
+    color: #262626;
+  }
+}
+
+.summary-section {
+  display: flex;
+  gap: 32px;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 16px;
+
+  .summary-item {
+    display: flex;
+    gap: 8px;
+
+    .label {
+      font-weight: 600;
+      color: #595959;
+    }
+
+    .value {
+      color: #1890ff;
+      font-weight: 600;
+    }
+  }
+}
+
+.detail-cell {
+  .code {
+    font-size: 12px;
+    color: #8c8c8c;
+  }
+
+  .name {
+    font-size: 13px;
+    color: #262626;
+  }
+}
+
+.coa-cell {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #262626;
+  line-height: 1.4;
+  
+  .coa-name {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 12px;
+    color: #595959;
+    margin-top: 4px;
+    font-style: italic;
+  }
+}
+
+.no-data {
+  text-align: center;
+  padding: 48px 24px;
+  color: #8c8c8c;
+}
+
+.workflow-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}

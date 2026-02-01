@@ -10,15 +10,17 @@ public class CreateStpbValidator : AbstractValidator<CreateStpbDto>
         RuleFor(x => x.NomorSTPB)
             .MaximumLength(50).WithMessage("Nomor STPB must not exceed 50 characters");
 
-        RuleFor(x => x.Tanggal)
+        RuleFor(x => x.TanggalSTPB)
             .NotEmpty().WithMessage("Tanggal is required")
             .LessThanOrEqualTo(DateTime.Now.AddDays(1)).WithMessage("Tanggal cannot be in the future");
 
-        RuleFor(x => x.NilaiTotal)
-            .GreaterThan(0).WithMessage("Nilai total must be greater than 0");
+        RuleFor(x => x.PpkBendaharaId)
+            .NotEmpty().WithMessage("PPK/Bendahara is required");
 
-        RuleFor(x => x.Status)
-            .Must(status => new[] { "Draft", "Submitted", "Approved", "Rejected" }.Contains(status))
-            .WithMessage("Invalid status value");
+        RuleFor(x => x.Tahun)
+            .GreaterThan(2000).WithMessage("Tahun must be greater than 2000")
+            .LessThanOrEqualTo(DateTime.Now.Year + 1).WithMessage("Tahun cannot be more than next year");
+
+        // Details optional - bisa ditambah setelah STPB dibuat
     }
 }

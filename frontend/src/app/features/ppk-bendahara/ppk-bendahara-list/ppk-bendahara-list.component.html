@@ -1,0 +1,64 @@
+<div class="ppk-bendahara-list-container">
+  <app-page-header title="Data PPK/Bendahara" subtitle="Kelola data pejabat keuangan">
+    <button nz-button nzType="primary" class="add-button" (click)="createNew()">
+      <span nz-icon nzType="plus"></span>
+      Tambah PPK/Bendahara
+    </button>
+  </app-page-header>
+
+  <div class="content-wrapper">
+    <nz-table
+      #basicTable
+      [nzData]="ppkBendaharaList"
+      [nzLoading]="loading"
+      class="modern-table">
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>NIP</th>
+          <th>Jabatan</th>
+          <th>Status</th>
+          <th nzWidth="120px" nzAlign="center">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data">
+          <td>{{ data.nama }}</td>
+          <td>{{ data.nip }}</td>
+          <td>
+            <nz-tag [nzColor]="getJabatanColor(data.jabatan)">
+              {{ data.jabatanName }}
+            </nz-tag>
+          </td>
+          <td>
+            <nz-tag [nzColor]="data.isActive ? 'green' : 'red'">
+              {{ data.isActive ? 'Aktif' : 'Nonaktif' }}
+            </nz-tag>
+          </td>
+          <td nzAlign="center">
+            <div class="action-buttons">
+              <button
+                nz-button
+                nzType="text"
+                nzSize="small"
+                nz-tooltip="Edit"
+                (click)="edit(data.id)"
+                class="action-btn edit-btn">
+                <span nz-icon nzType="edit"></span>
+              </button>
+              <button
+                nz-button
+                nzType="text"
+                nzSize="small"
+                nz-tooltip="Hapus"
+                (click)="delete(data.id, data.nama)"
+                class="action-btn delete-btn">
+                <span nz-icon nzType="delete"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>

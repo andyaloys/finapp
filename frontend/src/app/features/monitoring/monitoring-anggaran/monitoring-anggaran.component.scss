@@ -1,0 +1,128 @@
+.monitoring-container {
+  padding: 24px;
+  background: #f0f2f5;
+  min-height: calc(100vh - 64px);
+}
+
+.content-wrapper {
+  margin-top: 16px;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  ::ng-deep .ant-card-body {
+    padding: 20px;
+  }
+
+  ::ng-deep .ant-statistic-title {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.45);
+    margin-bottom: 8px;
+  }
+
+  ::ng-deep .ant-statistic-content {
+    font-size: 24px;
+    font-weight: 600;
+  }
+}
+
+.filter-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+
+  .tahun-select {
+    width: 150px;
+  }
+
+  .search-input {
+    flex: 1;
+    max-width: 400px;
+  }
+}
+
+.monitoring-table {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+
+  ::ng-deep .ant-table {
+    font-size: 13px;
+  }
+
+  ::ng-deep .ant-table-thead > tr > th {
+    background: #fafafa;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.85);
+  }
+
+  .coa-cell {
+    .coa-code {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: #1890ff;
+      background: #e6f7ff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+  }
+
+  .item-name {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.85);
+  }
+
+  .amount-text {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 500;
+
+    &.realisasi {
+      color: #52c41a;
+    }
+
+    &.negative {
+      color: #f5222d;
+      font-weight: 600;
+    }
+  }
+
+  .progress-container {
+    ::ng-deep .ant-progress {
+      margin: 0;
+    }
+
+    ::ng-deep .ant-progress-text {
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .monitoring-container {
+    padding: 16px;
+  }
+
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-container {
+    flex-direction: column;
+    align-items: stretch;
+
+    .tahun-select,
+    .search-input {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+}

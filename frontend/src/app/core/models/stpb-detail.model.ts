@@ -1,0 +1,92 @@
+export interface StpbDetail {
+  id: string;
+  stpbId: string;
+  kodeProgram: string;
+  namaProgram: string;
+  kodeKegiatan: string;
+  namaKegiatan: string;
+  kodeOutput: string;
+  namaOutput: string;
+  kodeSuboutput: string;
+  namaSuboutput: string;
+  kodeKomponen: string;
+  namaKomponen: string;
+  kodeSubkomponen: string;
+  namaSubkomponen: string;
+  kodeAkun: string;
+  namaAkun: string;
+  kodeItem: string;
+  namaItem: string;
+  uraian: string;
+  volume: number;
+  satuan: string;
+  hargaSatuan: number;
+  jumlahHarga: number;
+  penerima?: string;
+  ppn: number;
+  pph21: number;
+  pph22: number;
+  pph23: number;
+  nilaiBersih: number;
+}
+
+export interface CreateStpbDetailDto {
+  kodeProgram: string;
+  namaProgram: string;
+  kodeKegiatan: string;
+  namaKegiatan: string;
+  kodeOutput: string;
+  namaOutput: string;
+  kodeSuboutput: string;
+  namaSuboutput: string;
+  kodeKomponen: string;
+  namaKomponen: string;
+  kodeSubkomponen: string;
+  namaSubkomponen: string;
+  kodeAkun: string;
+  namaAkun: string;
+  kodeItem: string;
+  noItem: string;
+  namaItem: string;
+  uraian: string;
+  volume: number;
+  satuan: string;
+  hargaSatuan: number;
+  penerima?: string;
+  ppn: number;
+  pph21: number;
+  pph22: number;
+  pph23: number;
+}
+
+export interface StpbDetailDto {
+  id: string;
+  stpbId: string;
+  kodeProgram: string;
+  namaProgram: string;
+  kodeKegiatan: string;
+  namaKegiatan: string;
+  kodeOutput: string;
+  namaOutput: string;
+  kodeSuboutput: string;
+  namaSuboutput: string;
+  kodeKomponen: string;
+  namaKomponen: string;
+  kodeSubkomponen: string;
+  namaSubkomponen: string;
+  kodeAkun: string;
+  namaAkun: string;
+  kodeItem: string;
+  namaItem: string;
+  uraian: string;
+  volume: number;
+  satuan: string;
+  hargaSatuan: number;
+  jumlahHarga: number;
+  penerima?: string;
+  ppn: number;
+  pph21: number;
+  pph22: number;
+  pph23: number;
+  nilaiBersih: number;
+}

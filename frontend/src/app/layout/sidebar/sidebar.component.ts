@@ -17,6 +17,7 @@ export class SidebarComponent {
   // Track which submenus are open
   openMap: { [key: string]: boolean } = {
     transaksi: false,
+    master: false,
     anggaran: false,
     admin: false
   };

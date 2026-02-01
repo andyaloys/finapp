@@ -33,7 +33,7 @@ public static class ServiceExtensions
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IStpbService, StpbService>();
-        services.AddScoped<StpbPdfService>();
+        services.AddScoped<IStpbPdfService, StpbPdfService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IProgramService, ProgramService>();
         services.AddScoped<IKegiatanService, KegiatanService>();
@@ -44,6 +44,8 @@ public static class ServiceExtensions
         services.AddScoped<IAkunService, AkunService>();
         services.AddScoped<IItemService, ItemService>();
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IPpkBendaharaService, PpkBendaharaService>();
+        services.AddScoped<IMonitoringService, MonitoringService>();
 
         // AutoMapper
         services.AddAutoMapper(typeof(MappingProfile));

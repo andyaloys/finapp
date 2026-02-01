@@ -12,9 +12,9 @@ public class StpbController : BaseApiController
 {
     private readonly IStpbService _stpbService;
     private readonly ILogger<StpbController> _logger;
-    private readonly StpbPdfService _pdfService;
+    private readonly IStpbPdfService _pdfService;
 
-    public StpbController(IStpbService stpbService, ILogger<StpbController> logger, StpbPdfService pdfService)
+    public StpbController(IStpbService stpbService, ILogger<StpbController> logger, IStpbPdfService pdfService)
     {
         _stpbService = stpbService;
         _logger = logger;
@@ -140,26 +140,131 @@ public class StpbController : BaseApiController
         }
     }
 
-    [HttpGet("{id}/pdf")]
-    public async Task<IActionResult> DownloadPdf(Guid id)
+    // Workflow endpoints
+    [HttpPost("{id}/kirim")]
+    public async Task<ActionResult<ApiResponse<StpbDto>>> Kirim(Guid id)
     {
         try
         {
-            var stpb = await _stpbService.GetByIdAsync(id);
-            
-            if (stpb == null)
-            {
-                return NotFound();
-            }
-
-            var pdfBytes = _pdfService.GenerateStpbPdf(stpb);
-            
-            return File(pdfBytes, "application/pdf", $"STPB-{stpb.NomorSTPB}.pdf");
+            var userId = GetUserId();
+            var result = await _stpbService.KirimAsync(id, userId);
+            return Ok(ApiResponse<StpbDto>.SuccessResponse(result, "STPB berhasil dikirim"));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating PDF for STPB {Id}", id);
-            return StatusCode(500, "Error generating PDF");
+            _logger.LogError(ex, "Error sending STPB {Id}", id);
+            return BadRequest(ApiResponse<StpbDto>.ErrorResponse(ex.Message));
         }
     }
+
+    [HttpPost("{id}/approve")]
+    public async Task<ActionResult<ApiResponse<StpbDto>>> Approve(Guid id)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _stpbService.ApproveAsync(id, userId);
+            return Ok(ApiResponse<StpbDto>.SuccessResponse(result, "STPB berhasil di-approve"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error approving STPB {Id}", id);
+            return BadRequest(ApiResponse<StpbDto>.ErrorResponse(ex.Message));
+        }
+    }
+
+    [HttpPost("{id}/kembalikan")]
+    public async Task<ActionResult<ApiResponse<StpbDto>>> Kembalikan(Guid id, [FromBody] KembalikanRequest request)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _stpbService.KembalikanAsync(id, userId, request.Alasan);
+            return Ok(ApiResponse<StpbDto>.SuccessResponse(result, "STPB berhasil dikembalikan"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error returning STPB {Id}", id);
+            return BadRequest(ApiResponse<StpbDto>.ErrorResponse(ex.Message));
+        }
+    }
+
+    // Detail management endpoints
+    [HttpPost("{stpbId}/details")]
+    public async Task<ActionResult<ApiResponse<StpbDetailDto>>> AddDetail(Guid stpbId, [FromBody] CreateStpbDetailDto dto)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _stpbService.AddDetailAsync(stpbId, dto, userId);
+            return Ok(ApiResponse<StpbDetailDto>.SuccessResponse(result, "Detail berhasil ditambahkan"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding detail to STPB {StpbId}", stpbId);
+            return BadRequest(ApiResponse<StpbDetailDto>.ErrorResponse(ex.Message));
+        }
+    }
+
+    [HttpPut("{stpbId}/details/{detailId}")]
+    public async Task<ActionResult<ApiResponse<StpbDetailDto>>> UpdateDetail(
+        Guid stpbId, 
+        Guid detailId, 
+        [FromBody] CreateStpbDetailDto dto)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _stpbService.UpdateDetailAsync(stpbId, detailId, dto, userId);
+            return Ok(ApiResponse<StpbDetailDto>.SuccessResponse(result, "Detail berhasil diupdate"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating detail {DetailId} in STPB {StpbId}", detailId, stpbId);
+            return BadRequest(ApiResponse<StpbDetailDto>.ErrorResponse(ex.Message));
+        }
+    }
+
+    [HttpDelete("{stpbId}/details/{detailId}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteDetail(Guid stpbId, Guid detailId)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _stpbService.DeleteDetailAsync(stpbId, detailId, userId);
+            return Ok(ApiResponse<bool>.SuccessResponse(result, "Detail berhasil dihapus"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting detail {DetailId} from STPB {StpbId}", detailId, stpbId);
+            return BadRequest(ApiResponse<bool>.ErrorResponse(ex.Message));
+        }
+    }
+
+    [HttpGet("{id}/pdf")]
+    public async Task<IActionResult> PrintPdf(string id)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var pdfBytes = await _pdfService.GenerateStpbPdfAsync(Guid.Parse(id));
+            
+            return File(pdfBytes, "application/pdf", $"STPB-{id}.pdf");
+        }
+        catch (FileNotFoundException ex)
+        {
+            return NotFound(ApiResponse<bool>.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating PDF for STPB {StpbId}", id);
+            return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error generating PDF"));
+        }
+    }
+}
+
+// Request model for Kembalikan endpoint
+public class KembalikanRequest
+{
+    public string Alasan { get; set; } = string.Empty;
 }

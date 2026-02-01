@@ -29,11 +29,11 @@ public class StpbService : IStpbService
 
         var (items, totalCount) = await _unitOfWork.Stpbs.GetPagedAsync(pageNumber, pageSize, searchTerm);
         
-        // Filter by role if not admin
+        // Filter by role if not admin - check through StpbDetails
         if (!user.Role.IsAdmin)
         {
             var allowedSuboutputs = user.Role.RoleSuboutputs.Select(rs => rs.KodeSuboutput).ToList();
-            items = items.Where(s => allowedSuboutputs.Contains(s.KodeSuboutput)).ToList();
+            items = items.Where(s => s.StpbDetails.Any(d => allowedSuboutputs.Contains(d.KodeSuboutput))).ToList();
             totalCount = items.Count();
         }
 
@@ -68,22 +68,24 @@ public class StpbService : IStpbService
         if (user == null)
             throw new UnauthorizedException("User not found");
 
-        // Validate user has access to this suboutput (if not admin)
-        if (!user.Role.IsAdmin)
+        // Validate user has access to all details' suboutputs (if not admin)
+        if (!user.Role.IsAdmin && dto.Details.Any())
         {
             var allowedSuboutputs = user.Role.RoleSuboutputs.Select(rs => rs.KodeSuboutput).ToList();
-            if (!allowedSuboutputs.Contains(dto.SuboutputId))
+            var invalidDetails = dto.Details.Where(d => !allowedSuboutputs.Contains(d.KodeSuboutput)).ToList();
+            
+            if (invalidDetails.Any())
             {
-                throw new UnauthorizedException("Anda tidak memiliki akses untuk membuat STPB pada suboutput ini");
+                throw new UnauthorizedException("Anda tidak memiliki akses untuk membuat STPB dengan detail pada suboutput tertentu");
             }
         }
 
         // Auto-generate nomor STPB if not provided
         if (string.IsNullOrWhiteSpace(dto.NomorSTPB))
         {
-            var year = dto.Tanggal.Year;
+            var year = dto.Tahun;
             var nextNumber = await _unitOfWork.SequenceNumbers.GetNextNumberAsync("STPB", year);
-            dto.NomorSTPB = $"STPB-{nextNumber:D3}/{year}";
+            dto.NomorSTPB = $"STPB-{nextNumber}/{year}"; // No D3 format = unlimited numbers
         }
         else
         {
@@ -96,11 +98,19 @@ public class StpbService : IStpbService
         }
 
         var stpb = _mapper.Map<Stpb>(dto);
-        
-        // ItemId is always null (item data comes from anggaran master, stored as NoItem/NamaItem)
-        stpb.ItemId = null;
-        
         stpb.CreatedBy = userId;
+        stpb.Status = StpbStatus.Draft;
+
+        // Map details
+        stpb.StpbDetails = dto.Details.Select(d =>
+        {
+            var detail = _mapper.Map<StpbDetail>(d);
+            detail.JumlahHarga = d.Volume * d.HargaSatuan;
+            return detail;
+        }).ToList();
+
+        // Calculate total
+        stpb.TotalNilai = stpb.StpbDetails.Sum(d => d.JumlahHarga);
 
         await _unitOfWork.Stpbs.AddAsync(stpb);
         await _unitOfWork.SaveChangesAsync();
@@ -117,11 +127,10 @@ public class StpbService : IStpbService
             throw new NotFoundException($"STPB with ID {id} not found");
         }
 
-        // Check if nomor exists for other STPB
-        var existingStpb = await _unitOfWork.Stpbs.GetByNomorAsync(dto.NomorSTPB);
-        if (existingStpb != null && existingStpb.Id != id)
+        // Check if status allows editing
+        if (stpb.Status != StpbStatus.Draft && stpb.Status != StpbStatus.Dikembalikan)
         {
-            throw new ValidationException($"STPB dengan nomor {dto.NomorSTPB} sudah ada");
+            throw new ValidationException("STPB hanya dapat diubah dalam status Draft atau Dikembalikan");
         }
 
         _mapper.Map(dto, stpb);
@@ -135,11 +144,17 @@ public class StpbService : IStpbService
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var exists = await _unitOfWork.Stpbs.ExistsAsync(id);
+        var stpb = await _unitOfWork.Stpbs.GetByIdAsync(id);
         
-        if (!exists)
+        if (stpb == null)
         {
             throw new NotFoundException($"STPB with ID {id} not found");
+        }
+
+        // Check if status allows deletion
+        if (stpb.Status != StpbStatus.Draft && stpb.Status != StpbStatus.Dikembalikan)
+        {
+            throw new ValidationException("STPB hanya dapat dihapus dalam status Draft atau Dikembalikan");
         }
 
         await _unitOfWork.Stpbs.DeleteAsync(id);
@@ -153,4 +168,190 @@ public class StpbService : IStpbService
         var stpbs = await _unitOfWork.Stpbs.GetByUserIdAsync(userId);
         return _mapper.Map<IEnumerable<StpbDto>>(stpbs);
     }
+
+    // Workflow methods
+    public async Task<StpbDto> KirimAsync(Guid id, Guid userId)
+    {
+        var stpb = await _unitOfWork.Stpbs.GetByIdAsync(id);
+        
+        if (stpb == null)
+            throw new NotFoundException($"STPB with ID {id} not found");
+
+        // Validate creator
+        if (stpb.CreatedBy != userId)
+            throw new UnauthorizedException("Hanya pembuat STPB yang dapat mengirim");
+
+        // Validate status
+        if (stpb.Status != StpbStatus.Draft && stpb.Status != StpbStatus.Dikembalikan)
+            throw new ValidationException("STPB hanya dapat dikirim dari status Draft atau Dikembalikan");
+
+        // Validate has details
+        if (!stpb.StpbDetails.Any())
+            throw new ValidationException("STPB harus memiliki minimal 1 detail transaksi");
+
+        stpb.Status = StpbStatus.Kirim;
+        stpb.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.Stpbs.UpdateAsync(stpb);
+        await _unitOfWork.SaveChangesAsync();
+
+        return _mapper.Map<StpbDto>(stpb);
+    }
+
+    public async Task<StpbDto> ApproveAsync(Guid id, Guid userId)
+    {
+        var stpb = await _unitOfWork.Stpbs.GetByIdAsync(id);
+        
+        if (stpb == null)
+            throw new NotFoundException($"STPB with ID {id} not found");
+
+        // Validate status
+        if (stpb.Status != StpbStatus.Kirim)
+            throw new ValidationException("STPB hanya dapat di-approve dari status Kirim");
+
+        // Note: Additional authorization check for PPK/Bendahara role should be done in controller
+
+        stpb.Status = StpbStatus.Approve;
+        stpb.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.Stpbs.UpdateAsync(stpb);
+        await _unitOfWork.SaveChangesAsync();
+
+        return _mapper.Map<StpbDto>(stpb);
+    }
+
+    public async Task<StpbDto> KembalikanAsync(Guid id, Guid userId, string alasan)
+    {
+        var stpb = await _unitOfWork.Stpbs.GetByIdAsync(id);
+        
+        if (stpb == null)
+            throw new NotFoundException($"STPB with ID {id} not found");
+
+        // Validate status
+        if (stpb.Status != StpbStatus.Kirim)
+            throw new ValidationException("STPB hanya dapat dikembalikan dari status Kirim");
+
+        // Note: Additional authorization check for PPK/Bendahara role should be done in controller
+
+        stpb.Status = StpbStatus.Dikembalikan;
+        stpb.Keterangan = $"Dikembalikan: {alasan}";
+        stpb.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.Stpbs.UpdateAsync(stpb);
+        await _unitOfWork.SaveChangesAsync();
+
+        return _mapper.Map<StpbDto>(stpb);
+    }
+
+    // Detail management methods
+    public async Task<StpbDetailDto> AddDetailAsync(Guid stpbId, CreateStpbDetailDto dto, Guid userId)
+    {
+        var stpb = await _unitOfWork.Stpbs.GetByIdAsync(stpbId);
+        
+        if (stpb == null)
+            throw new NotFoundException($"STPB with ID {stpbId} not found");
+
+        // Validate creator
+        if (stpb.CreatedBy != userId)
+            throw new UnauthorizedException("Hanya pembuat STPB yang dapat menambah detail");
+
+        // Validate status
+        if (stpb.Status != StpbStatus.Draft && stpb.Status != StpbStatus.Dikembalikan)
+            throw new ValidationException("Detail hanya dapat ditambahkan pada status Draft atau Dikembalikan");
+
+        // Validate RBAC
+        var user = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
+        if (user != null && !user.Role.IsAdmin)
+        {
+            var allowedSuboutputs = user.Role.RoleSuboutputs.Select(rs => rs.KodeSuboutput).ToList();
+            if (!allowedSuboutputs.Contains(dto.KodeSuboutput))
+                throw new UnauthorizedException("Anda tidak memiliki akses untuk suboutput ini");
+        }
+
+        var detail = _mapper.Map<StpbDetail>(dto);
+        detail.StpbId = stpbId;
+        detail.JumlahHarga = dto.Volume * dto.HargaSatuan;
+        detail.NilaiBersih = detail.JumlahHarga - dto.PPN - (dto.PPH21 + dto.PPH22 + dto.PPH23);
+
+        await _unitOfWork.StpbDetails.AddAsync(detail);
+
+        // Recalculate total (use NilaiBersih for total)
+        stpb.TotalNilai = stpb.StpbDetails.Sum(d => d.NilaiBersih) + detail.NilaiBersih;
+        stpb.UpdatedAt = DateTime.UtcNow;
+        await _unitOfWork.Stpbs.UpdateAsync(stpb);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return _mapper.Map<StpbDetailDto>(detail);
+    }
+
+    public async Task<StpbDetailDto> UpdateDetailAsync(Guid stpbId, Guid detailId, CreateStpbDetailDto dto, Guid userId)
+    {
+        var stpb = await _unitOfWork.Stpbs.GetByIdAsync(stpbId);
+        
+        if (stpb == null)
+            throw new NotFoundException($"STPB with ID {stpbId} not found");
+
+        // Validate creator
+        if (stpb.CreatedBy != userId)
+            throw new UnauthorizedException("Hanya pembuat STPB yang dapat mengubah detail");
+
+        // Validate status
+        if (stpb.Status != StpbStatus.Draft && stpb.Status != StpbStatus.Dikembalikan)
+            throw new ValidationException("Detail hanya dapat diubah pada status Draft atau Dikembalikan");
+
+        var detail = await _unitOfWork.StpbDetails.GetByIdAsync(detailId);
+        if (detail == null || detail.StpbId != stpbId)
+            throw new NotFoundException($"Detail with ID {detailId} not found in this STPB");
+
+        _mapper.Map(dto, detail);
+        detail.JumlahHarga = dto.Volume * dto.HargaSatuan;
+        detail.NilaiBersih = detail.JumlahHarga - dto.PPN - (dto.PPH21 + dto.PPH22 + dto.PPH23);
+        detail.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.StpbDetails.UpdateAsync(detail);
+
+        // Recalculate total (use NilaiBersih)
+        var allDetails = await _unitOfWork.StpbDetails.GetByStpbIdAsync(stpbId);
+        stpb.TotalNilai = allDetails.Sum(d => d.NilaiBersih);
+        stpb.UpdatedAt = DateTime.UtcNow;
+        await _unitOfWork.Stpbs.UpdateAsync(stpb);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return _mapper.Map<StpbDetailDto>(detail);
+    }
+
+    public async Task<bool> DeleteDetailAsync(Guid stpbId, Guid detailId, Guid userId)
+    {
+        var stpb = await _unitOfWork.Stpbs.GetByIdAsync(stpbId);
+        
+        if (stpb == null)
+            throw new NotFoundException($"STPB with ID {stpbId} not found");
+
+        // Validate creator
+        if (stpb.CreatedBy != userId)
+            throw new UnauthorizedException("Hanya pembuat STPB yang dapat menghapus detail");
+
+        // Validate status
+        if (stpb.Status != StpbStatus.Draft && stpb.Status != StpbStatus.Dikembalikan)
+            throw new ValidationException("Detail hanya dapat dihapus pada status Draft atau Dikembalikan");
+
+        var detail = await _unitOfWork.StpbDetails.GetByIdAsync(detailId);
+        if (detail == null || detail.StpbId != stpbId)
+            throw new NotFoundException($"Detail with ID {detailId} not found in this STPB");
+
+        await _unitOfWork.StpbDetails.DeleteAsync(detailId);
+
+        // Recalculate total
+        var allDetails = await _unitOfWork.StpbDetails.GetByStpbIdAsync(stpbId);
+        stpb.TotalNilai = allDetails.Where(d => d.Id != detailId).Sum(d => d.JumlahHarga);
+        stpb.UpdatedAt = DateTime.UtcNow;
+        await _unitOfWork.Stpbs.UpdateAsync(stpb);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return true;
+    }
 }
+

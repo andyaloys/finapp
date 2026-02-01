@@ -15,6 +15,8 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
     {
         return await _dbSet
             .Include(s => s.Creator)
+            .Include(s => s.PpkBendahara)
+            .Include(s => s.StpbDetails)
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
@@ -22,6 +24,8 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
     {
         return await _dbSet
             .Include(s => s.Creator)
+            .Include(s => s.PpkBendahara)
+            .Include(s => s.StpbDetails)
             .Where(s => s.CreatedBy == userId)
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
@@ -31,14 +35,22 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
     {
         return await _dbSet
             .Include(s => s.Creator)
+            .Include(s => s.PpkBendahara)
+            .Include(s => s.StpbDetails)
             .FirstOrDefaultAsync(s => s.NomorSTPB == nomorStpb);
     }
 
     public async Task<IEnumerable<Stpb>> GetByStatusAsync(string status)
     {
+        // Convert status string to enum
+        if (!Enum.TryParse<StpbStatus>(status, out var statusEnum))
+            return Enumerable.Empty<Stpb>();
+
         return await _dbSet
             .Include(s => s.Creator)
-            .Where(s => s.IsLocked == (status == "Locked"))
+            .Include(s => s.PpkBendahara)
+            .Include(s => s.StpbDetails)
+            .Where(s => s.Status == statusEnum)
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
     }
@@ -48,15 +60,20 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
         int pageSize, 
         string? searchTerm = null)
     {
-        var query = _dbSet.Include(s => s.Creator).AsQueryable();
+        var query = _dbSet
+            .Include(s => s.Creator)
+            .Include(s => s.PpkBendahara)
+            .Include(s => s.StpbDetails)
+            .AsQueryable();
 
         // Apply search filter
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             query = query.Where(s => 
                 s.NomorSTPB.Contains(searchTerm) ||
-                s.Uraian!.Contains(searchTerm) ||
-                s.Creator!.FullName.Contains(searchTerm)
+                (s.Keterangan != null && s.Keterangan.Contains(searchTerm)) ||
+                s.Creator!.FullName.Contains(searchTerm) ||
+                s.PpkBendahara.Nama.Contains(searchTerm)
             );
         }
 
@@ -73,20 +90,8 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
 
     public async Task<int> GetLastNumberByYearAsync(int year)
     {
-        // Get the last STPB number for the given year
-        var lastStpb = await _dbSet
-            .Where(s => s.Tanggal.Year == year && !string.IsNullOrEmpty(s.NomorSTPB))
-            .OrderByDescending(s => s.CreatedAt)
-            .FirstOrDefaultAsync();
-
-        if (lastStpb == null || string.IsNullOrEmpty(lastStpb.NomorSTPB))
-            return 0;
-
-        // Parse number from format "STPB-XXX/YYYY"
-        var parts = lastStpb.NomorSTPB.Split('-', '/');
-        if (parts.Length >= 2 && int.TryParse(parts[1], out int number))
-            return number;
-
+        // No longer needed - SequenceNumberRepository handles this
+        // Kept for backward compatibility
         return 0;
     }
 }

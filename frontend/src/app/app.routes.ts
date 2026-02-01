@@ -29,6 +29,14 @@ export const routes: Routes = [
         path: 'anggaran',
         loadChildren: () => import('./features/anggaran/anggaran.routes').then(m => m.ANGGARAN_ROUTES)
       },
+      {
+        path: 'ppkbendahara',
+        loadChildren: () => import('./features/ppk-bendahara/ppk-bendahara.routes').then(m => m.ppkBendaharaRoutes)
+      },
+      {
+        path: 'monitoring',
+        loadChildren: () => import('./features/monitoring/monitoring.routes').then(m => m.MONITORING_ROUTES)
+      },
       // Referensi routes dinonaktifkan
       /*
       {

@@ -250,6 +250,8 @@ public class AnggaranMasterQueryController : ControllerBase
                 kdSkmpnen = x.KdSkmpnen,
                 kdAkun = x.KdAkun,
                 noItem = x.NoItem,
+                nmItem = x.NmItem,
+                hargaSat = x.HargaSat,
                 pagu = x.Pagu
             })
             .ToListAsync();

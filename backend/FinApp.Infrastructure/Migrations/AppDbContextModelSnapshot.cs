@@ -384,6 +384,49 @@ namespace FinApp.Infrastructure.Migrations
                     b.ToTable("Outputs", (string)null);
                 });
 
+            modelBuilder.Entity("FinApp.Domain.Entities.PpkBendahara", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("Jabatan")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NIP")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Nama")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("NIP")
+                        .IsUnique();
+
+                    b.HasIndex("Nama");
+
+                    b.ToTable("PpkBendahara", (string)null);
+                });
+
             modelBuilder.Entity("FinApp.Domain.Entities.Program", b =>
                 {
                     b.Property<Guid>("Id")
@@ -465,7 +508,7 @@ namespace FinApp.Infrastructure.Migrations
                             Description = "Administrator dengan akses penuh",
                             IsAdmin = true,
                             Name = "Admin",
-                            UpdatedAt = new DateTime(2026, 1, 27, 2, 35, 36, 645, DateTimeKind.Utc).AddTicks(8195)
+                            UpdatedAt = new DateTime(2026, 2, 1, 15, 43, 18, 11, DateTimeKind.Utc).AddTicks(192)
                         },
                         new
                         {
@@ -474,7 +517,7 @@ namespace FinApp.Infrastructure.Migrations
                             Description = "User biasa dengan akses terbatas",
                             IsAdmin = false,
                             Name = "User",
-                            UpdatedAt = new DateTime(2026, 1, 27, 2, 35, 36, 645, DateTimeKind.Utc).AddTicks(8206)
+                            UpdatedAt = new DateTime(2026, 2, 1, 15, 43, 18, 11, DateTimeKind.Utc).AddTicks(198)
                         });
                 });
 
@@ -549,13 +592,73 @@ namespace FinApp.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("char(36)");
 
-                    b.Property<bool>("IsLocked")
+                    b.Property<string>("Keterangan")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NomorSTPB")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<Guid>("PpkBendaharaId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Tahun")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TanggalSTPB")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("TotalNilai")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(false);
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0.00m);
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("NomorSTPB")
+                        .IsUnique();
+
+                    b.HasIndex("PpkBendaharaId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("Tahun");
+
+                    b.HasIndex("TanggalSTPB");
+
+                    b.ToTable("STPB", (string)null);
+                });
+
+            modelBuilder.Entity("FinApp.Domain.Entities.StpbDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("HargaSatuan")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid?>("ItemId")
                         .HasColumnType("char(36)");
+
+                    b.Property<decimal>("JumlahHarga")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Keterangan")
+                        .HasColumnType("text");
 
                     b.Property<string>("KodeAkun")
                         .IsRequired()
@@ -592,72 +695,97 @@ namespace FinApp.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
+                    b.Property<string>("NamaAkun")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
                     b.Property<string>("NamaItem")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("NamaKegiatan")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("NamaKomponen")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("NamaOutput")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("NamaProgram")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("NamaSubkomponen")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("NamaSuboutput")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<decimal>("NilaiBersih")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0.00m);
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("NoItem")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<decimal>("PPH21")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("PPH22")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("PPH23")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("PPN")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<string>("Penerima")
                         .HasColumnType("longtext");
 
-                    b.Property<decimal>("Nominal")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0.00m);
+                    b.Property<int>("Revisi")
+                        .HasColumnType("int");
 
-                    b.Property<string>("NomorSTPB")
+                    b.Property<string>("Satuan")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
-                    b.Property<decimal>("PPh21")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0.00m);
+                    b.Property<Guid>("StpbId")
+                        .HasColumnType("char(36)");
 
-                    b.Property<decimal>("PPh22")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0.00m);
-
-                    b.Property<decimal>("PPh23")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0.00m);
-
-                    b.Property<decimal>("PPn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0.00m);
-
-                    b.Property<DateTime>("Tanggal")
-                        .HasColumnType("datetime(6)");
+                    b.Property<int>("Tahun")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("Uraian")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<decimal>("Volume")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedBy");
-
-                    b.HasIndex("IsLocked");
-
                     b.HasIndex("ItemId");
 
-                    b.HasIndex("NomorSTPB")
-                        .IsUnique();
+                    b.HasIndex("KodeSuboutput");
 
-                    b.HasIndex("Tanggal");
+                    b.HasIndex("StpbId");
 
-                    b.ToTable("STPB", (string)null);
+                    b.ToTable("StpbDetails", (string)null);
                 });
 
             modelBuilder.Entity("FinApp.Domain.Entities.Subkomponen", b =>
@@ -808,7 +936,7 @@ namespace FinApp.Infrastructure.Migrations
                             Email = "admin@finapp.com",
                             FullName = "Administrator",
                             IsActive = true,
-                            PasswordHash = "$2a$11$6mtygzX7D/O53nh87B5W3O3ro/wBXjAF64kFyYrthx5vpWsg9vfmO",
+                            PasswordHash = "$2a$11$VyFHd84rlCboUP.RPn25qeR7gw9i39bjj65fARIUvG6JkSjv.E2mW",
                             RoleId = new Guid("00000000-0000-0000-0000-000000000010"),
                             UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Username = "admin"
@@ -889,13 +1017,33 @@ namespace FinApp.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FinApp.Domain.Entities.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId");
+                    b.HasOne("FinApp.Domain.Entities.PpkBendahara", "PpkBendahara")
+                        .WithMany("Stpbs")
+                        .HasForeignKey("PpkBendaharaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Creator");
 
+                    b.Navigation("PpkBendahara");
+                });
+
+            modelBuilder.Entity("FinApp.Domain.Entities.StpbDetail", b =>
+                {
+                    b.HasOne("FinApp.Domain.Entities.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("FinApp.Domain.Entities.Stpb", "Stpb")
+                        .WithMany("StpbDetails")
+                        .HasForeignKey("StpbId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Item");
+
+                    b.Navigation("Stpb");
                 });
 
             modelBuilder.Entity("FinApp.Domain.Entities.Subkomponen", b =>
@@ -951,6 +1099,11 @@ namespace FinApp.Infrastructure.Migrations
                     b.Navigation("Suboutputs");
                 });
 
+            modelBuilder.Entity("FinApp.Domain.Entities.PpkBendahara", b =>
+                {
+                    b.Navigation("Stpbs");
+                });
+
             modelBuilder.Entity("FinApp.Domain.Entities.Program", b =>
                 {
                     b.Navigation("Kegiatans");
@@ -961,6 +1114,11 @@ namespace FinApp.Infrastructure.Migrations
                     b.Navigation("RoleSuboutputs");
 
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("FinApp.Domain.Entities.Stpb", b =>
+                {
+                    b.Navigation("StpbDetails");
                 });
 
             modelBuilder.Entity("FinApp.Domain.Entities.Subkomponen", b =>

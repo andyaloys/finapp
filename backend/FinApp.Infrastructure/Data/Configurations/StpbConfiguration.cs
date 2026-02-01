@@ -12,15 +12,7 @@ public class StpbConfiguration : IEntityTypeConfiguration<Stpb>
 
         builder.HasKey(x => x.Id);
 
-        // Reference fields
-        builder.Property(x => x.KodeProgram).IsRequired().HasMaxLength(20);
-        builder.Property(x => x.KodeKegiatan).IsRequired().HasMaxLength(20);
-        builder.Property(x => x.KodeOutput).IsRequired().HasMaxLength(20);
-        builder.Property(x => x.KodeSuboutput).IsRequired().HasMaxLength(20);
-        builder.Property(x => x.KodeKomponen).IsRequired().HasMaxLength(20);
-        builder.Property(x => x.KodeSubkomponen).IsRequired().HasMaxLength(20);
-        builder.Property(x => x.KodeAkun).IsRequired().HasMaxLength(20);
-
+        // Header fields
         builder.Property(x => x.NomorSTPB)
             .IsRequired()
             .HasMaxLength(50);
@@ -28,48 +20,36 @@ public class StpbConfiguration : IEntityTypeConfiguration<Stpb>
         builder.HasIndex(x => x.NomorSTPB)
             .IsUnique();
 
-        builder.Property(x => x.Tanggal)
+        builder.Property(x => x.TanggalSTPB)
             .IsRequired();
 
-        builder.HasIndex(x => x.Tanggal);
+        builder.HasIndex(x => x.TanggalSTPB);
 
-        builder.Property(x => x.Uraian)
-            .HasColumnType("text");
+        builder.Property(x => x.Tahun)
+            .IsRequired();
 
-        builder.Property(x => x.Nominal)
-            .HasColumnType("decimal(18,2)")
-            .HasDefaultValue(0.00m);
+        builder.HasIndex(x => x.Tahun);
 
-        builder.Property(x => x.PPn)
-            .HasColumnType("decimal(18,2)")
-            .HasDefaultValue(0.00m);
-
-        builder.Property(x => x.PPh21)
-            .HasColumnType("decimal(18,2)")
-            .HasDefaultValue(0.00m);
-
-        builder.Property(x => x.PPh22)
-            .HasColumnType("decimal(18,2)")
-            .HasDefaultValue(0.00m);
-
-        builder.Property(x => x.PPh23)
-            .HasColumnType("decimal(18,2)")
-            .HasDefaultValue(0.00m);
-
-        builder.Property(x => x.NilaiBersih)
-            .HasColumnType("decimal(18,2)")
-            .HasDefaultValue(0.00m);
-
-        builder.Property(x => x.IsLocked)
+        builder.Property(x => x.Status)
             .IsRequired()
-            .HasDefaultValue(false);
+            .HasConversion<int>();
 
-        builder.HasIndex(x => x.IsLocked);
+        builder.HasIndex(x => x.Status);
+
+        builder.Property(x => x.PpkBendaharaId)
+            .IsRequired();
 
         builder.Property(x => x.CreatedBy)
             .IsRequired();
 
         builder.HasIndex(x => x.CreatedBy);
+
+        builder.Property(x => x.TotalNilai)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0.00m);
+
+        builder.Property(x => x.Keterangan)
+            .HasColumnType("text");
 
         builder.Property(x => x.CreatedAt);
 
@@ -77,9 +57,19 @@ public class StpbConfiguration : IEntityTypeConfiguration<Stpb>
             .ValueGeneratedOnAddOrUpdate();
 
         // Relationships
+        builder.HasOne(x => x.PpkBendahara)
+            .WithMany(x => x.Stpbs)
+            .HasForeignKey(x => x.PpkBendaharaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasOne(x => x.Creator)
             .WithMany(x => x.StpbList)
             .HasForeignKey(x => x.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(x => x.StpbDetails)
+            .WithOne(x => x.Stpb)
+            .HasForeignKey(x => x.StpbId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

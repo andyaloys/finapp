@@ -11,4 +11,15 @@ public interface IStpbService
     Task<StpbDto> UpdateAsync(Guid id, UpdateStpbDto dto);
     Task<bool> DeleteAsync(Guid id);
     Task<IEnumerable<StpbDto>> GetByUserIdAsync(Guid userId);
+    
+    // Workflow methods
+    Task<StpbDto> KirimAsync(Guid id, Guid userId);
+    Task<StpbDto> ApproveAsync(Guid id, Guid userId);
+    Task<StpbDto> KembalikanAsync(Guid id, Guid userId, string alasan);
+    
+    // Detail management methods
+    Task<StpbDetailDto> AddDetailAsync(Guid stpbId, CreateStpbDetailDto dto, Guid userId);
+    Task<StpbDetailDto> UpdateDetailAsync(Guid stpbId, Guid detailId, CreateStpbDetailDto dto, Guid userId);
+    Task<bool> DeleteDetailAsync(Guid stpbId, Guid detailId, Guid userId);
 }
+

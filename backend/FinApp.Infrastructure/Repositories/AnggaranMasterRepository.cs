@@ -1,15 +1,14 @@
 using FinApp.Domain.Entities;
+using FinApp.Domain.Interfaces;
 using FinApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinApp.Infrastructure.Repositories;
 
-public class AnggaranMasterRepository
+public class AnggaranMasterRepository : Repository<AnggaranMaster>, IAnggaranMasterRepository
 {
-    private readonly AppDbContext _context;
-    public AnggaranMasterRepository(AppDbContext context)
+    public AnggaranMasterRepository(AppDbContext context) : base(context)
     {
-        _context = context;
     }
 
     public async Task<List<AnggaranMaster>> GetByTahunRevisiAsync(int tahun, int revisi)

@@ -1,0 +1,75 @@
+.anggaran-info-section {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 8px 16px;
+    align-items: baseline;
+
+    .info-item {
+      display: contents;
+
+      &.full-width {
+        display: contents;
+      }
+
+      .info-label {
+        font-weight: 600;
+        color: #595959;
+        text-align: right;
+        padding-right: 8px;
+      }
+
+      .info-value {
+        color: #262626;
+      }
+    }
+  }
+}
+
+.total-section {
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin-top: 16px;
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+
+    &.final {
+      padding-top: 12px;
+      font-size: 16px;
+    }
+  }
+
+  .total-label {
+    font-size: 14px;
+    color: #595959;
+  }
+
+  .total-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1890ff;
+  }
+}
+
+:host ::ng-deep {
+  .ant-form-item-label > label {
+    font-weight: 600;
+  }
+
+  .ant-select-disabled {
+    .ant-select-selector {
+      background-color: #f5f5f5 !important;
+    }
+  }
+}

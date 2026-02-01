@@ -1,0 +1,143 @@
+<div class="monitoring-container">
+  <app-page-header 
+    title="Monitoring Anggaran" 
+    subtitle="Monitoring realisasi anggaran tahun berjalan">
+    <button nz-button nzType="primary" (click)="exportToExcel()">
+      <span nz-icon nzType="download"></span>
+      Export Excel
+    </button>
+  </app-page-header>
+
+  <div class="content-wrapper">
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <nz-card class="summary-card">
+        <nz-statistic 
+          [nzValue]="totalPagu" 
+          [nzTitle]="'Total Pagu Anggaran'"
+          [nzPrefix]="'Rp'"
+          [nzValueStyle]="{ color: '#1890ff' }">
+        </nz-statistic>
+      </nz-card>
+      
+      <nz-card class="summary-card">
+        <nz-statistic 
+          [nzValue]="totalRealisasi" 
+          [nzTitle]="'Total Realisasi'"
+          [nzPrefix]="'Rp'"
+          [nzValueStyle]="{ color: '#52c41a' }">
+        </nz-statistic>
+      </nz-card>
+      
+      <nz-card class="summary-card">
+        <nz-statistic 
+          [nzValue]="totalSisa" 
+          [nzTitle]="'Sisa Anggaran'"
+          [nzPrefix]="'Rp'"
+          [nzValueStyle]="{ color: '#faad14' }">
+        </nz-statistic>
+      </nz-card>
+      
+      <nz-card class="summary-card">
+        <nz-statistic 
+          [nzValue]="persenRealisasiTotal.toFixed(2)" 
+          [nzTitle]="'Persentase Realisasi'"
+          [nzSuffix]="'%'"
+          [nzValueStyle]="{ color: persenRealisasiTotal > 80 ? '#f5222d' : '#52c41a' }">
+        </nz-statistic>
+      </nz-card>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-container">
+      <nz-select 
+        [(ngModel)]="selectedTahun" 
+        (ngModelChange)="onTahunChange()"
+        class="tahun-select">
+        <nz-option 
+          *ngFor="let tahun of tahunOptions" 
+          [nzValue]="tahun" 
+          [nzLabel]="'Tahun ' + tahun">
+        </nz-option>
+      </nz-select>
+
+      <nz-input-group [nzPrefix]="prefixIconSearch" class="search-input">
+        <input 
+          type="text" 
+          nz-input 
+          placeholder="Cari COA, nama item, akun..." 
+          [(ngModel)]="searchTerm" 
+          (keyup.enter)="onSearch()" 
+        />
+      </nz-input-group>
+      <ng-template #prefixIconSearch>
+        <span nz-icon nzType="search"></span>
+      </ng-template>
+
+      <button nz-button nzType="text" (click)="loadData()">
+        <span nz-icon nzType="reload"></span>
+      </button>
+    </div>
+
+    <!-- Data Table -->
+    <nz-table 
+      #dataTable 
+      [nzData]="filteredData" 
+      [nzLoading]="loading"
+      [nzPageSize]="20"
+      [nzScroll]="{ x: '1800px' }"
+      class="monitoring-table">
+      <thead>
+        <tr>
+          <th nzWidth="40px">No</th>
+          <th nzWidth="200px">COA</th>
+          <th nzWidth="200px">Nama Item</th>
+          <th nzWidth="150px">Nama Akun</th>
+          <th nzAlign="right" nzWidth="120px">Pagu Anggaran</th>
+          <th nzAlign="right" nzWidth="120px">Realisasi</th>
+          <th nzAlign="right" nzWidth="120px">Sisa Anggaran</th>
+          <th nzWidth="150px">% Realisasi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of dataTable.data; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>
+            <div class="coa-cell">
+              <span class="coa-code">{{ item.coa }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="item-name">{{ item.namaItem }}</span>
+          </td>
+          <td>{{ item.namaAkun }}</td>
+          <td nzAlign="right">
+            <span class="amount-text">{{ item.paguAnggaran | number: '1.0-0' }}</span>
+          </td>
+          <td nzAlign="right">
+            <span class="amount-text realisasi">{{ item.realisasi | number: '1.0-0' }}</span>
+          </td>
+          <td nzAlign="right">
+            <span class="amount-text" [ngClass]="{'negative': item.sisaAnggaran < 0}">
+              {{ item.sisaAnggaran | number: '1.0-0' }}
+            </span>
+          </td>
+          <td>
+            <div class="progress-container">
+              <nz-progress 
+                [nzPercent]="item.persenRealisasi" 
+                [nzStatus]="getProgressColor(item.persenRealisasi)"
+                [nzShowInfo]="true"
+                [nzFormat]="formatPercent">
+              </nz-progress>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<ng-template #formatPercent let-percent>
+  {{ percent | number: '1.2-2' }}%
+</ng-template>
