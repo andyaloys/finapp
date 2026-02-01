@@ -18,10 +18,8 @@ namespace FinApp.Core.Validators
                 .NotEmpty().WithMessage("Email harus diisi")
                 .EmailAddress().WithMessage("Format email tidak valid");
 
-            RuleFor(x => x.Role)
-                .NotEmpty().WithMessage("Role harus diisi")
-                .Must(role => role == "Admin" || role == "User")
-                .WithMessage("Role harus Admin atau User");
+            RuleFor(x => x.RoleId)
+                .NotEmpty().WithMessage("Role harus diisi");
         }
     }
 }

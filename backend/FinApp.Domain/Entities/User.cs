@@ -6,9 +6,10 @@ public class User : BaseEntity
     public string PasswordHash { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
-    public string Role { get; set; } = "User";
+    public Guid RoleId { get; set; }
     public bool IsActive { get; set; } = true;
 
     // Navigation properties
+    public Role Role { get; set; } = null!;
     public ICollection<Stpb> StpbList { get; set; } = new List<Stpb>();
 }

@@ -10,6 +10,8 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<RoleSuboutput> RoleSuboutputs { get; set; }
     public DbSet<Stpb> Stpbs { get; set; }
     public DbSet<Program> Programs { get; set; }
     public DbSet<Kegiatan> Kegiatans { get; set; }
@@ -35,6 +37,29 @@ public class AppDbContext : DbContext
 
     private void SeedData(ModelBuilder modelBuilder)
     {
+        // Seed default admin role
+        var adminRoleId = Guid.Parse("00000000-0000-0000-0000-000000000010");
+        var userRoleId = Guid.Parse("00000000-0000-0000-0000-000000000011");
+        
+        modelBuilder.Entity<Role>().HasData(
+            new Role
+            {
+                Id = adminRoleId,
+                Name = "Admin",
+                Description = "Administrator dengan akses penuh",
+                IsAdmin = true,
+                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            },
+            new Role
+            {
+                Id = userRoleId,
+                Name = "User",
+                Description = "User biasa dengan akses terbatas",
+                IsAdmin = false,
+                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            }
+        );
+
         // Seed default admin user
         // Password: Admin123! (will be hashed)
         modelBuilder.Entity<User>().HasData(
@@ -44,7 +69,7 @@ public class AppDbContext : DbContext
                 Username = "admin",
                 Email = "admin@finapp.com",
                 FullName = "Administrator",
-                Role = "Admin",
+                RoleId = adminRoleId,
                 // BCrypt hash for "Admin123!"
                 PasswordHash = "$2a$11$6mtygzX7D/O53nh87B5W3O3ro/wBXjAF64kFyYrthx5vpWsg9vfmO",
                 IsActive = true,

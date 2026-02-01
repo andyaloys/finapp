@@ -16,6 +16,22 @@ public class UserRepository : Repository<User>, IUserRepository
         return await _dbSet.FirstOrDefaultAsync(u => u.Username == username);
     }
 
+    public async Task<User?> GetByUsernameWithRoleAsync(string username)
+    {
+        return await _dbSet
+            .Include(u => u.Role)
+                .ThenInclude(r => r.RoleSuboutputs)
+            .FirstOrDefaultAsync(u => u.Username == username);
+    }
+
+    public async Task<User?> GetByIdWithRoleAsync(Guid id)
+    {
+        return await _dbSet
+            .Include(u => u.Role)
+                .ThenInclude(r => r.RoleSuboutputs)
+            .FirstOrDefaultAsync(u => u.Id == id);
+    }
+
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);

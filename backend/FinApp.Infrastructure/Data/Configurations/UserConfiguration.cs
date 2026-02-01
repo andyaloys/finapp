@@ -33,9 +33,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(x => x.Role)
-            .HasMaxLength(20)
-            .HasDefaultValue("User");
+        builder.Property(x => x.RoleId)
+            .IsRequired();
 
         builder.Property(x => x.IsActive)
             .HasDefaultValue(true);
@@ -46,6 +45,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .ValueGeneratedOnAddOrUpdate();
 
         // Relationships
+        builder.HasOne(x => x.Role)
+            .WithMany(r => r.Users)
+            .HasForeignKey(x => x.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(x => x.StpbList)
             .WithOne(x => x.Creator)
             .HasForeignKey(x => x.CreatedBy)

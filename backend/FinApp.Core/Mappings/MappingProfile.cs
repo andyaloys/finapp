@@ -1,6 +1,7 @@
 using AutoMapper;
 using FinApp.Core.DTOs.Stpb;
 using FinApp.Core.DTOs.User;
+using FinApp.Core.DTOs.Role;
 using FinApp.Core.DTOs.Program;
 using FinApp.Core.DTOs.Kegiatan;
 using FinApp.Core.DTOs.Output;
@@ -17,6 +18,11 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
+        // Role mappings
+        CreateMap<Role, RoleDto>();
+        CreateMap<CreateRoleDto, Role>();
+        CreateMap<RoleSuboutput, RoleSuboutputDto>();
+
         // STPB mappings
         CreateMap<Stpb, StpbDto>()
             .ForMember(dest => dest.CreatorName, 

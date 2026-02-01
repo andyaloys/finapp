@@ -29,7 +29,8 @@ public class StpbController : BaseApiController
     {
         try
         {
-            var result = await _stpbService.GetAllAsync(pageNumber, pageSize, searchTerm);
+            var userId = GetUserId();
+            var result = await _stpbService.GetAllAsync(pageNumber, pageSize, searchTerm, userId);
             return Ok(ApiResponse<PagedResult<StpbDto>>.SuccessResponse(result));
         }
         catch (Exception ex)

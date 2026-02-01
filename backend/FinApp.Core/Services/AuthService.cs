@@ -19,7 +19,7 @@ public class AuthService : IAuthService
 
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
     {
-        var user = await _unitOfWork.Users.GetByUsernameAsync(request.Username);
+        var user = await _unitOfWork.Users.GetByUsernameWithRoleAsync(request.Username);
         
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
@@ -39,7 +39,7 @@ public class AuthService : IAuthService
             Username = user.Username,
             FullName = user.FullName,
             Email = user.Email,
-            Role = user.Role,
+            Role = user.Role?.Name ?? "User",
             ExpiresAt = DateTime.UtcNow.AddHours(1)
         };
     }
@@ -57,13 +57,16 @@ public class AuthService : IAuthService
             throw new ValidationException("Email already exists");
         }
 
+        // Use default User role ID
+        var defaultRoleId = Guid.Parse("00000000-0000-0000-0000-000000000011");
+
         var user = new Domain.Entities.User
         {
             Username = request.Username,
             Email = request.Email,
             FullName = request.FullName,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = "User",
+            RoleId = defaultRoleId,
             IsActive = true
         };
 

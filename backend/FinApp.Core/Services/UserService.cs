@@ -60,7 +60,7 @@ namespace FinApp.Core.Services
 
             user.FullName = dto.FullName;
             user.Email = dto.Email;
-            user.Role = dto.Role;
+            user.RoleId = dto.RoleId;
             user.IsActive = dto.IsActive;
 
             // Update password only if provided

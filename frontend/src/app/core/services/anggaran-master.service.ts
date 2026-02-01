@@ -29,6 +29,10 @@ export class AnggaranMasterService {
     return this.http.get<any>(`${this.apiUrl}/distinct-suboutputs?tahun=${tahun}&revisi=${revisi}&kdProgram=${kdProgram}&kdGiat=${kdGiat}&kdOutput=${kdOutput}`);
   }
 
+  getAllSuboutputs(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/distinct-suboutputs?tahun=0&revisi=0&kdProgram=&kdGiat=&kdOutput=`);
+  }
+
   getDistinctKomponens(tahun: number, revisi: number, kdProgram: string, kdGiat: string, kdOutput: string, kdSOutput: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/distinct-komponens?tahun=${tahun}&revisi=${revisi}&kdProgram=${kdProgram}&kdGiat=${kdGiat}&kdOutput=${kdOutput}&kdSOutput=${kdSOutput}`);
   }

@@ -3,6 +3,7 @@ using System;
 using FinApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260126151034_AddRoleBasedAccessControl")]
+    partial class AddRoleBasedAccessControl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -447,7 +450,7 @@ namespace FinApp.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
@@ -464,8 +467,7 @@ namespace FinApp.Infrastructure.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Administrator dengan akses penuh",
                             IsAdmin = true,
-                            Name = "Admin",
-                            UpdatedAt = new DateTime(2026, 1, 27, 2, 35, 36, 645, DateTimeKind.Utc).AddTicks(8195)
+                            Name = "Admin"
                         },
                         new
                         {
@@ -473,8 +475,7 @@ namespace FinApp.Infrastructure.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "User biasa dengan akses terbatas",
                             IsAdmin = false,
-                            Name = "User",
-                            UpdatedAt = new DateTime(2026, 1, 27, 2, 35, 36, 645, DateTimeKind.Utc).AddTicks(8206)
+                            Name = "User"
                         });
                 });
 
@@ -494,9 +495,6 @@ namespace FinApp.Infrastructure.Migrations
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 

@@ -19,10 +19,24 @@ public class StpbService : IStpbService
         _mapper = mapper;
     }
 
-    public async Task<PagedResult<StpbDto>> GetAllAsync(int pageNumber, int pageSize, string? searchTerm = null)
+    public async Task<PagedResult<StpbDto>> GetAllAsync(int pageNumber, int pageSize, string? searchTerm, Guid userId)
     {
+        // Get user with role
+        var user = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
+
+        if (user == null)
+            throw new UnauthorizedException("User not found");
+
         var (items, totalCount) = await _unitOfWork.Stpbs.GetPagedAsync(pageNumber, pageSize, searchTerm);
         
+        // Filter by role if not admin
+        if (!user.Role.IsAdmin)
+        {
+            var allowedSuboutputs = user.Role.RoleSuboutputs.Select(rs => rs.KodeSuboutput).ToList();
+            items = items.Where(s => allowedSuboutputs.Contains(s.KodeSuboutput)).ToList();
+            totalCount = items.Count();
+        }
+
         var dtos = _mapper.Map<IEnumerable<StpbDto>>(items);
 
         return new PagedResult<StpbDto>
@@ -48,6 +62,22 @@ public class StpbService : IStpbService
 
     public async Task<StpbDto> CreateAsync(CreateStpbDto dto, Guid userId)
     {
+        // Get user with role to validate access
+        var user = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
+
+        if (user == null)
+            throw new UnauthorizedException("User not found");
+
+        // Validate user has access to this suboutput (if not admin)
+        if (!user.Role.IsAdmin)
+        {
+            var allowedSuboutputs = user.Role.RoleSuboutputs.Select(rs => rs.KodeSuboutput).ToList();
+            if (!allowedSuboutputs.Contains(dto.SuboutputId))
+            {
+                throw new UnauthorizedException("Anda tidak memiliki akses untuk membuat STPB pada suboutput ini");
+            }
+        }
+
         // Auto-generate nomor STPB if not provided
         if (string.IsNullOrWhiteSpace(dto.NomorSTPB))
         {

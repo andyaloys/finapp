@@ -3,6 +3,7 @@ using FinApp.Core.Services;
 using FinApp.Core.Mappings;
 using FinApp.Domain.Interfaces;
 using FinApp.Infrastructure.Data;
+using FinApp.Infrastructure.Repositories;
 using FinApp.Infrastructure.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -25,10 +26,12 @@ public static class ServiceExtensions
         });
 
         // Repositories & Unit of Work
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Services
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IStpbService, StpbService>();
         services.AddScoped<StpbPdfService>();
         services.AddScoped<IUserService, UserService>();

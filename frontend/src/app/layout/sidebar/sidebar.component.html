@@ -31,6 +31,24 @@
       </li>
     </ul>
   </li>
+  <li nz-submenu 
+      nzTitle="Administration" 
+      nzIcon="setting"
+      [(nzOpen)]="openMap['admin']"
+      (nzOpenChange)="openHandler('admin')">
+    <ul>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/user">
+          <span>User Management</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/role">
+          <span>Role Management</span>
+        </a>
+      </li>
+    </ul>
+  </li>
 </ul>
 
 

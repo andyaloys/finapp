@@ -3,6 +3,8 @@ namespace FinApp.Domain.Interfaces;
 public interface IUnitOfWork : IDisposable
 {
     IUserRepository Users { get; }
+    IRoleRepository Roles { get; }
+    IRoleSuboutputRepository RoleSuboutputs { get; }
     IStpbRepository Stpbs { get; }
     IProgramRepository Programs { get; }
     IKegiatanRepository Kegiatans { get; }

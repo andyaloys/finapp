@@ -11,6 +11,8 @@ public class UnitOfWork : IUnitOfWork
     private IDbContextTransaction? _transaction;
     
     public IUserRepository Users { get; }
+    public IRoleRepository Roles { get; }
+    public IRoleSuboutputRepository RoleSuboutputs { get; }
     public IStpbRepository Stpbs { get; }
     public IProgramRepository Programs { get; }
     public IKegiatanRepository Kegiatans { get; }
@@ -26,6 +28,8 @@ public class UnitOfWork : IUnitOfWork
     {
         _context = context;
         Users = new UserRepository(context);
+        Roles = new RoleRepository(context);
+        RoleSuboutputs = new RoleSuboutputRepository(context);
         Stpbs = new StpbRepository(context);
         Programs = new ProgramRepository(context);
         Kegiatans = new KegiatanRepository(context);

@@ -1,18 +1,45 @@
 using FinApp.Domain.Entities;
 using FinApp.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace FinApp.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class AnggaranMasterQueryController : ControllerBase
 {
     private readonly AppDbContext _context;
     public AnggaranMasterQueryController(AppDbContext context)
     {
         _context = context;
+    }
+
+    private async Task<User?> GetCurrentUserWithRoleAsync()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return null;
+
+        return await _context.Users
+            .Include(u => u.Role)
+                .ThenInclude(r => r.RoleSuboutputs)
+            .FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId));
+    }
+
+    private IQueryable<AnggaranMaster> ApplyRoleFilter(IQueryable<AnggaranMaster> query, User user)
+    {
+        if (user.Role.IsAdmin)
+            return query;
+
+        var allowedSuboutputs = user.Role.RoleSuboutputs
+            .Select(rs => rs.KodeSuboutput)
+            .Where(k => k != null)
+            .ToList();
+        return query.Where(x => x.KdSOutput != null && allowedSuboutputs.Contains(x.KdSOutput));
     }
 
     [HttpGet("distinct-tahun")]
@@ -41,9 +68,16 @@ public class AnggaranMasterQueryController : ControllerBase
     [HttpGet("distinct-suboutputs")]
     public async Task<IActionResult> GetDistinctSuboutputs([FromQuery] int tahun, [FromQuery] int revisi, [FromQuery] string kdProgram, [FromQuery] string kdGiat, [FromQuery] string kdOutput)
     {
-        var suboutputs = await _context.AnggaranMasters
-            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat && x.KdOutput == kdOutput)
-            .Select(x => new { x.KdSOutput, x.NmSOutput })
+        var user = await GetCurrentUserWithRoleAsync();
+        if (user == null)
+            return Unauthorized();
+
+        var query = _context.AnggaranMasters
+            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat && x.KdOutput == kdOutput);
+
+        query = ApplyRoleFilter(query, user);
+
+        var suboutputs = await query.Select(x => new { x.KdSOutput, x.NmSOutput })
             .Distinct()
             .ToListAsync();
         return Ok(new { success = true, data = suboutputs });
@@ -52,9 +86,16 @@ public class AnggaranMasterQueryController : ControllerBase
     [HttpGet("distinct-komponens")]
     public async Task<IActionResult> GetDistinctKomponens([FromQuery] int tahun, [FromQuery] int revisi, [FromQuery] string kdProgram, [FromQuery] string kdGiat, [FromQuery] string kdOutput, [FromQuery] string kdSOutput)
     {
-        var komponens = await _context.AnggaranMasters
-            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat && x.KdOutput == kdOutput && x.KdSOutput == kdSOutput)
-            .Select(x => new { x.KdKmpnen, x.NmKmpnen })
+        var user = await GetCurrentUserWithRoleAsync();
+        if (user == null)
+            return Unauthorized();
+
+        var query = _context.AnggaranMasters
+            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat && x.KdOutput == kdOutput && x.KdSOutput == kdSOutput);
+
+        query = ApplyRoleFilter(query, user);
+
+        var komponens = await query.Select(x => new { x.KdKmpnen, x.NmKmpnen })
             .Distinct()
             .ToListAsync();
         return Ok(new { success = true, data = komponens });
@@ -63,9 +104,16 @@ public class AnggaranMasterQueryController : ControllerBase
     [HttpGet("distinct-subkomponens")]
     public async Task<IActionResult> GetDistinctSubkomponens([FromQuery] int tahun, [FromQuery] int revisi, [FromQuery] string kdProgram, [FromQuery] string kdGiat, [FromQuery] string kdOutput, [FromQuery] string kdSOutput, [FromQuery] string kdKmpnen)
     {
-        var subkomponens = await _context.AnggaranMasters
-            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat && x.KdOutput == kdOutput && x.KdSOutput == kdSOutput && x.KdKmpnen == kdKmpnen)
-            .Select(x => new { x.KdSkmpnen, x.NmSkmpnen })
+        var user = await GetCurrentUserWithRoleAsync();
+        if (user == null)
+            return Unauthorized();
+
+        var query = _context.AnggaranMasters
+            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat && x.KdOutput == kdOutput && x.KdSOutput == kdSOutput && x.KdKmpnen == kdKmpnen);
+
+        query = ApplyRoleFilter(query, user);
+
+        var subkomponens = await query.Select(x => new { x.KdSkmpnen, x.NmSkmpnen })
             .Distinct()
             .ToListAsync();
         return Ok(new { success = true, data = subkomponens });
@@ -74,9 +122,16 @@ public class AnggaranMasterQueryController : ControllerBase
     [HttpGet("distinct-akuns")]
     public async Task<IActionResult> GetDistinctAkuns([FromQuery] int tahun, [FromQuery] int revisi, [FromQuery] string kdProgram, [FromQuery] string kdGiat, [FromQuery] string kdOutput, [FromQuery] string kdSOutput, [FromQuery] string kdKmpnen, [FromQuery] string kdSkmpnen)
     {
-        var akuns = await _context.AnggaranMasters
-            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat && x.KdOutput == kdOutput && x.KdSOutput == kdSOutput && x.KdKmpnen == kdKmpnen && x.KdSkmpnen == kdSkmpnen)
-            .Select(x => new { x.KdAkun, x.NmAkun })
+        var user = await GetCurrentUserWithRoleAsync();
+        if (user == null)
+            return Unauthorized();
+
+        var query = _context.AnggaranMasters
+            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat && x.KdOutput == kdOutput && x.KdSOutput == kdSOutput && x.KdKmpnen == kdKmpnen && x.KdSkmpnen == kdSkmpnen);
+
+        query = ApplyRoleFilter(query, user);
+
+        var akuns = await query.Select(x => new { x.KdAkun, x.NmAkun })
             .Distinct()
             .ToListAsync();
         return Ok(new { success = true, data = akuns });
@@ -85,9 +140,16 @@ public class AnggaranMasterQueryController : ControllerBase
     [HttpGet("distinct-items")]
     public async Task<IActionResult> GetDistinctItems([FromQuery] int tahun, [FromQuery] int revisi, [FromQuery] string kdProgram, [FromQuery] string kdGiat, [FromQuery] string kdOutput, [FromQuery] string kdSOutput, [FromQuery] string kdKmpnen, [FromQuery] string kdSkmpnen, [FromQuery] string kdAkun)
     {
-        var items = await _context.AnggaranMasters
-            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat && x.KdOutput == kdOutput && x.KdSOutput == kdSOutput && x.KdKmpnen == kdKmpnen && x.KdSkmpnen == kdSkmpnen && x.KdAkun == kdAkun)
-            .Select(x => new { x.NoItem, x.NmItem, x.VolKeg, x.SatKeg, x.HargaSat, x.Pagu, x.Netto })
+        var user = await GetCurrentUserWithRoleAsync();
+        if (user == null)
+            return Unauthorized();
+
+        var query = _context.AnggaranMasters
+            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat && x.KdOutput == kdOutput && x.KdSOutput == kdSOutput && x.KdKmpnen == kdKmpnen && x.KdSkmpnen == kdSkmpnen && x.KdAkun == kdAkun);
+
+        query = ApplyRoleFilter(query, user);
+
+        var items = await query.Select(x => new { x.NoItem, x.NmItem, x.VolKeg, x.SatKeg, x.HargaSat, x.Pagu, x.Netto })
             .Distinct()
             .ToListAsync();
         return Ok(new { success = true, data = items });
@@ -96,9 +158,16 @@ public class AnggaranMasterQueryController : ControllerBase
     [HttpGet("distinct-kegiatans")]
     public async Task<IActionResult> GetDistinctKegiatans([FromQuery] int tahun, [FromQuery] int revisi, [FromQuery] string kdProgram)
     {
-        var kegiatans = await _context.AnggaranMasters
-            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram)
-            .Select(x => new { x.KdGiat, x.NmGiat })
+        var user = await GetCurrentUserWithRoleAsync();
+        if (user == null)
+            return Unauthorized();
+
+        var query = _context.AnggaranMasters
+            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram);
+
+        query = ApplyRoleFilter(query, user);
+
+        var kegiatans = await query.Select(x => new { x.KdGiat, x.NmGiat })
             .Distinct()
             .ToListAsync();
         return Ok(new { success = true, data = kegiatans });
@@ -107,9 +176,16 @@ public class AnggaranMasterQueryController : ControllerBase
     [HttpGet("distinct-outputs")]
     public async Task<IActionResult> GetDistinctOutputs([FromQuery] int tahun, [FromQuery] int revisi, [FromQuery] string kdProgram, [FromQuery] string kdGiat)
     {
-        var outputs = await _context.AnggaranMasters
-            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat)
-            .Select(x => new { x.KdOutput, x.NmOutput })
+        var user = await GetCurrentUserWithRoleAsync();
+        if (user == null)
+            return Unauthorized();
+
+        var query = _context.AnggaranMasters
+            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi && x.KdProgram == kdProgram && x.KdGiat == kdGiat);
+
+        query = ApplyRoleFilter(query, user);
+
+        var outputs = await query.Select(x => new { x.KdOutput, x.NmOutput })
             .Distinct()
             .ToListAsync();
         return Ok(new { success = true, data = outputs });
@@ -127,9 +203,16 @@ public class AnggaranMasterQueryController : ControllerBase
     [HttpGet("distinct-programs")]
     public async Task<IActionResult> GetDistinctPrograms([FromQuery] int tahun, [FromQuery] int revisi)
     {
-        var programs = await _context.AnggaranMasters
-            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi)
-            .Select(x => new { x.KdProgram, x.NmProgram })
+        var user = await GetCurrentUserWithRoleAsync();
+        if (user == null)
+            return Unauthorized();
+
+        var query = _context.AnggaranMasters
+            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi);
+
+        query = ApplyRoleFilter(query, user);
+
+        var programs = await query.Select(x => new { x.KdProgram, x.NmProgram })
             .Distinct()
             .ToListAsync();
         return Ok(new { success = true, data = programs });
