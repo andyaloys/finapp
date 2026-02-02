@@ -179,7 +179,7 @@
           <td>{{ detail.uraian }}</td>
           <td nzAlign="right">{{ detail.jumlahHarga | number: '1.0-0' }}</td>
           <td nzAlign="right">{{ detail.ppn | number: '1.0-0' }}</td>
-          <td nzAlign="right">{{ (detail.pph21 + detail.pph22 + detail.pph23) | number: '1.0-0' }}</td>
+          <td nzAlign="right">{{ getTotalPph(detail) | number: '1.0-0' }}</td>
           <td nzAlign="right">
             <strong>{{ detail.nilaiBersih | number: '1.0-0' }}</strong>
           </td>

@@ -23,14 +23,14 @@ export function getStatusDisplay(status: StpbStatus): string {
 export function getStatusClass(status: StpbStatus): string {
   switch (status) {
     case StpbStatus.Draft:
-      return 'badge-secondary';
+      return 'cyan';
     case StpbStatus.Kirim:
-      return 'badge-info';
+      return 'processing';
     case StpbStatus.Approve:
-      return 'badge-success';
+      return 'success';
     case StpbStatus.Dikembalikan:
-      return 'badge-warning';
+      return 'warning';
     default:
-      return 'badge-secondary';
+      return 'default';
   }
 }

@@ -64,7 +64,7 @@
           </td>
           <td>
             <nz-tag [nzColor]="getStatusClass(data.status)" class="status-tag">
-              {{ data.statusDisplay }}
+              {{ getStatusDisplay(data.status) }}
             </nz-tag>
           </td>
           <td>{{ data.ppkBendahara?.nama || '-' }}</td>

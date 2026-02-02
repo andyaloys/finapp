@@ -15,7 +15,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { FormsModule } from '@angular/forms';
 import { StpbService } from '../../../core/services/stpb.service';
 import { Stpb } from '../../../core/models/stpb.model';
-import { StpbStatus, getStatusClass } from '../../../core/models/stpb-status.enum';
+import { StpbStatus, getStatusClass, getStatusDisplay } from '../../../core/models/stpb-status.enum';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { environment } from '../../../../environments/environment';
 
@@ -152,5 +152,9 @@ export class StpbListComponent implements OnInit {
 
   getStatusClass(status: StpbStatus): string {
     return getStatusClass(status);
+  }
+
+  getStatusDisplay(status: StpbStatus): string {
+    return getStatusDisplay(status);
   }
 }

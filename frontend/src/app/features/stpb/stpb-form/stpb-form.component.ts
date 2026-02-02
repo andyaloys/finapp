@@ -59,7 +59,7 @@ export class StpbFormComponent implements OnInit {
   stpb: Stpb | null = null;
 
   ppkBendaharaList: PpkBendaharaDto[] = [];
-  details: StpbDetailDto[] = [];
+  details: any[] = [];  // Changed to any[] to preserve all properties from API
   
   detailModalVisible = false;
   editingDetail: StpbDetailDto | null = null;
@@ -114,7 +114,8 @@ export class StpbFormComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           this.stpb = response.data;
-          this.details = response.data.details || [];
+          // Cast to any to preserve all properties from API
+          this.details = (response.data.details || []) as any[];
           
           this.stpbForm.patchValue({
             tahun: response.data.tahun,
@@ -326,6 +327,17 @@ export class StpbFormComponent implements OnInit {
 
   getTotalNilai(): number {
     return this.details.reduce((sum, detail) => sum + detail.jumlahHarga, 0);
+  }
+
+  getTotalPph(detail: any): number {
+    if (!detail) return 0;
+    
+    // Backend sends ppH21, ppH22, ppH23 (camelCase from PPH21, PPH22, PPH23)
+    const pph21 = Number(detail['ppH21']) || 0;
+    const pph22 = Number(detail['ppH22']) || 0;
+    const pph23 = Number(detail['ppH23']) || 0;
+    
+    return pph21 + pph22 + pph23;
   }
 
   onDetailModalSuccess(): void {
