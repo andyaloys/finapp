@@ -30,7 +30,7 @@ export class AnggaranMasterService {
   }
 
   getAllSuboutputs(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/distinct-suboutputs?tahun=0&revisi=0&kdProgram=&kdGiat=&kdOutput=`);
+    return this.http.get<any>(`${this.apiUrl}/all-suboutputs`);
   }
 
   getDistinctKomponens(tahun: number, revisi: number, kdProgram: string, kdGiat: string, kdOutput: string, kdSOutput: string): Observable<any> {

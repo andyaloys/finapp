@@ -65,6 +65,17 @@ public class AnggaranMasterQueryController : ControllerBase
         return Ok(new { success = true, data = revisiList });
     }
 
+    [HttpGet("all-suboutputs")]
+    public async Task<IActionResult> GetAllSuboutputs()
+    {
+        var suboutputs = await _context.AnggaranMasters
+            .Select(x => new { x.KdSOutput, x.NmSOutput })
+            .Distinct()
+            .OrderBy(x => x.KdSOutput)
+            .ToListAsync();
+        return Ok(new { success = true, data = suboutputs });
+    }
+
     [HttpGet("distinct-suboutputs")]
     public async Task<IActionResult> GetDistinctSuboutputs([FromQuery] int tahun, [FromQuery] int revisi, [FromQuery] string kdProgram, [FromQuery] string kdGiat, [FromQuery] string kdOutput)
     {
@@ -239,8 +250,22 @@ public class AnggaranMasterQueryController : ControllerBase
     [HttpGet("detail")]
     public async Task<IActionResult> GetDetail([FromQuery] int tahun, [FromQuery] int revisi)
     {
-        var details = await _context.AnggaranMasters
-            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi)
+        var user = await GetCurrentUserWithRoleAsync();
+
+        if (user == null)
+            return Unauthorized(new { success = false, message = "User not found" });
+
+        var query = _context.AnggaranMasters
+            .Where(x => x.TahunAnggaran == tahun && x.Revisi == revisi);
+
+        // Filter by role suboutputs if not admin
+        if (!user.Role.IsAdmin)
+        {
+            var allowedSuboutputs = user.Role.RoleSuboutputs.Select(rs => rs.KodeSuboutput).ToList();
+            query = query.Where(x => allowedSuboutputs.Contains(x.KdSOutput));
+        }
+
+        var details = await query
             .Select(x => new {
                 kdProgram = x.KdProgram,
                 kdGiat = x.KdGiat,

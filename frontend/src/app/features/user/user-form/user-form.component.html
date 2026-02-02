@@ -57,9 +57,8 @@
             <nz-form-item>
               <nz-form-label nzRequired>Role</nz-form-label>
               <nz-form-control>
-                <nz-select formControlName="role" nzPlaceHolder="Pilih role">
-                  <nz-option nzValue="Admin" nzLabel="Admin"></nz-option>
-                  <nz-option nzValue="User" nzLabel="User"></nz-option>
+                <nz-select formControlName="roleId" nzPlaceHolder="Pilih role">
+                  <nz-option *ngFor="let role of roles" [nzValue]="role.id" [nzLabel]="role.name"></nz-option>
                 </nz-select>
               </nz-form-control>
             </nz-form-item>

@@ -67,7 +67,8 @@ public class MappingProfile : Profile
         // User mappings
         CreateMap<User, UserDto>();
         CreateMap<CreateUserDto, User>()
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+            .ForMember(dest => dest.Role, opt => opt.Ignore());
 
         // Program mappings
         CreateMap<Program, ProgramDto>();

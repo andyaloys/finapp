@@ -1,7 +1,8 @@
 export interface ApiResponse<T> {
-  isSuccess: boolean;
+  success: boolean;
   message?: string;
   data: T;
+  errors?: string[];
 }
 
 export interface PagedResult<T> {

@@ -300,6 +300,15 @@ public class StpbService : IStpbService
         if (stpb.Status != StpbStatus.Draft && stpb.Status != StpbStatus.Dikembalikan)
             throw new ValidationException("Detail hanya dapat diubah pada status Draft atau Dikembalikan");
 
+        // Validate RBAC
+        var user = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
+        if (user != null && !user.Role.IsAdmin)
+        {
+            var allowedSuboutputs = user.Role.RoleSuboutputs.Select(rs => rs.KodeSuboutput).ToList();
+            if (!allowedSuboutputs.Contains(dto.KodeSuboutput))
+                throw new UnauthorizedException("Anda tidak memiliki akses untuk suboutput ini");
+        }
+
         var detail = await _unitOfWork.StpbDetails.GetByIdAsync(detailId);
         if (detail == null || detail.StpbId != stpbId)
             throw new NotFoundException($"Detail with ID {detailId} not found in this STPB");

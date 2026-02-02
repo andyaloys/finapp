@@ -10,6 +10,8 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { UserService } from '../../../core/services/user.service';
+import { RoleService } from '../../../core/services/role.service';
+import { Role } from '../../../core/models/role.model';
 
 @Component({
   selector: 'app-user-form',
@@ -32,10 +34,12 @@ export class UserFormComponent implements OnInit {
   isEditMode = false;
   userId?: string;
   isLoading = false;
+  roles: Role[] = [];
 
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
+    private roleService: RoleService,
     private router: Router,
     private route: ActivatedRoute,
     private message: NzMessageService
@@ -43,6 +47,7 @@ export class UserFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.loadRoles();
     
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -52,13 +57,27 @@ export class UserFormComponent implements OnInit {
     }
   }
 
+  loadRoles(): void {
+    this.roleService.getAllRoles().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.roles = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading roles:', error);
+        this.message.error('Gagal memuat data role');
+      }
+    });
+  }
+
   initForm(): void {
     this.userForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', this.isEditMode ? [] : [Validators.required, Validators.minLength(6)]],
       fullName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      role: ['User', [Validators.required]],
+      roleId: [null, [Validators.required]],
       isActive: [true]
     });
   }
@@ -72,7 +91,7 @@ export class UserFormComponent implements OnInit {
             username: response.data.username,
             fullName: response.data.fullName,
             email: response.data.email,
-            role: response.data.role,
+            roleId: response.data.roleId,
             isActive: response.data.isActive
           });
           // Make username readonly in edit mode

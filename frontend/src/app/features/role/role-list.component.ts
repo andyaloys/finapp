@@ -157,7 +157,7 @@ export class RoleListComponent implements OnInit {
     this.loading = true;
     this.roleService.getRoles(this.pageNumber, this.pageSize, this.searchTerm).subscribe({
       next: (response) => {
-        if (response.isSuccess && response.data) {
+        if (response.success && response.data) {
           this.roles = response.data.items;
           this.totalCount = response.data.totalCount;
         }
@@ -210,7 +210,7 @@ export class RoleListComponent implements OnInit {
   deleteRole(id: string): void {
     this.roleService.deleteRole(id).subscribe({
       next: (response) => {
-        if (response.isSuccess) {
+        if (response.success) {
           this.message.success('Role berhasil dihapus');
           this.loadRoles();
         } else {

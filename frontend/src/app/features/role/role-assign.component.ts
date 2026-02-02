@@ -66,11 +66,22 @@ interface TransferItem {
   styles: [`
     .page-container {
       padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
     ::ng-deep .ant-transfer {
       display: flex;
       justify-content: center;
+    }
+
+    ::ng-deep .ant-transfer-list {
+      width: 500px;
+      height: 500px;
+    }
+
+    ::ng-deep .ant-transfer-list-content {
+      height: 400px;
     }
   `]
 })
@@ -103,7 +114,7 @@ export class RoleAssignComponent implements OnInit {
     // Load role info
     this.roleService.getRoleById(this.roleId).subscribe({
       next: (response) => {
-        if (response.isSuccess && response.data) {
+        if (response.success && response.data) {
           this.roleName = response.data.name;
         }
       },
@@ -113,7 +124,7 @@ export class RoleAssignComponent implements OnInit {
     // Load assigned suboutputs
     this.roleService.getRoleSuboutputs(this.roleId).subscribe({
       next: (response) => {
-        if (response.isSuccess && response.data) {
+        if (response.success && response.data) {
           this.assignedSuboutputs = response.data.map((rs: RoleSuboutput) => rs.kodeSuboutput);
           this.loadAllSuboutputs();
         }
@@ -129,7 +140,7 @@ export class RoleAssignComponent implements OnInit {
     // Get all distinct suboutputs from anggaran
     this.anggaranService.getAllSuboutputs().subscribe({
       next: (response) => {
-        if (response.isSuccess && response.data) {
+        if (response.success && response.data) {
           this.transferData = response.data.map((item: any) => ({
             key: item.kdSOutput,
             title: `${item.kdSOutput} - ${item.nmSOutput}`,
@@ -164,7 +175,7 @@ export class RoleAssignComponent implements OnInit {
 
     this.roleService.assignSuboutputs(this.roleId, { kodeSuboutputs: assignedKeys }).subscribe({
       next: (response) => {
-        if (response.isSuccess) {
+        if (response.success) {
           this.message.success('Suboutput berhasil di-assign');
           this.router.navigate(['/role']);
         } else {

@@ -119,7 +119,7 @@ export class RoleFormComponent implements OnInit {
   loadRole(id: string): void {
     this.roleService.getRoleById(id).subscribe({
       next: (response) => {
-        if (response.isSuccess && response.data) {
+        if (response.success && response.data) {
           this.roleForm.patchValue({
             name: response.data.name,
             description: response.data.description,
@@ -145,7 +145,7 @@ export class RoleFormComponent implements OnInit {
 
       request$.subscribe({
         next: (response) => {
-          if (response.isSuccess) {
+          if (response.success) {
             this.message.success(
               this.isEditMode ? 'Role berhasil diupdate' : 'Role berhasil ditambahkan'
             );
