@@ -1,5 +1,29 @@
 <div class="app-header">
   <div class="header-right">
+    <!-- Year Selector -->
+    <div nz-dropdown [nzDropdownMenu]="yearMenu" nzTrigger="click" nzPlacement="bottomRight" class="year-selector">
+      <div class="year-badge-wrapper">
+        <div class="year-icon-circle">
+          <i nz-icon nzType="calendar" nzTheme="fill"></i>
+        </div>
+        <div class="year-text">
+          <span class="year-label">Tahun Anggaran</span>
+          <span class="year-value">{{ selectedYear }}</span>
+        </div>
+        <i nz-icon nzType="swap" nzTheme="outline" class="year-change-icon"></i>
+      </div>
+    </div>
+    <nz-dropdown-menu #yearMenu="nzDropdownMenu">
+      <ul nz-menu class="year-dropdown-menu">
+        <li nz-menu-item *ngFor="let year of availableYears" (click)="onYearChange(year)" class="year-menu-item" [class.active]="year === selectedYear">
+          <div class="year-item-content">
+            <span class="year-item-text">{{ year }}</span>
+            <i nz-icon nzType="check" *ngIf="year === selectedYear" class="check-icon"></i>
+          </div>
+        </li>
+      </ul>
+    </nz-dropdown-menu>
+
     <i nz-icon nzType="bulb" nzTheme="outline" class="header-icon dark-mode-icon"></i>
     <nz-badge [nzCount]="0" class="notification-badge">
       <i nz-icon nzType="bell" nzTheme="outline" class="header-icon"></i>

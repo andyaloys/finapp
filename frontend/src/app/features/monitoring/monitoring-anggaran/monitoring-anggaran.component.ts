@@ -11,6 +11,7 @@ import { NzProgressModule } from 'ng-zorro-antd/progress';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { MonitoringService } from '../../../core/services/monitoring.service';
+import { YearService } from '../../../core/services/year.service';
 import { MonitoringAnggaran } from '../../../core/models/monitoring.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import * as XLSX from 'xlsx';
@@ -52,8 +53,10 @@ export class MonitoringAnggaranComponent implements OnInit {
 
   constructor(
     private monitoringService: MonitoringService,
+    private yearService: YearService,
     private message: NzMessageService
   ) {
+    this.selectedTahun = this.yearService.getSelectedYear();
     // Generate tahun options (current year and previous 2 years)
     const currentYear = new Date().getFullYear();
     for (let i = 0; i < 3; i++) {

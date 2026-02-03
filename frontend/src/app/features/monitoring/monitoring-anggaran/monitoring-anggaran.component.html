@@ -1,6 +1,6 @@
 <div class="monitoring-container">
   <app-page-header 
-    title="Monitoring Anggaran" 
+    [title]="'Monitoring Anggaran - Tahun ' + selectedTahun" 
     subtitle="Monitoring realisasi anggaran tahun berjalan">
     <button nz-button nzType="primary" (click)="exportToExcel()">
       <span nz-icon nzType="download"></span>
@@ -15,27 +15,30 @@
         <nz-statistic 
           [nzValue]="totalPagu" 
           [nzTitle]="'Total Pagu Anggaran'"
-          [nzPrefix]="'Rp '"
-          [nzValueStyle]="{ color: '#1890ff' }">
+          [nzValueStyle]="{ color: '#1890ff' }"
+          [nzValueTemplate]="paguTemplate">
         </nz-statistic>
+        <ng-template #paguTemplate>{{ totalPagu | number:'1.0-0' }}</ng-template>
       </nz-card>
       
       <nz-card class="summary-card">
         <nz-statistic 
           [nzValue]="totalRealisasi" 
           [nzTitle]="'Total Realisasi'"
-          [nzPrefix]="'Rp '"
-          [nzValueStyle]="{ color: '#52c41a' }">
+          [nzValueStyle]="{ color: '#52c41a' }"
+          [nzValueTemplate]="realisasiTemplate">
         </nz-statistic>
+        <ng-template #realisasiTemplate>{{ totalRealisasi | number:'1.0-0' }}</ng-template>
       </nz-card>
       
       <nz-card class="summary-card">
         <nz-statistic 
           [nzValue]="totalSisa" 
           [nzTitle]="'Sisa Anggaran'"
-          [nzPrefix]="'Rp '"
-          [nzValueStyle]="{ color: '#faad14' }">
+          [nzValueStyle]="{ color: '#faad14' }"
+          [nzValueTemplate]="sisaTemplate">
         </nz-statistic>
+        <ng-template #sisaTemplate>{{ totalSisa | number:'1.0-0' }}</ng-template>
       </nz-card>
       
       <nz-card class="summary-card">
@@ -43,8 +46,10 @@
           [nzValue]="persenRealisasiTotal" 
           [nzTitle]="'Persentase Realisasi'"
           [nzSuffix]="' %'"
-          [nzValueStyle]="{ color: persenRealisasiTotal > 80 ? '#f5222d' : '#52c41a' }">
+          [nzValueStyle]="{ color: persenRealisasiTotal > 80 ? '#f5222d' : '#52c41a' }"
+          [nzValueTemplate]="persenTemplate">
         </nz-statistic>
+        <ng-template #persenTemplate>{{ persenRealisasiTotal | number:'1.2-2' }}</ng-template>
       </nz-card>
     </div>
 

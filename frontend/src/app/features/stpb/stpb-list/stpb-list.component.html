@@ -1,5 +1,7 @@
 <div class="stpb-list-container">
-  <app-page-header title="Surat Tanda Pertanggungjawaban Belanja (STPB)" subtitle="Kelola data STPB">
+  <app-page-header 
+    [title]="'Surat Tanda Pertanggungjawaban Belanja (STPB) - Tahun ' + selectedYear" 
+    subtitle="Kelola data STPB">
     <button nz-button nzType="primary" class="add-button" (click)="createNew()">
       <span nz-icon nzType="plus"></span>
       Tambah STPB Baru

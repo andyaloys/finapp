@@ -15,6 +15,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { FormsModule } from '@angular/forms';
 import { StpbService } from '../../../core/services/stpb.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { YearService } from '../../../core/services/year.service';
 import { Stpb } from '../../../core/models/stpb.model';
 import { StpbStatus, getStatusClass, getStatusDisplay } from '../../../core/models/stpb-status.enum';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -48,16 +49,20 @@ export class StpbListComponent implements OnInit {
   searchTerm = '';
   pdfModalVisible = false;
   pdfUrl: SafeResourceUrl | null = null;
+  selectedYear: number = new Date().getFullYear();
 
   constructor(
     private stpbService: StpbService,
     private authService: AuthService,
+    private yearService: YearService,
     private router: Router,
     private message: NzMessageService,
     private modal: NzModalService,
     private http: HttpClient,
     private sanitizer: DomSanitizer
-  ) {}
+  ) {
+    this.selectedYear = this.yearService.getSelectedYear();
+  }
 
   ngOnInit(): void {
     this.loadStpbs();

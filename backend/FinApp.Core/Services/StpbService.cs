@@ -19,7 +19,7 @@ public class StpbService : IStpbService
         _mapper = mapper;
     }
 
-    public async Task<PagedResult<StpbDto>> GetAllAsync(int pageNumber, int pageSize, string? searchTerm, Guid userId)
+    public async Task<PagedResult<StpbDto>> GetAllAsync(int pageNumber, int pageSize, string? searchTerm, Guid userId, int tahun)
     {
         // Get user with role and PpkBendahara
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
@@ -31,6 +31,9 @@ public class StpbService : IStpbService
             throw new UnauthorizedException("User role not found");
 
         var (items, totalCount) = await _unitOfWork.Stpbs.GetPagedAsync(pageNumber, pageSize, searchTerm);
+        
+        // Filter by tahun first
+        items = items.Where(s => s.Tahun == tahun).ToList();
         
         // Filter by role
         if (!userWithRole.Role.IsAdmin)
@@ -70,6 +73,10 @@ public class StpbService : IStpbService
                     s.StpbDetails.Any(d => allowedSuboutputs.Contains(d.KodeSuboutput))).ToList();
             }
             
+            totalCount = items.Count();
+        }
+        else
+        {
             totalCount = items.Count();
         }
 

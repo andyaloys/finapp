@@ -19,6 +19,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 
 import { StpbService } from '../../../core/services/stpb.service';
 import { PpkBendaharaService } from '../../../core/services/ppk-bendahara.service';
+import { YearService } from '../../../core/services/year.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StpbDetailModalComponent } from '../stpb-detail-modal/stpb-detail-modal.component';
 import { Stpb, CreateStpb, UpdateStpb } from '../../../core/models/stpb.model';
@@ -70,13 +71,15 @@ export class StpbFormComponent implements OnInit {
     private fb: FormBuilder,
     private stpbService: StpbService,
     private ppkBendaharaService: PpkBendaharaService,
+    private yearService: YearService,
     private router: Router,
     private route: ActivatedRoute,
     private message: NzMessageService,
     private modal: NzModalService
   ) {
+    const selectedYear = this.yearService.getSelectedYear();
     this.stpbForm = this.fb.group({
-      tahun: [new Date().getFullYear(), [Validators.required, Validators.min(2020), Validators.max(2099)]],
+      tahun: [{value: selectedYear, disabled: true}, [Validators.required, Validators.min(2020), Validators.max(2099)]],
       tanggal: [new Date(), [Validators.required]],
       nomorSTPB: [{value: '', disabled: true}],
       keterangan: [''],

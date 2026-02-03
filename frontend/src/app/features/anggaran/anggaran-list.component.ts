@@ -9,6 +9,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { AnggaranMasterService } from '../../core/services/anggaran-master.service';
+import { YearService } from '../../core/services/year.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -19,7 +20,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
   imports: [CommonModule, NzTableModule, NzButtonModule, ReactiveFormsModule, NzInputModule, NzSpinModule, NzMessageModule, NzIconModule, NzModalModule, NzToolTipModule],
   template: `
     <div class="anggaran-list-header">
-      <h2>Daftar Anggaran</h2>
+      <h2>Daftar Anggaran - Tahun {{ selectedYear }}</h2>
       <button nz-button nzType="primary" (click)="showUploadForm = !showUploadForm">
         {{ showUploadForm ? 'Batal' : 'Upload Anggaran' }}
       </button>
@@ -340,6 +341,7 @@ export class AnggaranListComponent {
   uploading = false;
   selectedFile: File | null = null;
   showUploadForm = false;
+  selectedYear: number = new Date().getFullYear();
   
   detailModalVisible = false;
   selectedTahun: number = 0;
@@ -351,9 +353,11 @@ export class AnggaranListComponent {
 
   constructor(
     private anggaranService: AnggaranMasterService,
+    private yearService: YearService,
     private fb: FormBuilder,
     private message: NzMessageService
   ) {
+    this.selectedYear = this.yearService.getSelectedYear();
     this.uploadForm = this.fb.group({
       tahunAnggaran: ['', [Validators.required]]
     });

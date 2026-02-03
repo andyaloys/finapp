@@ -290,9 +290,17 @@ public class AnggaranMasterQueryController : ControllerBase
     // Tambahkan endpoint serupa untuk Kegiatan, Output, dst jika perlu cascading
 
     [HttpGet("summary")]
-    public async Task<IActionResult> GetSummary()
+    public async Task<IActionResult> GetSummary([FromQuery] int? tahun)
     {
-        var summary = await _context.AnggaranMasters
+        var query = _context.AnggaranMasters.AsQueryable();
+        
+        // Filter by tahun if provided
+        if (tahun.HasValue)
+        {
+            query = query.Where(x => x.TahunAnggaran == tahun.Value);
+        }
+        
+        var summary = await query
             .GroupBy(x => new { x.TahunAnggaran, x.Revisi })
             .Select(g => new {
                 tahunAnggaran = g.Key.TahunAnggaran,

@@ -25,12 +25,17 @@ public class StpbController : BaseApiController
     public async Task<ActionResult<ApiResponse<PagedResult<StpbDto>>>> GetAll(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string? searchTerm = null)
+        [FromQuery] string? searchTerm = null,
+        [FromQuery] int? tahun = null)
     {
         try
         {
             var userId = GetUserId();
-            var result = await _stpbService.GetAllAsync(pageNumber, pageSize, searchTerm, userId);
+            
+            // Use tahun from query param, or default to current year
+            var selectedYear = tahun ?? DateTime.Now.Year;
+            
+            var result = await _stpbService.GetAllAsync(pageNumber, pageSize, searchTerm, userId, selectedYear);
             return Ok(ApiResponse<PagedResult<StpbDto>>.SuccessResponse(result));
         }
         catch (Exception ex)

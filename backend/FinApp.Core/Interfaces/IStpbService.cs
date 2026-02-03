@@ -5,7 +5,7 @@ namespace FinApp.Core.Interfaces;
 
 public interface IStpbService
 {
-    Task<PagedResult<StpbDto>> GetAllAsync(int pageNumber, int pageSize, string? searchTerm, Guid userId);
+    Task<PagedResult<StpbDto>> GetAllAsync(int pageNumber, int pageSize, string? searchTerm, Guid userId, int tahun);
     Task<StpbDto?> GetByIdAsync(Guid id);
     Task<StpbDto> CreateAsync(CreateStpbDto dto, Guid userId);
     Task<StpbDto> UpdateAsync(Guid id, UpdateStpbDto dto);
