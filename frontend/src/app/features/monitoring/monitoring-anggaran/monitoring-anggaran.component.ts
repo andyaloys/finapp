@@ -7,16 +7,13 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzProgressModule } from 'ng-zorro-antd/progress';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { MonitoringService } from '../../../core/services/monitoring.service';
 import { YearService } from '../../../core/services/year.service';
-import { MonitoringAnggaran } from '../../../core/models/monitoring.model';
+import { MonitoringAnggaran, StpbDetailMonitoring } from '../../../core/models/monitoring.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import * as XLSX from 'xlsx';
-
-type NzProgressStatusType = 'success' | 'exception' | 'active' | 'normal';
 
 @Component({
   selector: 'app-monitoring-anggaran',
@@ -30,7 +27,6 @@ type NzProgressStatusType = 'success' | 'exception' | 'active' | 'normal';
     NzInputModule,
     NzSelectModule,
     NzCardModule,
-    NzProgressModule,
     NzStatisticModule,
     PageHeaderComponent
   ],
@@ -50,6 +46,11 @@ export class MonitoringAnggaranComponent implements OnInit {
   totalRealisasi = 0;
   totalSisa = 0;
   persenRealisasiTotal = 0;
+
+  // Expandable rows
+  expandSet = new Set<number>();
+  stpbDetailsMap = new Map<number, StpbDetailMonitoring[]>();
+  loadingDetailsMap = new Map<number, boolean>();
 
   constructor(
     private monitoringService: MonitoringService,
@@ -110,11 +111,35 @@ export class MonitoringAnggaranComponent implements OnInit {
     this.persenRealisasiTotal = this.totalPagu > 0 ? (this.totalRealisasi / this.totalPagu) * 100 : 0;
   }
 
-  getProgressColor(persen: number): NzProgressStatusType {
+  onExpandChange(index: number, checked: boolean, item: MonitoringAnggaran): void {
+    if (checked) {
+      this.expandSet.add(index);
+      if (!this.stpbDetailsMap.has(index)) {
+        this.loadStpbDetails(index, item);
+      }
+    } else {
+      this.expandSet.delete(index);
+    }
+  }
+
+  loadStpbDetails(index: number, item: MonitoringAnggaran): void {
+    this.loadingDetailsMap.set(index, true);
+    this.monitoringService.getStpbDetails(item).subscribe({
+      next: (response) => {
+        this.stpbDetailsMap.set(index, response.data);
+        this.loadingDetailsMap.set(index, false);
+      },
+      error: () => {
+        this.message.error('Gagal memuat detail STPB');
+        this.loadingDetailsMap.set(index, false);
+      }
+    });
+  }
+
+  getPercentageClass(persen: number): string {
     if (persen < 50) return 'success';
-    if (persen < 80) return 'normal';
-    if (persen < 100) return 'exception';
-    return 'exception';
+    if (persen < 80) return 'warning';
+    return 'danger';
   }
 
   exportToExcel(): void {

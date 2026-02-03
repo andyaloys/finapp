@@ -11,86 +11,94 @@
   <ng-container *nzModalContent>
     <form nz-form [formGroup]="detailForm" nzLayout="vertical">
       
-      <!-- Display Full Anggaran Info (Edit Mode Only) -->
-      <div *ngIf="isEditMode && detail" class="anggaran-info-section">
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-label">Kode Program:</span>
-            <span class="info-value">{{ detail.kodeProgram }}</span>
-          </div>
-          <div class="info-item full-width">
-            <span class="info-label">Nama Program:</span>
-            <span class="info-value">{{ detail.namaProgram }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Kode Kegiatan:</span>
-            <span class="info-value">{{ detail.kodeKegiatan }}</span>
-          </div>
-          <div class="info-item full-width">
-            <span class="info-label">Nama Kegiatan:</span>
-            <span class="info-value">{{ detail.namaKegiatan }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Kode Output:</span>
-            <span class="info-value">{{ detail.kodeOutput }}</span>
-          </div>
-          <div class="info-item full-width">
-            <span class="info-label">Nama Output:</span>
-            <span class="info-value">{{ detail.namaOutput }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Kode Suboutput:</span>
-            <span class="info-value">{{ detail.kodeSuboutput }}</span>
-          </div>
-          <div class="info-item full-width">
-            <span class="info-label">Nama Suboutput:</span>
-            <span class="info-value">{{ detail.namaSuboutput }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Kode Komponen:</span>
-            <span class="info-value">{{ detail.kodeKomponen }}</span>
-          </div>
-          <div class="info-item full-width">
-            <span class="info-label">Nama Komponen:</span>
-            <span class="info-value">{{ detail.namaKomponen }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Kode Subkomponen:</span>
-            <span class="info-value">{{ detail.kodeSubkomponen }}</span>
-          </div>
-          <div class="info-item full-width">
-            <span class="info-label">Nama Subkomponen:</span>
-            <span class="info-value">{{ detail.namaSubkomponen }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Kode Akun:</span>
-            <span class="info-value">{{ detail.kodeAkun }}</span>
-          </div>
-          <div class="info-item full-width">
-            <span class="info-label">Nama Akun:</span>
-            <span class="info-value">{{ detail.namaAkun }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Kode Item:</span>
-            <span class="info-value">{{ detail.kodeItem }}</span>
-          </div>
-          <div class="info-item full-width">
-            <span class="info-label">Nama Item:</span>
-            <span class="info-value">{{ detail.namaItem }}</span>
-          </div>
-        </div>
-        <nz-divider></nz-divider>
-      </div>
-
-      <!-- Cascade Dropdowns -->
+      <!-- Tanggal Transaksi -->
       <nz-form-item>
+        <nz-form-label nzRequired>Tanggal Transaksi</nz-form-label>
+        <nz-form-control nzErrorTip="Tanggal transaksi harus diisi">
+          <nz-date-picker
+            formControlName="tanggalTransaksi"
+            nzPlaceHolder="Pilih tanggal transaksi"
+            style="width: 100%;">
+          </nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+      
+      <!-- Penerima -->
+      <nz-form-item>
+        <nz-form-label>Penerima</nz-form-label>
+        <nz-form-control>
+          <input
+            nz-input
+            formControlName="penerima"
+            placeholder="Nama penerima (opsional)">
+        </nz-form-control>
+      </nz-form-item>
+      
+      <!-- Anggaran Fields (Disabled in Edit Mode) -->
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Program</nz-form-label>
+        <nz-form-control>
+          <input nz-input [value]="detail?.kodeProgram" disabled>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Kegiatan</nz-form-label>
+        <nz-form-control>
+          <input nz-input [value]="detail?.kodeKegiatan" disabled>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Output</nz-form-label>
+        <nz-form-control>
+          <input nz-input [value]="detail?.kodeOutput" disabled>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Suboutput</nz-form-label>
+        <nz-form-control>
+          <input nz-input [value]="detail?.kodeSuboutput" disabled>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Komponen</nz-form-label>
+        <nz-form-control>
+          <input nz-input [value]="detail?.kodeKomponen" disabled>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Subkomponen</nz-form-label>
+        <nz-form-control>
+          <input nz-input [value]="detail?.kodeSubkomponen" disabled>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Akun</nz-form-label>
+        <nz-form-control>
+          <input nz-input [value]="detail?.kodeAkun" disabled>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Item</nz-form-label>
+        <nz-form-control>
+          <input nz-input [value]="detail?.namaItem" disabled>
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- Cascade Dropdowns (Hidden in Edit Mode) -->
+      <nz-form-item *ngIf="!isEditMode">
         <nz-form-label nzRequired>Program</nz-form-label>
         <nz-form-control nzErrorTip="Program harus dipilih">
           <nz-select
             formControlName="kodeProgram"
             nzShowSearch
-            nzPlaceHolder="Pilih Program"
-            [nzDisabled]="isEditMode">
+            nzPlaceHolder="Pilih Program">
             <nz-option
               *ngFor="let prog of programs"
               [nzValue]="prog.kodeProgram"
@@ -100,14 +108,14 @@
         </nz-form-control>
       </nz-form-item>
 
-      <nz-form-item>
+      <nz-form-item *ngIf="!isEditMode">
         <nz-form-label nzRequired>Kegiatan</nz-form-label>
         <nz-form-control nzErrorTip="Kegiatan harus dipilih">
           <nz-select
             formControlName="kodeKegiatan"
             nzShowSearch
             nzPlaceHolder="Pilih Kegiatan"
-            [nzDisabled]="!detailForm.get('kodeProgram')?.value || isEditMode">
+            [nzDisabled]="!detailForm.get('kodeProgram')?.value">
             <nz-option
               *ngFor="let keg of kegiatans"
               [nzValue]="keg.kodeKegiatan"
@@ -117,14 +125,14 @@
         </nz-form-control>
       </nz-form-item>
 
-      <nz-form-item>
+      <nz-form-item *ngIf="!isEditMode">
         <nz-form-label nzRequired>Output</nz-form-label>
         <nz-form-control nzErrorTip="Output harus dipilih">
           <nz-select
             formControlName="kodeOutput"
             nzShowSearch
             nzPlaceHolder="Pilih Output"
-            [nzDisabled]="!detailForm.get('kodeKegiatan')?.value || isEditMode">
+            [nzDisabled]="!detailForm.get('kodeKegiatan')?.value">
             <nz-option
               *ngFor="let out of outputs"
               [nzValue]="out.kodeOutput"
@@ -134,14 +142,14 @@
         </nz-form-control>
       </nz-form-item>
 
-      <nz-form-item>
+      <nz-form-item *ngIf="!isEditMode">
         <nz-form-label nzRequired>Suboutput</nz-form-label>
         <nz-form-control nzErrorTip="Suboutput harus dipilih">
           <nz-select
             formControlName="kodeSuboutput"
             nzShowSearch
             nzPlaceHolder="Pilih Suboutput"
-            [nzDisabled]="!detailForm.get('kodeOutput')?.value || isEditMode">
+            [nzDisabled]="!detailForm.get('kodeOutput')?.value">
             <nz-option
               *ngFor="let sub of suboutputs"
               [nzValue]="sub.kodeSuboutput"
@@ -151,14 +159,14 @@
         </nz-form-control>
       </nz-form-item>
 
-      <nz-form-item>
+      <nz-form-item *ngIf="!isEditMode">
         <nz-form-label nzRequired>Komponen</nz-form-label>
         <nz-form-control nzErrorTip="Komponen harus dipilih">
           <nz-select
             formControlName="kodeKomponen"
             nzShowSearch
             nzPlaceHolder="Pilih Komponen"
-            [nzDisabled]="!detailForm.get('kodeSuboutput')?.value || isEditMode">
+            [nzDisabled]="!detailForm.get('kodeSuboutput')?.value">
             <nz-option
               *ngFor="let komp of komponens"
               [nzValue]="komp.kodeKomponen"
@@ -168,14 +176,14 @@
         </nz-form-control>
       </nz-form-item>
 
-      <nz-form-item>
+      <nz-form-item *ngIf="!isEditMode">
         <nz-form-label nzRequired>Subkomponen</nz-form-label>
         <nz-form-control nzErrorTip="Subkomponen harus dipilih">
           <nz-select
             formControlName="kodeSubkomponen"
             nzShowSearch
             nzPlaceHolder="Pilih Subkomponen"
-            [nzDisabled]="!detailForm.get('kodeKomponen')?.value || isEditMode">
+            [nzDisabled]="!detailForm.get('kodeKomponen')?.value">
             <nz-option
               *ngFor="let subkomp of subkomponens"
               [nzValue]="subkomp.kodeSubkomponen"
@@ -185,14 +193,14 @@
         </nz-form-control>
       </nz-form-item>
 
-      <nz-form-item>
+      <nz-form-item *ngIf="!isEditMode">
         <nz-form-label nzRequired>Akun</nz-form-label>
         <nz-form-control nzErrorTip="Akun harus dipilih">
           <nz-select
             formControlName="kodeAkun"
             nzShowSearch
             nzPlaceHolder="Pilih Akun"
-            [nzDisabled]="!detailForm.get('kodeSubkomponen')?.value || isEditMode">
+            [nzDisabled]="!detailForm.get('kodeSubkomponen')?.value">
             <nz-option
               *ngFor="let akun of akuns"
               [nzValue]="akun.kodeAkun"
@@ -202,14 +210,14 @@
         </nz-form-control>
       </nz-form-item>
 
-      <nz-form-item>
+      <nz-form-item *ngIf="!isEditMode">
         <nz-form-label nzRequired>Item</nz-form-label>
         <nz-form-control nzErrorTip="Item harus dipilih">
           <nz-select
             formControlName="kodeItem"
             nzShowSearch
             nzPlaceHolder="Pilih Item"
-            [nzDisabled]="!detailForm.get('kodeAkun')?.value || isEditMode">
+            [nzDisabled]="!detailForm.get('kodeAkun')?.value">
             <nz-option
               *ngFor="let item of items"
               [nzValue]="item.kodeItem"
@@ -219,7 +227,23 @@
         </nz-form-control>
       </nz-form-item>
 
-      <!-- Transaction Details -->
+      <!-- Nilai Transaksi -->
+      <nz-form-item>
+        <nz-form-label nzRequired>Nilai Transaksi</nz-form-label>
+        <nz-form-control nzErrorTip="Nilai transaksi harus diisi dan > 0">
+          <nz-input-number
+            formControlName="nilaiTransaksi"
+            [nzMin]="1"
+            [nzStep]="1000"
+            [nzFormatter]="formatRupiah"
+            [nzParser]="parseRupiah"
+            placeholder="Masukkan nilai transaksi"
+            style="width: 100%;">
+          </nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- Uraian -->
       <nz-form-item>
         <nz-form-label nzRequired>Uraian</nz-form-label>
         <nz-form-control nzErrorTip="Uraian harus diisi">
@@ -232,63 +256,10 @@
         </nz-form-control>
       </nz-form-item>
 
-      <div nz-row [nzGutter]="16">
-        <div nz-col [nzSpan]="8">
-          <nz-form-item>
-            <nz-form-label nzRequired>Volume</nz-form-label>
-            <nz-form-control nzErrorTip="Volume harus diisi dan > 0">
-              <nz-input-number
-                formControlName="volume"
-                [nzMin]="0.01"
-                [nzStep]="1"
-                [nzPrecision]="2"
-                style="width: 100%;">
-              </nz-input-number>
-            </nz-form-control>
-          </nz-form-item>
-        </div>
-
-        <div nz-col [nzSpan]="8">
-          <nz-form-item>
-            <nz-form-label nzRequired>Satuan</nz-form-label>
-            <nz-form-control nzErrorTip="Satuan harus diisi">
-              <input
-                nz-input
-                formControlName="satuan"
-                placeholder="unit, kg, m2, dll">
-            </nz-form-control>
-          </nz-form-item>
-        </div>
-
-        <div nz-col [nzSpan]="8">
-          <nz-form-item>
-            <nz-form-label nzRequired>Harga Satuan</nz-form-label>
-            <nz-form-control nzErrorTip="Harga satuan harus diisi dan > 0">
-              <nz-input-number
-                formControlName="hargaSatuan"
-                [nzMin]="1"
-                [nzStep]="1000"
-                [nzFormatter]="formatRupiah"
-                [nzParser]="parseRupiah"
-                style="width: 100%;">
-              </nz-input-number>
-            </nz-form-control>
-          </nz-form-item>
-        </div>
-      </div>
-
-      <!-- Penerima -->
-      <div nz-row [nzGutter]="16">
+      <!-- Penerima removed from here -->
+      <div nz-row [nzGutter]="16" style="display:none;">
         <div nz-col [nzSpan]="24">
-          <nz-form-item>
-            <nz-form-label>Penerima</nz-form-label>
-            <nz-form-control>
-              <input
-                nz-input
-                formControlName="penerima"
-                placeholder="Nama penerima (opsional)">
-            </nz-form-control>
-          </nz-form-item>
+          <!-- placeholder -->
         </div>
       </div>
 

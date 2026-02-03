@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -9,6 +9,7 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { AnggaranMasterService } from '../../../core/services/anggaran-master.service';
@@ -28,15 +29,17 @@ import { CreateStpbDetailDto, StpbDetailDto } from '../../../core/models/stpb-de
     NzInputNumberModule,
     NzButtonModule,
     NzDividerModule,
-    NzAlertModule
+    NzAlertModule,
+    NzDatePickerModule
   ],
   templateUrl: './stpb-detail-modal.component.html',
   styleUrls: ['./stpb-detail-modal.component.scss']
 })
-export class StpbDetailModalComponent implements OnInit {
+export class StpbDetailModalComponent implements OnInit, OnChanges {
   @Input() visible = false;
   @Input() stpbId: string | null = null;
   @Input() detail: StpbDetailDto | null = null;
+  @Input() existingDetails: any[] = [];
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() onSuccess = new EventEmitter<void>();
 
@@ -69,6 +72,7 @@ export class StpbDetailModalComponent implements OnInit {
     private message: NzMessageService
   ) {
     this.detailForm = this.fb.group({
+      tanggalTransaksi: [new Date(), [Validators.required]],
       kodeProgram: [null, [Validators.required]],
       kodeKegiatan: [null, [Validators.required]],
       kodeOutput: [null, [Validators.required]],
@@ -78,9 +82,7 @@ export class StpbDetailModalComponent implements OnInit {
       kodeAkun: [null, [Validators.required]],
       kodeItem: [null, [Validators.required]],
       uraian: ['', [Validators.required]],
-      volume: [1, [Validators.required, Validators.min(0.01)]],
-      satuan: ['', [Validators.required]],
-      hargaSatuan: [0, [Validators.required, Validators.min(1)]],
+      nilaiTransaksi: [0, [Validators.required, Validators.min(1)]],
       penerima: [''],
       ppn: [0, [Validators.min(0)]],
       pph21: [0, [Validators.min(0)]],
@@ -99,7 +101,55 @@ export class StpbDetailModalComponent implements OnInit {
     
     if (this.detail) {
       this.isEditMode = true;
-      setTimeout(() => this.populateForm(), 200);
+      // populateForm akan dipanggil dari loadPrograms() setelah data loaded
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Saat modal dibuka (visible berubah dari false ke true)
+    if (changes['visible'] && changes['visible'].currentValue === true) {
+      console.log('Modal opened, existingDetails count:', this.existingDetails?.length || 0);
+      console.log('Is edit mode:', !!this.detail);
+      console.log('Existing details:', this.existingDetails);
+      console.log('Detail to edit:', this.detail);
+      
+      // Set edit mode berdasarkan apakah ada detail yang di-pass
+      this.isEditMode = !!this.detail;
+      
+      // Reset form saat modal dibuka (jika bukan edit mode)
+      if (!this.detail) {
+        this.detailForm.reset({
+          tanggalTransaksi: new Date(),
+          nilaiTransaksi: 0,
+          ppn: 0,
+          pph21: 0,
+          pph22: 0,
+          pph23: 0
+        });
+        
+        // Jika ada detail sebelumnya, prefill setelah data loaded
+        if (this.existingDetails && this.existingDetails.length > 0) {
+          console.log('Scheduling prefill from existing detail');
+          // Tunggu sedikit untuk memastikan programs sudah loaded
+          setTimeout(() => {
+            if (this.programs.length > 0) {
+              this.prefillFromExisting();
+            } else {
+              // Jika programs belum loaded, tunggu lebih lama
+              setTimeout(() => this.prefillFromExisting(), 500);
+            }
+          }, 300);
+        }
+      } else {
+        // Edit mode - populate form jika anggaran data sudah loaded
+        console.log('Edit mode detected in ngOnChanges');
+        if (this.programs.length > 0) {
+          console.log('Programs already loaded, populating now');
+          setTimeout(() => this.populateForm(), 100);
+        } else {
+          console.log('Programs not loaded yet, waiting...');
+        }
+      }
     }
   }
 
@@ -137,6 +187,12 @@ export class StpbDetailModalComponent implements OnInit {
     });
     this.programs = Array.from(uniquePrograms.values());
     console.log('Programs loaded:', this.programs.length, 'programs');
+    
+    // Handle edit mode - populate form after data loaded
+    if (this.isEditMode && this.detail) {
+      console.log('Edit mode: populating form with detail data');
+      setTimeout(() => this.populateForm(), 100);
+    }
   }
 
   loadKegiatans(kodeProgram: string): void {
@@ -437,24 +493,66 @@ export class StpbDetailModalComponent implements OnInit {
       }
     });
     
-    // Volume & HargaSatuan → Check Pagu Real-time
-    this.detailForm.get('volume')?.valueChanges.subscribe(() => this.checkPaguRealtime());
-    this.detailForm.get('hargaSatuan')?.valueChanges.subscribe(() => this.checkPaguRealtime());
+    // NilaiTransaksi → Check Pagu Real-time
+    this.detailForm.get('nilaiTransaksi')?.valueChanges.subscribe(() => this.checkPaguRealtime());
   }
 
   populateForm(): void {
     if (this.detail) {
-      // Load cascade data based on detail
+      console.log('Populating form with detail:', this.detail);
+      console.log('Detail structure check:', {
+        kodeProgram: this.detail.kodeProgram,
+        kodeKegiatan: this.detail.kodeKegiatan,
+        kodeOutput: this.detail.kodeOutput,
+        kodeSuboutput: this.detail.kodeSuboutput,
+        kodeKomponen: this.detail.kodeKomponen,
+        kodeSubkomponen: this.detail.kodeSubkomponen,
+        kodeAkun: this.detail.kodeAkun,
+        noItem: (this.detail as any).noItem,
+        ppn: (this.detail as any).ppn,
+        pph21: (this.detail as any).pph21,
+        pph22: (this.detail as any).pph22,
+        pph23: (this.detail as any).pph23
+      });
+      
+      // Load cascade data based on detail - dengan timing yang lebih panjang
       this.loadKegiatans(this.detail.kodeProgram);
-      setTimeout(() => this.loadOutputs(this.detail!.kodeKegiatan), 100);
-      setTimeout(() => this.loadSuboutputs(this.detail!.kodeOutput), 200);
-      setTimeout(() => this.loadKomponens(this.detail!.kodeSuboutput), 300);
-      setTimeout(() => this.loadSubkomponens(this.detail!.kodeKomponen), 400);
-      setTimeout(() => this.loadAkuns(this.detail!.kodeSubkomponen), 500);
-      setTimeout(() => this.loadItems(this.detail!.kodeAkun), 600);
-
-      // Populate form
       setTimeout(() => {
+        console.log('Kegiatans loaded for edit:', this.kegiatans.length);
+        this.loadOutputs(this.detail!.kodeKegiatan);
+      }, 150);
+      
+      setTimeout(() => {
+        console.log('Outputs loaded for edit:', this.outputs.length);
+        this.loadSuboutputs(this.detail!.kodeOutput);
+      }, 300);
+      
+      setTimeout(() => {
+        console.log('Suboutputs loaded for edit:', this.suboutputs.length);
+        this.loadKomponens(this.detail!.kodeSuboutput);
+      }, 450);
+      
+      setTimeout(() => {
+        console.log('Komponens loaded for edit:', this.komponens.length);
+        this.loadSubkomponens(this.detail!.kodeKomponen);
+      }, 600);
+      
+      setTimeout(() => {
+        console.log('Subkomponens loaded for edit:', this.subkomponens.length);
+        this.loadAkuns(this.detail!.kodeSubkomponen);
+      }, 750);
+      
+      setTimeout(() => {
+        console.log('Akuns loaded for edit:', this.akuns.length);
+        this.loadItems(this.detail!.kodeAkun);
+      }, 900);
+
+      // Populate form setelah semua cascade data loaded - tunggu items loaded juga
+      setTimeout(() => {
+        console.log('Items loaded for edit:', this.items.length);
+        console.log('Setting form values for edit');
+        const detailAny = this.detail as any;
+        
         this.detailForm.patchValue({
           kodeProgram: this.detail!.kodeProgram,
           kodeKegiatan: this.detail!.kodeKegiatan,
@@ -463,14 +561,52 @@ export class StpbDetailModalComponent implements OnInit {
           kodeKomponen: this.detail!.kodeKomponen,
           kodeSubkomponen: this.detail!.kodeSubkomponen,
           kodeAkun: this.detail!.kodeAkun,
-          kodeItem: this.detail!.kodeItem,
-          uraian: this.detail!.uraian,
-          volume: this.detail!.volume,
-          satuan: this.detail!.satuan,
-          hargaSatuan: this.detail!.hargaSatuan,
-          penerima: this.detail!.penerima || ''
-        }, { emitEvent: false });
-      }, 700);
+          kodeItem: detailAny.noItem || null,
+          uraian: detailAny.keterangan || '',
+          nilaiTransaksi: detailAny.hargaSatuan || 0,
+          penerima: detailAny.penerima || '',
+          ppn: detailAny.ppn ?? 0,
+          pph21: detailAny.ppH21 ?? 0,
+          pph22: detailAny.ppH22 ?? 0,
+          pph23: detailAny.ppH23 ?? 0
+        });
+        console.log('Form values after patch:', this.detailForm.value);
+        console.log('Form populated successfully for edit');
+      }, 1200);
+    }
+  }
+
+  prefillFromExisting(): void {
+    // Auto-fill Program, Kegiatan, Output from first detail
+    const firstDetail = this.existingDetails[0];
+    console.log('Prefilling form with:', firstDetail);
+    
+    if (firstDetail) {
+      // Step 1: Set Program
+      this.detailForm.patchValue({
+        kodeProgram: firstDetail.kodeProgram
+      });
+      console.log('Step 1: Program set to', firstDetail.kodeProgram);
+      
+      // Step 2: Load Kegiatans dan set Kegiatan
+      this.loadKegiatans(firstDetail.kodeProgram);
+      setTimeout(() => {
+        console.log('Step 2: Kegiatans loaded, count:', this.kegiatans.length);
+        this.detailForm.patchValue({
+          kodeKegiatan: firstDetail.kodeKegiatan
+        });
+        console.log('Step 2: Kegiatan set to', firstDetail.kodeKegiatan);
+        
+        // Step 3: Load Outputs dan set Output
+        this.loadOutputs(firstDetail.kodeKegiatan);
+        setTimeout(() => {
+          console.log('Step 3: Outputs loaded, count:', this.outputs.length);
+          this.detailForm.patchValue({
+            kodeOutput: firstDetail.kodeOutput
+          });
+          console.log('Step 3: Output set to', firstDetail.kodeOutput);
+        }, 200);
+      }, 200);
     }
   }
 
@@ -499,6 +635,7 @@ export class StpbDetailModalComponent implements OnInit {
       const selectedAkun = this.akuns.find(a => a.kodeAkun === formValue.kodeAkun);
       
       const dto: CreateStpbDetailDto = {
+        tanggalTransaksi: formValue.tanggalTransaksi,
         kodeProgram: formValue.kodeProgram,
         namaProgram: selectedProgram?.nmProgram || '',
         kodeKegiatan: formValue.kodeKegiatan,
@@ -516,10 +653,10 @@ export class StpbDetailModalComponent implements OnInit {
         kodeItem: formValue.kodeItem,
         noItem: formValue.kodeItem,
         namaItem: selectedItem?.namaItem || '',
-        uraian: formValue.uraian,
-        volume: formValue.volume,
-        satuan: formValue.satuan,
-        hargaSatuan: formValue.hargaSatuan,
+        keterangan: formValue.uraian,
+        volume: 1,
+        satuan: 'unit',
+        hargaSatuan: formValue.nilaiTransaksi,
         penerima: formValue.penerima,
         ppn: formValue.ppn || 0,
         pph21: formValue.pph21 || 0,
@@ -580,9 +717,7 @@ export class StpbDetailModalComponent implements OnInit {
   }
 
   get totalNilai(): number {
-    const volume = this.detailForm.get('volume')?.value || 0;
-    const hargaSatuan = this.detailForm.get('hargaSatuan')?.value || 0;
-    return volume * hargaSatuan;
+    return this.detailForm.get('nilaiTransaksi')?.value || 0;
   }
 
   get totalPPH(): number {

@@ -5,6 +5,9 @@ public class StpbDetail : BaseEntity
     // Foreign Key
     public Guid StpbId { get; set; }
     
+    // Transaction Date
+    public DateTime TanggalTransaksi { get; set; }
+    
     // Denormalized Anggaran Structure (for historical preservation)
     public int Tahun { get; set; }
     public int Revisi { get; set; }

@@ -94,6 +94,7 @@
       class="monitoring-table">
       <thead>
         <tr>
+          <th nzWidth="60px"></th>
           <th nzWidth="40px">No</th>
           <th nzWidth="200px">COA</th>
           <th nzWidth="200px">Nama Item</th>
@@ -101,48 +102,67 @@
           <th nzAlign="right" nzWidth="120px">Pagu Anggaran</th>
           <th nzAlign="right" nzWidth="120px">Realisasi</th>
           <th nzAlign="right" nzWidth="120px">Sisa Anggaran</th>
-          <th nzWidth="150px">% Realisasi</th>
+          <th nzAlign="center" nzWidth="120px">% Realisasi</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of dataTable.data; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>
-            <div class="coa-cell">
-              <span class="coa-code">{{ item.coa }}</span>
-            </div>
-          </td>
-          <td>
-            <span class="item-name">{{ item.namaItem }}</span>
-          </td>
-          <td>{{ item.namaAkun }}</td>
-          <td nzAlign="right">
-            <span class="amount-text">{{ item.paguAnggaran | number: '1.0-0' }}</span>
-          </td>
-          <td nzAlign="right">
-            <span class="amount-text realisasi">{{ item.realisasi | number: '1.0-0' }}</span>
-          </td>
-          <td nzAlign="right">
-            <span class="amount-text" [ngClass]="{'negative': item.sisaAnggaran < 0}">
-              {{ item.sisaAnggaran | number: '1.0-0' }}
-            </span>
-          </td>
-          <td>
-            <div class="progress-container">
-              <nz-progress 
-                [nzPercent]="item.persenRealisasi" 
-                [nzStatus]="getProgressColor(item.persenRealisasi)"
-                [nzShowInfo]="true"
-                [nzFormat]="formatPercent">
-              </nz-progress>
-            </div>
-          </td>
-        </tr>
+        <ng-template ngFor let-item [ngForOf]="dataTable.data" let-i="index">
+          <tr>
+            <td [nzExpand]="expandSet.has(i)" (nzExpandChange)="onExpandChange(i, $event, item)"></td>
+            <td>{{ i + 1 }}</td>
+            <td>
+              <div class="coa-cell">
+                <span class="coa-code">{{ item.coa }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="item-name">{{ item.namaItem }}</span>
+            </td>
+            <td>{{ item.namaAkun }}</td>
+            <td nzAlign="right">
+              <span class="amount-text">{{ item.paguAnggaran | number: '1.0-0' }}</span>
+            </td>
+            <td nzAlign="right">
+              <span class="amount-text realisasi">{{ item.realisasi | number: '1.0-0' }}</span>
+            </td>
+            <td nzAlign="right">
+              <span class="amount-text" [ngClass]="{'negative': item.sisaAnggaran < 0}">
+                {{ item.sisaAnggaran | number: '1.0-0' }}
+              </span>
+            </td>
+            <td nzAlign="center">
+              <span class="percentage-text" [ngClass]="getPercentageClass(item.persenRealisasi)">
+                {{ item.persenRealisasi | number: '1.2-2' }}%
+              </span>
+            </td>
+          </tr>
+          <tr [nzExpand]="expandSet.has(i)">
+            <td colspan="9" class="expand-content">
+              <div class="detail-container" *ngIf="expandSet.has(i)">
+                <nz-table 
+                  #innerTable 
+                  [nzData]="stpbDetailsMap.get(i) || []" 
+                  [nzLoading]="loadingDetailsMap.get(i) || false"
+                  [nzShowPagination]="false"
+                  nzSize="small"
+                  class="detail-table">
+                  <tbody>
+                    <tr *ngFor="let detail of innerTable.data; let j = index">
+                      <td nzWidth="120px">{{ detail.tanggalStpb | date: 'dd/MM/yyyy' }}</td>
+                      <td>{{ detail.keterangan }}</td>
+                      <td nzWidth="200px">{{ detail.penerima || '-' }}</td>
+                      <td nzAlign="right" nzWidth="150px">{{ detail.nilaiKotor | number: '1.0-0' }}</td>
+                    </tr>
+                    <tr *ngIf="innerTable.data.length === 0 && !(loadingDetailsMap.get(i))">
+                      <td colspan="4" class="no-data">Tidak ada transaksi SPTB untuk anggaran ini</td>
+                    </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
       </tbody>
     </nz-table>
   </div>
 </div>
-
-<ng-template #formatPercent let-percent>
-  {{ percent | number: '1.2-2' }}%
-</ng-template>

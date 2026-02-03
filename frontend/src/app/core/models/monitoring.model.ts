@@ -23,3 +23,15 @@ export interface MonitoringAnggaran {
   revisi: number;
   coa: string;
 }
+
+export interface StpbDetailMonitoring {
+  noStpb: string;
+  tanggalStpb: string;
+  keterangan: string;
+  penerima: string | null;
+  nilaiKotor: number;
+  pajak: number;
+  nilaiBersih: number;
+  status: string;
+  stpbId: string;
+}

@@ -1,10 +1,10 @@
 <div class="stpb-list-container">
   <app-page-header 
-    [title]="'Surat Tanda Pertanggungjawaban Belanja (STPB) - Tahun ' + selectedYear" 
-    subtitle="Kelola data STPB">
+    [title]="'Surat Pernyataan Tanggung Jawab Belanja (SPTB) - Tahun ' + selectedYear" 
+    subtitle="Kelola data SPTB">
     <button nz-button nzType="primary" class="add-button" (click)="createNew()">
       <span nz-icon nzType="plus"></span>
-      Tambah STPB Baru
+      Tambah SPTB Baru
     </button>
   </app-page-header>
 
@@ -14,7 +14,7 @@
         <input 
           type="text" 
           nz-input 
-          placeholder="Cari nomor STPB atau deskripsi..." 
+          placeholder="Cari nomor SPTB atau deskripsi..." 
           [(ngModel)]="searchTerm" 
           (keyup.enter)="onSearch()" 
         />
@@ -42,7 +42,7 @@
       class="modern-table">
       <thead>
         <tr>
-          <th>Nomor STPB</th>
+          <th>Nomor SPTB</th>
           <th>Tanggal</th>
           <th>Keterangan</th>
           <th nzAlign="right">Total Nilai</th>
@@ -111,7 +111,7 @@
 
   <nz-modal
     [(nzVisible)]="pdfModalVisible"
-    nzTitle="Preview STPB PDF"
+    nzTitle="Preview SPTB PDF"
     [nzWidth]="1000"
     [nzFooter]="null"
     (nzOnCancel)="closePdfModal()">

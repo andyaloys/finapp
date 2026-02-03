@@ -150,7 +150,7 @@ export class StpbFormComponent implements OnInit {
 
       if (this.isEditMode && this.stpbId) {
         const updateDto: UpdateStpb = {
-          tahun: formValue.tahun,
+          tahun: this.stpbForm.get('tahun')?.value || this.yearService.getSelectedYear(),
           tanggalSTPB: formValue.tanggal,
           keterangan: formValue.keterangan,
           ppkBendaharaId: formValue.ppkBendaharaId
@@ -159,7 +159,7 @@ export class StpbFormComponent implements OnInit {
         this.stpbService.update(this.stpbId, updateDto).subscribe({
           next: (response) => {
             if (response.success) {
-              this.message.success('STPB berhasil diupdate');
+              this.message.success('SPTB berhasil diupdate');
               this.loadStpb(this.stpbId!);
             }
             this.isLoading = false;
@@ -171,7 +171,7 @@ export class StpbFormComponent implements OnInit {
         });
       } else {
         const createDto: CreateStpb = {
-          tahun: formValue.tahun,
+          tahun: this.stpbForm.get('tahun')?.value || this.yearService.getSelectedYear(),
           tanggalSTPB: formValue.tanggal,
           keterangan: formValue.keterangan,
           ppkBendaharaId: formValue.ppkBendaharaId
@@ -180,7 +180,7 @@ export class StpbFormComponent implements OnInit {
         this.stpbService.create(createDto).subscribe({
           next: (response) => {
             if (response.success && response.data) {
-              this.message.success('STPB berhasil dibuat. Silakan tambahkan detail transaksi.');
+              this.message.success('SPTB berhasil dibuat. Silakan tambahkan detail transaksi.');
               this.router.navigate(['/stpb/edit', response.data.id]);
             }
             this.isLoading = false;
@@ -217,13 +217,13 @@ export class StpbFormComponent implements OnInit {
   onKirim(): void {
     if (this.stpbId) {
       this.modal.confirm({
-        nzTitle: 'Kirim STPB?',
-        nzContent: 'STPB yang sudah dikirim tidak bisa diedit. Pastikan data sudah benar.',
+        nzTitle: 'Kirim SPTB?',
+        nzContent: 'SPTB yang sudah dikirim tidak bisa diedit. Pastikan data sudah benar.',
         nzOnOk: () => {
           this.stpbService.kirim(this.stpbId!).subscribe({
             next: (response) => {
               if (response.success) {
-                this.message.success('STPB berhasil dikirim');
+                this.message.success('SPTB berhasil dikirim');
                 this.loadStpb(this.stpbId!);
               }
             },
@@ -239,13 +239,13 @@ export class StpbFormComponent implements OnInit {
   onApprove(): void {
     if (this.stpbId) {
       this.modal.confirm({
-        nzTitle: 'Approve STPB?',
-        nzContent: 'STPB yang sudah di-approve akan terkunci permanen.',
+        nzTitle: 'Approve SPTB?',
+        nzContent: 'SPTB yang sudah di-approve akan terkunci permanen.',
         nzOnOk: () => {
           this.stpbService.approve(this.stpbId!).subscribe({
             next: (response) => {
               if (response.success) {
-                this.message.success('STPB berhasil di-approve');
+                this.message.success('SPTB berhasil di-approve');
                 this.loadStpb(this.stpbId!);
               }
             },
@@ -261,7 +261,7 @@ export class StpbFormComponent implements OnInit {
   onKembalikan(): void {
     if (this.stpbId) {
       this.modal.create({
-        nzTitle: 'Kembalikan STPB',
+        nzTitle: 'Kembalikan SPTB',
         nzContent: `
           <nz-form-item>
             <nz-form-label>Alasan</nz-form-label>
@@ -280,7 +280,7 @@ export class StpbFormComponent implements OnInit {
           this.stpbService.kembalikan(this.stpbId!, alasan).subscribe({
             next: (response) => {
               if (response.success) {
-                this.message.success('STPB berhasil dikembalikan');
+                this.message.success('SPTB berhasil dikembalikan');
                 this.loadStpb(this.stpbId!);
               }
             },

@@ -116,7 +116,7 @@ export class StpbListComponent implements OnInit {
       nzOnOk: () => {
         this.stpbService.delete(id).subscribe({
           next: () => {
-            this.message.success('STPB berhasil dihapus');
+            this.message.success('SPTB berhasil dihapus');
             this.loadStpbs();
           },
           error: () => {
@@ -174,7 +174,7 @@ export class StpbListComponent implements OnInit {
       nzOnOk: () => {
         this.stpbService.approve(id).subscribe({
           next: () => {
-            this.message.success('STPB berhasil di-approve');
+            this.message.success('SPTB berhasil di-approve');
             this.loadStpbs();
           },
           error: (error) => {
@@ -187,7 +187,7 @@ export class StpbListComponent implements OnInit {
 
   kembalikan(id: string, nomor: string): void {
     this.modal.confirm({
-      nzTitle: 'Kembalikan STPB',
+      nzTitle: 'Kembalikan SPTB',
       nzContent: 'Masukkan alasan pengembalian:',
       nzOkText: 'Kembalikan',
       nzCancelText: 'Batal',
@@ -195,7 +195,7 @@ export class StpbListComponent implements OnInit {
         const alasan = instance.nzContent || 'Tidak ada alasan';
         this.stpbService.kembalikan(id, alasan).subscribe({
           next: () => {
-            this.message.success('STPB berhasil dikembalikan');
+            this.message.success('SPTB berhasil dikembalikan');
             this.loadStpbs();
           },
           error: (error) => {

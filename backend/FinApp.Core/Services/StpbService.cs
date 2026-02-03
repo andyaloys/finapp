@@ -399,6 +399,8 @@ public class StpbService : IStpbService
 
         var detail = _mapper.Map<StpbDetail>(dto);
         detail.StpbId = stpbId;
+        detail.Tahun = stpb.Tahun;
+        detail.Revisi = anggaran.Revisi;
         detail.JumlahHarga = dto.Volume * dto.HargaSatuan;
         detail.NilaiBersih = detail.JumlahHarga - dto.PPN - (dto.PPH21 + dto.PPH22 + dto.PPH23);
 
@@ -443,6 +445,8 @@ public class StpbService : IStpbService
             throw new NotFoundException($"Detail with ID {detailId} not found in this STPB");
 
         _mapper.Map(dto, detail);
+        detail.Tahun = stpb.Tahun;
+        // Keep existing Revisi or update if needed
         detail.JumlahHarga = dto.Volume * dto.HargaSatuan;
         detail.NilaiBersih = detail.JumlahHarga - dto.PPN - (dto.PPH21 + dto.PPH22 + dto.PPH23);
         detail.UpdatedAt = DateTime.UtcNow;

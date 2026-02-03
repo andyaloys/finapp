@@ -1,6 +1,7 @@
 export interface StpbDetail {
   id: string;
   stpbId: string;
+  tanggalTransaksi: string;
   kodeProgram: string;
   namaProgram: string;
   kodeKegiatan: string;
@@ -17,7 +18,7 @@ export interface StpbDetail {
   namaAkun: string;
   kodeItem: string;
   namaItem: string;
-  uraian: string;
+  keterangan: string;
   volume: number;
   satuan: string;
   hargaSatuan: number;
@@ -31,6 +32,7 @@ export interface StpbDetail {
 }
 
 export interface CreateStpbDetailDto {
+  tanggalTransaksi: Date;
   kodeProgram: string;
   namaProgram: string;
   kodeKegiatan: string;
@@ -48,7 +50,7 @@ export interface CreateStpbDetailDto {
   kodeItem: string;
   noItem: string;
   namaItem: string;
-  uraian: string;
+  keterangan: string;
   volume: number;
   satuan: string;
   hargaSatuan: number;
@@ -62,6 +64,7 @@ export interface CreateStpbDetailDto {
 export interface StpbDetailDto {
   id: string;
   stpbId: string;
+  tanggalTransaksi: string;
   kodeProgram: string;
   namaProgram: string;
   kodeKegiatan: string;
@@ -78,7 +81,7 @@ export interface StpbDetailDto {
   namaAkun: string;
   kodeItem: string;
   namaItem: string;
-  uraian: string;
+  keterangan: string;
   volume: number;
   satuan: string;
   hargaSatuan: number;

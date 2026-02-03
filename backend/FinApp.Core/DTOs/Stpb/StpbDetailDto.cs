@@ -25,6 +25,7 @@ public class StpbDetailDto
     public string? NamaItem { get; set; }
     
     // Transaction Details
+    public DateTime TanggalTransaksi { get; set; }
     public decimal Volume { get; set; }
     public string Satuan { get; set; } = string.Empty;
     public decimal HargaSatuan { get; set; }

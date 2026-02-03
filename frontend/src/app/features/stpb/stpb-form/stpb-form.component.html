@@ -1,9 +1,9 @@
 <app-page-header 
-  [title]="isEditMode ? 'Edit STPB' : 'Tambah STPB'">
+  [title]="isEditMode ? 'Edit SPTB' : 'Tambah SPTB'">
 </app-page-header>
 
 <div class="content-wrapper">
-  <nz-card [nzTitle]="isEditMode ? 'Edit STPB' : 'Buat STPB Baru'" [nzLoading]="isLoading">
+  <nz-card [nzTitle]="isEditMode ? 'Edit SPTB' : 'Buat SPTB Baru'" [nzLoading]="isLoading">
     <!-- Status Badge -->
     <div *ngIf="stpb" class="status-section">
       <nz-tag [nzColor]="getStatusClass(stpb.status)">
@@ -46,7 +46,7 @@
 
         <div nz-col [nzSpan]="8">
           <nz-form-item>
-            <nz-form-label>No. STPB</nz-form-label>
+            <nz-form-label>No. SPTB</nz-form-label>
             <nz-form-control>
               <input 
                 nz-input 
@@ -176,7 +176,7 @@
             </div>
           </td>
           <td>{{ detail.penerima || '-' }}</td>
-          <td>{{ detail.uraian }}</td>
+          <td>{{ detail.keterangan }}</td>
           <td nzAlign="right">{{ detail.jumlahHarga | number: '1.0-0' }}</td>
           <td nzAlign="right">{{ detail.ppn | number: '1.0-0' }}</td>
           <td nzAlign="right">{{ getTotalPph(detail) | number: '1.0-0' }}</td>
@@ -259,5 +259,6 @@
   [(visible)]="detailModalVisible"
   [stpbId]="stpbId"
   [detail]="editingDetail"
+  [existingDetails]="details"
   (onSuccess)="onDetailModalSuccess()">
 </app-stpb-detail-modal>

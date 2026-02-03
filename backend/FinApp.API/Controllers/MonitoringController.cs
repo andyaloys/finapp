@@ -23,9 +23,10 @@ public class MonitoringController : BaseApiController
     {
         try
         {
+            var userId = GetUserId();
             var tahunAnggaran = tahun ?? DateTime.Now.Year;
-            _logger.LogInformation("Getting monitoring anggaran for tahun {Tahun}", tahunAnggaran);
-            var result = await _monitoringService.GetMonitoringAnggaranAsync(tahunAnggaran);
+            _logger.LogInformation("Getting monitoring anggaran for tahun {Tahun} and user {UserId}", tahunAnggaran, userId);
+            var result = await _monitoringService.GetMonitoringAnggaranAsync(tahunAnggaran, userId);
             var resultList = result.ToList();
             _logger.LogInformation("Found {Count} records for tahun {Tahun}", resultList.Count, tahunAnggaran);
             return Ok(ApiResponse<IEnumerable<MonitoringAnggaranDto>>.SuccessResponse(resultList));
@@ -42,7 +43,8 @@ public class MonitoringController : BaseApiController
     {
         try
         {
-            var allAnggaran = await _monitoringService.GetMonitoringAnggaranAsync(2026);
+            var userId = GetUserId();
+            var allAnggaran = await _monitoringService.GetMonitoringAnggaranAsync(2026, userId);
             return Ok(new { 
                 count = allAnggaran.Count(),
                 data = allAnggaran.Take(5)
@@ -51,6 +53,33 @@ public class MonitoringController : BaseApiController
         catch (Exception ex)
         {
             return Ok(new { error = ex.Message, stack = ex.StackTrace });
+        }
+    }
+
+    [HttpGet("stpb-details")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<StpbDetailMonitoringDto>>>> GetStpbDetails(
+        [FromQuery] string kodeProgram,
+        [FromQuery] string kodeKegiatan,
+        [FromQuery] string kodeOutput,
+        [FromQuery] string kodeSuboutput,
+        [FromQuery] string kodeKomponen,
+        [FromQuery] string kodeSubkomponen,
+        [FromQuery] string kodeAkun,
+        [FromQuery] string noItem,
+        [FromQuery] int tahun)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _monitoringService.GetStpbDetailsAsync(
+                kodeProgram, kodeKegiatan, kodeOutput, kodeSuboutput,
+                kodeKomponen, kodeSubkomponen, kodeAkun, noItem, tahun, userId);
+            return Ok(ApiResponse<IEnumerable<StpbDetailMonitoringDto>>.SuccessResponse(result));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting STPB details");
+            return StatusCode(500, ApiResponse<IEnumerable<StpbDetailMonitoringDto>>.ErrorResponse("Internal server error"));
         }
     }
 }

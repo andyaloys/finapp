@@ -13,8 +13,15 @@ public class MonitoringService : IMonitoringService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<IEnumerable<MonitoringAnggaranDto>> GetMonitoringAnggaranAsync(int tahun)
+    public async Task<IEnumerable<MonitoringAnggaranDto>> GetMonitoringAnggaranAsync(int tahun, Guid userId)
     {
+        // Get user with role and suboutput assignments
+        var user = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
+        if (user == null)
+        {
+            return Enumerable.Empty<MonitoringAnggaranDto>();
+        }
+
         // Get all anggaran data
         var anggaranList = await _unitOfWork.AnggaranMasters.GetAllAsync();
         
@@ -40,17 +47,37 @@ public class MonitoringService : IMonitoringService
             .Where(a => a.Revisi == revisiTerakhir)
             .ToList();
 
-        // Get realisasi from approved STPB details
+        // Filter by user role and assigned suboutputs
+        if (user.Role.Name != "Admin")
+        {
+            var userSuboutputs = user.Role.RoleSuboutputs
+                .Select(rs => rs.KodeSuboutput)
+                .ToHashSet();
+
+            if (userSuboutputs.Any())
+            {
+                anggaranData = anggaranData
+                    .Where(a => userSuboutputs.Contains(a.KdSOutput ?? ""))
+                    .ToList();
+            }
+            else
+            {
+                // User has no assigned suboutputs, return empty
+                return Enumerable.Empty<MonitoringAnggaranDto>();
+            }
+        }
+
+        // Get realisasi from all STPB details (regardless of status) for the year
         var allStpbDetails = await _unitOfWork.StpbDetails.GetAllAsync();
         var allStpbs = await _unitOfWork.Stpbs.GetAllAsync();
         
-        var approvedStpbIds = allStpbs
-            .Where(s => s.Status == Domain.Entities.StpbStatus.Approve)
+        var stpbIdsForYear = allStpbs
+            .Where(s => s.Tahun == tahun)
             .Select(s => s.Id)
             .ToHashSet();
 
         var realisasiData = allStpbDetails
-            .Where(sd => approvedStpbIds.Contains(sd.StpbId))
+            .Where(sd => stpbIdsForYear.Contains(sd.StpbId))
             .GroupBy(sd => new { 
                 sd.KodeProgram, 
                 sd.KodeKegiatan, 
@@ -70,7 +97,7 @@ public class MonitoringService : IMonitoringService
                 g.Key.KodeSubkomponen,
                 g.Key.KodeAkun,
                 g.Key.NoItem,
-                TotalRealisasi = g.Sum(sd => sd.NilaiBersih)
+                TotalRealisasi = g.Sum(sd => sd.JumlahHarga)
             })
             .ToList();
 
@@ -116,6 +143,84 @@ public class MonitoringService : IMonitoringService
                 PersenRealisasi = persen,
                 TahunAnggaran = tahun,
                 Revisi = revisiTerakhir
+            };
+        }).ToList();
+
+        return result;
+    }
+
+    public async Task<IEnumerable<StpbDetailMonitoringDto>> GetStpbDetailsAsync(
+        string kodeProgram,
+        string kodeKegiatan,
+        string kodeOutput,
+        string kodeSuboutput,
+        string kodeKomponen,
+        string kodeSubkomponen,
+        string kodeAkun,
+        string noItem,
+        int tahun,
+        Guid userId)
+    {
+        // Get user with role for access control
+        var user = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
+        if (user == null)
+        {
+            return Enumerable.Empty<StpbDetailMonitoringDto>();
+        }
+
+        // Filter by user role and assigned suboutputs
+        if (user.Role.Name != "Admin")
+        {
+            var userSuboutputs = user.Role.RoleSuboutputs
+                .Select(rs => rs.KodeSuboutput)
+                .ToHashSet();
+
+            if (!userSuboutputs.Contains(kodeSuboutput))
+            {
+                // User doesn't have access to this suboutput
+                return Enumerable.Empty<StpbDetailMonitoringDto>();
+            }
+        }
+
+        // Get all STPB for the year (regardless of status)
+        var allStpbs = await _unitOfWork.Stpbs.GetAllAsync();
+        var stpbsForYear = allStpbs
+            .Where(s => s.Tahun == tahun)
+            .ToList();
+
+        var stpbIdsForYear = stpbsForYear.Select(s => s.Id).ToHashSet();
+
+        // Get STPB details matching the anggaran
+        var allStpbDetails = await _unitOfWork.StpbDetails.GetAllAsync();
+        var matchingDetails = allStpbDetails
+            .Where(sd => 
+                stpbIdsForYear.Contains(sd.StpbId) &&
+                sd.KodeProgram == kodeProgram &&
+                sd.KodeKegiatan == kodeKegiatan &&
+                sd.KodeOutput == kodeOutput &&
+                sd.KodeSuboutput == kodeSuboutput &&
+                sd.KodeKomponen == kodeKomponen &&
+                sd.KodeSubkomponen == kodeSubkomponen &&
+                sd.KodeAkun == kodeAkun &&
+                sd.NoItem == noItem)
+            .ToList();
+
+        // Map to DTO with STPB header info
+        var result = matchingDetails.Select(detail => 
+        {
+            var stpb = stpbsForYear.First(s => s.Id == detail.StpbId);
+            var totalPajak = detail.PPN + detail.PPH21 + detail.PPH22 + detail.PPH23;
+            return new StpbDetailMonitoringDto
+            {
+                StpbId = stpb.Id,
+                NoStpb = stpb.NomorSTPB,
+                TanggalStpb = detail.TanggalTransaksi,
+                Keterangan = detail.Keterangan ?? detail.NamaItem ?? "-",
+                Penerima = detail.Penerima,
+                NilaiKotor = detail.JumlahHarga,
+                Pajak = totalPajak,
+                NilaiBersih = detail.NilaiBersih,
+                Status = stpb.Status.ToString()
             };
         }).ToList();
 
