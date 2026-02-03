@@ -57,7 +57,7 @@
             <nz-form-item>
               <nz-form-label nzRequired>Role</nz-form-label>
               <nz-form-control>
-                <nz-select formControlName="roleId" nzPlaceHolder="Pilih role">
+                <nz-select formControlName="roleId" nzPlaceHolder="Pilih role" (ngModelChange)="onRoleChange()">
                   <nz-option *ngFor="let role of roles" [nzValue]="role.id" [nzLabel]="role.name"></nz-option>
                 </nz-select>
               </nz-form-control>
@@ -70,6 +70,28 @@
               <nz-form-control>
                 <nz-switch formControlName="isActive"></nz-switch>
                 <span class="status-label">{{ userForm.get('isActive')?.value ? 'Aktif' : 'Nonaktif' }}</span>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+
+        <!-- PPK/Bendahara Field (conditional) -->
+        <div nz-row [nzGutter]="16" *ngIf="showPpkBendaharaField">
+          <div nz-col [nzSpan]="24">
+            <nz-form-item>
+              <nz-form-label [nzRequired]="true">
+                {{ selectedRole?.name === 'PPK' ? 'PPK' : 'Bendahara' }}
+              </nz-form-label>
+              <nz-form-control [nzErrorTip]="'Pilih ' + (selectedRole?.name === 'PPK' ? 'PPK' : 'Bendahara')">
+                <nz-select 
+                  formControlName="ppkBendaharaId" 
+                  [nzPlaceHolder]="'Pilih ' + (selectedRole?.name === 'PPK' ? 'PPK' : 'Bendahara')">
+                  <nz-option 
+                    *ngFor="let ppk of filteredPpkBendaharas" 
+                    [nzValue]="ppk.id" 
+                    [nzLabel]="ppk.nama + ' (' + ppk.nip + ')'">
+                  </nz-option>
+                </nz-select>
               </nz-form-control>
             </nz-form-item>
           </div>

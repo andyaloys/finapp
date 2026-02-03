@@ -8,6 +8,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { AnggaranMasterService } from '../../../core/services/anggaran-master.service';
@@ -26,7 +27,8 @@ import { CreateStpbDetailDto, StpbDetailDto } from '../../../core/models/stpb-de
     NzSelectModule,
     NzInputNumberModule,
     NzButtonModule,
-    NzDividerModule
+    NzDividerModule,
+    NzAlertModule
   ],
   templateUrl: './stpb-detail-modal.component.html',
   styleUrls: ['./stpb-detail-modal.component.scss']
@@ -51,6 +53,10 @@ export class StpbDetailModalComponent implements OnInit {
   subkomponens: any[] = [];
   akuns: any[] = [];
   items: any[] = [];
+  
+  // Pagu info
+  paguInfo: any = null;
+  loadingPagu = false;
   
   tahun: number = new Date().getFullYear();
   revisi: number = 0;
@@ -415,7 +421,7 @@ export class StpbDetailModalComponent implements OnInit {
       }
     });
 
-    // Item → Auto-fill
+    // Item → Auto-fill & Load Pagu
     this.detailForm.get('kodeItem')?.valueChanges.subscribe(value => {
       if (value) {
         const selectedItem = this.items.find(item => item.kodeItem === value);
@@ -426,8 +432,14 @@ export class StpbDetailModalComponent implements OnInit {
             hargaSatuan: selectedItem.hargaSatuan || 0
           });
         }
+        // Load pagu info
+        this.loadPaguInfo();
       }
     });
+    
+    // Volume & HargaSatuan → Check Pagu Real-time
+    this.detailForm.get('volume')?.valueChanges.subscribe(() => this.checkPaguRealtime());
+    this.detailForm.get('hargaSatuan')?.valueChanges.subscribe(() => this.checkPaguRealtime());
   }
 
   populateForm(): void {
@@ -471,7 +483,7 @@ export class StpbDetailModalComponent implements OnInit {
   }
 
   handleOk(): void {
-    if (this.detailForm.valid && this.stpbId) {
+    if (this.detailForm.valid && this.isPaguValid && this.stpbId) {
       this.isLoading = true;
 
       const formValue = this.detailForm.value;
@@ -583,6 +595,59 @@ export class StpbDetailModalComponent implements OnInit {
   get nilaiBersih(): number {
     const ppn = this.detailForm.get('ppn')?.value || 0;
     return this.totalNilai - ppn - this.totalPPH;
+  }
+  
+  loadPaguInfo(): void {
+    const form = this.detailForm.value;
+    
+    if (!form.kodeProgram || !form.kodeKegiatan || !form.kodeOutput || 
+        !form.kodeSuboutput || !form.kodeKomponen || !form.kodeSubkomponen ||
+        !form.kodeAkun || !form.kodeItem) {
+      return;
+    }
+    
+    this.loadingPagu = true;
+    this.anggaranMasterService.checkPagu(
+      this.tahun,
+      this.revisi,
+      form.kodeProgram,
+      form.kodeKegiatan,
+      form.kodeOutput,
+      form.kodeSuboutput,
+      form.kodeKomponen,
+      form.kodeSubkomponen,
+      form.kodeAkun,
+      form.kodeItem
+    ).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.paguInfo = response.data;
+          this.checkPaguRealtime();
+        }
+        this.loadingPagu = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading pagu info:', error);
+        this.paguInfo = null;
+        this.loadingPagu = false;
+      }
+    });
+  }
+  
+  checkPaguRealtime(): void {
+    if (!this.paguInfo) return;
+    
+    const nilaiKotor = this.totalNilai;
+    const sisaPaguSetelahInput = this.paguInfo.sisaPagu - nilaiKotor;
+    
+    this.paguInfo.isOverPagu = sisaPaguSetelahInput < 0;
+    this.paguInfo.nilaiInput = nilaiKotor;
+    this.paguInfo.sisaSetelahInput = sisaPaguSetelahInput;
+  }
+  
+  get isPaguValid(): boolean {
+    if (!this.paguInfo) return true; // Allow if no pagu data
+    return !this.paguInfo.isOverPagu;
   }
 
   // Formatter and Parser for currency input

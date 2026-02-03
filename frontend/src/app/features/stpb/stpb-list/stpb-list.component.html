@@ -74,6 +74,26 @@
               <button nz-button nzType="text" nzSize="small" nz-tooltip="Print PDF" (click)="printPdf(data.id)" class="action-btn print-btn">
                 <span nz-icon nzType="printer"></span>
               </button>
+              <button 
+                *ngIf="canApprove(data)" 
+                nz-button 
+                nzType="text" 
+                nzSize="small" 
+                nz-tooltip="Approve" 
+                (click)="approve(data.id, data.nomorSTPB)" 
+                class="action-btn approve-btn">
+                <span nz-icon nzType="check-circle"></span>
+              </button>
+              <button 
+                *ngIf="canApprove(data)" 
+                nz-button 
+                nzType="text" 
+                nzSize="small" 
+                nz-tooltip="Kembalikan" 
+                (click)="kembalikan(data.id, data.nomorSTPB)" 
+                class="action-btn return-btn">
+                <span nz-icon nzType="rollback"></span>
+              </button>
               <button nz-button nzType="text" nzSize="small" nz-tooltip="Edit" (click)="edit(data.id)" class="action-btn edit-btn" [disabled]="!canEdit(data)">
                 <span nz-icon nzType="edit"></span>
               </button>

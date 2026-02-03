@@ -19,19 +19,6 @@
     </ul>
   </li>
   <li nz-submenu 
-      nzTitle="Master Data" 
-      nzIcon="database"
-      [(nzOpen)]="openMap['master']"
-      (nzOpenChange)="openHandler('master')">
-    <ul>
-      <li nz-menu-item nzMatchRouter>
-        <a routerLink="/ppkbendahara">
-          <span>PPK/Bendahara</span>
-        </a>
-      </li>
-    </ul>
-  </li>
-  <li nz-submenu 
       nzTitle="Anggaran" 
       nzIcon="file-done"
       [(nzOpen)]="openMap['anggaran']"
@@ -49,6 +36,19 @@
       <span nz-icon nzType="bar-chart"></span>
       <span>Monitoring</span>
     </a>
+  </li>
+  <li nz-submenu 
+      nzTitle="Master Data" 
+      nzIcon="database"
+      [(nzOpen)]="openMap['master']"
+      (nzOpenChange)="openHandler('master')">
+    <ul>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/ppkbendahara">
+          <span>PPK/Bendahara</span>
+        </a>
+      </li>
+    </ul>
   </li>
   <li nz-submenu 
       nzTitle="Administration" 

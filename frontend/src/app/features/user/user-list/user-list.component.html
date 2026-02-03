@@ -46,6 +46,7 @@
           <th>Nama Lengkap</th>
           <th>Email</th>
           <th>Role</th>
+          <th>PPK/Bendahara</th>
           <th>Status</th>
           <th nzAlign="center">Aksi</th>
         </tr>
@@ -58,9 +59,13 @@
           <td>{{ user.fullName }}</td>
           <td>{{ user.email }}</td>
           <td>
-            <nz-tag [nzColor]="user.role === 'Admin' ? 'red' : 'blue'">
+            <nz-tag [nzColor]="user.role === 'Admin' ? 'red' : (user.role === 'PPK' || user.role === 'Bendahara' ? 'orange' : 'blue')">
               {{ user.role }}
             </nz-tag>
+          </td>
+          <td>
+            <span *ngIf="user.ppkBendaharaName">{{ user.ppkBendaharaName }}</span>
+            <span *ngIf="!user.ppkBendaharaName" style="color: #bbb;">-</span>
           </td>
           <td>
             <nz-tag [nzColor]="user.isActive ? 'success' : 'default'">

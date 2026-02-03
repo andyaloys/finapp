@@ -383,6 +383,58 @@
           <span class="total-value"><strong>Rp {{ nilaiBersih | number: '1.0-0' }}</strong></span>
         </div>
       </div>
+      
+      <!-- Pagu Info Alert -->
+      <nz-alert 
+        *ngIf="paguInfo && !isEditMode"
+        [nzType]="paguInfo.isOverPagu ? 'error' : 'info'"
+        [nzShowIcon]="true"
+        style="margin-top: 16px;">
+        <div nz-row [nzGutter]="8">
+          <div nz-col [nzSpan]="12">
+            <div class="pagu-info-item">
+              <span class="label">Pagu:</span>
+              <span class="value">Rp {{ paguInfo.pagu | number: '1.0-0' }}</span>
+            </div>
+            <div class="pagu-info-item">
+              <span class="label">Realisasi:</span>
+              <span class="value">Rp {{ paguInfo.realisasi | number: '1.0-0' }}</span>
+            </div>
+          </div>
+          <div nz-col [nzSpan]="12">
+            <div class="pagu-info-item">
+              <span class="label">Sisa Pagu:</span>
+              <span class="value">Rp {{ paguInfo.sisaPagu | number: '1.0-0' }}</span>
+            </div>
+            <div class="pagu-info-item">
+              <span class="label">Nilai Input:</span>
+              <span class="value">Rp {{ paguInfo.nilaiInput | number: '1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1);">
+          <strong>Sisa setelah input: </strong>
+          <span [style.color]="paguInfo.isOverPagu ? 'red' : 'green'">
+            Rp {{ paguInfo.sisaSetelahInput | number: '1.0-0' }}
+          </span>
+          <span *ngIf="paguInfo.isOverPagu" style="color: red; margin-left: 8px;">
+            ⚠️ Melebihi pagu yang tersedia!
+          </span>
+        </div>
+      </nz-alert>
+      
     </form>
   </ng-container>
+  
+  <div *nzModalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Batal</button>
+    <button 
+      nz-button 
+      nzType="primary" 
+      [nzLoading]="isLoading"
+      [disabled]="!detailForm.valid || !isPaguValid"
+      (click)="handleOk()">
+      {{ isEditMode ? 'Update' : 'Tambah' }}
+    </button>
+  </div>
 </nz-modal>

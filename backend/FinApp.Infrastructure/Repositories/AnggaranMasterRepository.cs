@@ -25,4 +25,30 @@ public class AnggaranMasterRepository : Repository<AnggaranMaster>, IAnggaranMas
             .Select(x => (int?)x.Revisi)
             .MaxAsync() ?? -1;
     }
+
+    public async Task<AnggaranMaster?> GetAnggaranByKeysAsync(
+        int tahun, 
+        int revisi, 
+        string kdProgram, 
+        string kdGiat, 
+        string kdOutput, 
+        string kdSOutput, 
+        string kdKmpnen, 
+        string kdSkmpnen, 
+        string kdAkun, 
+        string noItem)
+    {
+        return await _context.AnggaranMasters
+            .FirstOrDefaultAsync(a =>
+                a.TahunAnggaran == tahun &&
+                a.Revisi == revisi &&
+                a.KdProgram == kdProgram &&
+                a.KdGiat == kdGiat &&
+                a.KdOutput == kdOutput &&
+                a.KdSOutput == kdSOutput &&
+                a.KdKmpnen == kdKmpnen &&
+                a.KdSkmpnen == kdSkmpnen &&
+                a.KdAkun == kdAkun &&
+                a.NoItem == noItem);
+    }
 }

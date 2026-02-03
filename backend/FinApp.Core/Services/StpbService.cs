@@ -21,19 +21,55 @@ public class StpbService : IStpbService
 
     public async Task<PagedResult<StpbDto>> GetAllAsync(int pageNumber, int pageSize, string? searchTerm, Guid userId)
     {
-        // Get user with role
-        var user = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
-
+        // Get user with role and PpkBendahara
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
         if (user == null)
             throw new UnauthorizedException("User not found");
 
+        var userWithRole = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
+        if (userWithRole == null)
+            throw new UnauthorizedException("User role not found");
+
         var (items, totalCount) = await _unitOfWork.Stpbs.GetPagedAsync(pageNumber, pageSize, searchTerm);
         
-        // Filter by role if not admin - check through StpbDetails
-        if (!user.Role.IsAdmin)
+        // Filter by role
+        if (!userWithRole.Role.IsAdmin)
         {
-            var allowedSuboutputs = user.Role.RoleSuboutputs.Select(rs => rs.KodeSuboutput).ToList();
-            items = items.Where(s => s.StpbDetails.Any(d => allowedSuboutputs.Contains(d.KodeSuboutput))).ToList();
+            // For PPK role: show all STPB with status Kirim that are directed to PPK jabatan
+            if (userWithRole.Role.Name == "PPK")
+            {
+                var ppkBendaharaIds = await _unitOfWork.PpkBendaharas.GetAllAsync();
+                var ppkIds = ppkBendaharaIds
+                    .Where(p => p.Jabatan == JabatanType.PPK)
+                    .Select(p => p.Id)
+                    .ToList();
+                
+                items = items.Where(s => 
+                    s.Status == StpbStatus.Kirim && 
+                    ppkIds.Contains(s.PpkBendaharaId)).ToList();
+            }
+            // For Bendahara role: show all STPB with status Kirim that are directed to Bendahara jabatan
+            else if (userWithRole.Role.Name == "Bendahara")
+            {
+                var ppkBendaharaIds = await _unitOfWork.PpkBendaharas.GetAllAsync();
+                var bendaharaIds = ppkBendaharaIds
+                    .Where(p => p.Jabatan == JabatanType.Bendahara)
+                    .Select(p => p.Id)
+                    .ToList();
+                
+                items = items.Where(s => 
+                    s.Status == StpbStatus.Kirim && 
+                    bendaharaIds.Contains(s.PpkBendaharaId)).ToList();
+            }
+            // For regular User: show only STPB created by user and filter by RBAC suboutput
+            else
+            {
+                var allowedSuboutputs = userWithRole.Role.RoleSuboutputs.Select(rs => rs.KodeSuboutput).ToList();
+                items = items.Where(s => 
+                    s.CreatedBy == userId && 
+                    s.StpbDetails.Any(d => allowedSuboutputs.Contains(d.KodeSuboutput))).ToList();
+            }
+            
             totalCount = items.Count();
         }
 
@@ -209,7 +245,32 @@ public class StpbService : IStpbService
         if (stpb.Status != StpbStatus.Kirim)
             throw new ValidationException("STPB hanya dapat di-approve dari status Kirim");
 
-        // Note: Additional authorization check for PPK/Bendahara role should be done in controller
+        // Validate user authority
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user == null)
+            throw new UnauthorizedException("User not found");
+
+        var userWithRole = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
+        if (userWithRole == null)
+            throw new UnauthorizedException("User role not found");
+
+        // Only Admin, PPK, or Bendahara can approve
+        if (!userWithRole.Role.IsAdmin && 
+            userWithRole.Role.Name != "PPK" && 
+            userWithRole.Role.Name != "Bendahara")
+        {
+            throw new UnauthorizedException("Hanya Admin, PPK, atau Bendahara yang dapat meng-approve STPB");
+        }
+
+        // PPK/Bendahara can only approve STPB directed to them
+        if (userWithRole.Role.Name == "PPK" || userWithRole.Role.Name == "Bendahara")
+        {
+            if (user.PpkBendaharaId == null)
+                throw new UnauthorizedException("User tidak terhubung dengan PPK/Bendahara");
+
+            if (stpb.PpkBendaharaId != user.PpkBendaharaId)
+                throw new UnauthorizedException("Anda hanya dapat meng-approve STPB yang ditujukan kepada Anda");
+        }
 
         stpb.Status = StpbStatus.Approve;
         stpb.UpdatedAt = DateTime.UtcNow;
@@ -231,7 +292,32 @@ public class StpbService : IStpbService
         if (stpb.Status != StpbStatus.Kirim)
             throw new ValidationException("STPB hanya dapat dikembalikan dari status Kirim");
 
-        // Note: Additional authorization check for PPK/Bendahara role should be done in controller
+        // Validate user authority
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user == null)
+            throw new UnauthorizedException("User not found");
+
+        var userWithRole = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
+        if (userWithRole == null)
+            throw new UnauthorizedException("User role not found");
+
+        // Only Admin, PPK, or Bendahara can return
+        if (!userWithRole.Role.IsAdmin && 
+            userWithRole.Role.Name != "PPK" && 
+            userWithRole.Role.Name != "Bendahara")
+        {
+            throw new UnauthorizedException("Hanya Admin, PPK, atau Bendahara yang dapat mengembalikan STPB");
+        }
+
+        // PPK/Bendahara can only return STPB directed to them
+        if (userWithRole.Role.Name == "PPK" || userWithRole.Role.Name == "Bendahara")
+        {
+            if (user.PpkBendaharaId == null)
+                throw new UnauthorizedException("User tidak terhubung dengan PPK/Bendahara");
+
+            if (stpb.PpkBendaharaId != user.PpkBendaharaId)
+                throw new UnauthorizedException("Anda hanya dapat mengembalikan STPB yang ditujukan kepada Anda");
+        }
 
         stpb.Status = StpbStatus.Dikembalikan;
         stpb.Keterangan = $"Dikembalikan: {alasan}";
@@ -267,6 +353,42 @@ public class StpbService : IStpbService
             if (!allowedSuboutputs.Contains(dto.KodeSuboutput))
                 throw new UnauthorizedException("Anda tidak memiliki akses untuk suboutput ini");
         }
+
+        // Validate Pagu
+        var anggaran = await _unitOfWork.AnggaranMasters.GetAnggaranByKeysAsync(
+            stpb.Tahun,
+            0, // Default revisi to 0 if not tracked in STPB
+            dto.KodeProgram,
+            dto.KodeKegiatan,
+            dto.KodeOutput,
+            dto.KodeSuboutput,
+            dto.KodeKomponen,
+            dto.KodeSubkomponen,
+            dto.KodeAkun,
+            dto.NoItem!
+        );
+
+        if (anggaran == null)
+            throw new ValidationException("Data anggaran tidak ditemukan");
+
+        var realisasi = await _unitOfWork.StpbDetails.GetRealisasiByItemAsync(
+            stpb.Tahun,
+            0, // Default revisi to 0 if not tracked in STPB
+            dto.KodeProgram,
+            dto.KodeKegiatan,
+            dto.KodeOutput,
+            dto.KodeSuboutput,
+            dto.KodeKomponen,
+            dto.KodeSubkomponen,
+            dto.KodeAkun,
+            dto.NoItem!
+        );
+
+        var sisaPagu = anggaran.Pagu - realisasi;
+        var nilaiInput = dto.Volume * dto.HargaSatuan;
+
+        if (nilaiInput > sisaPagu)
+            throw new ValidationException($"Nilai input (Rp {nilaiInput:N0}) melebihi sisa pagu (Rp {sisaPagu:N0})");
 
         var detail = _mapper.Map<StpbDetail>(dto);
         detail.StpbId = stpbId;

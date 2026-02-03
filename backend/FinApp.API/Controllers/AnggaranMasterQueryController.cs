@@ -76,6 +76,64 @@ public class AnggaranMasterQueryController : ControllerBase
         return Ok(new { success = true, data = suboutputs });
     }
 
+    [HttpGet("check-pagu")]
+    public async Task<IActionResult> CheckPagu(
+        [FromQuery] int tahun,
+        [FromQuery] int revisi,
+        [FromQuery] string kdProgram,
+        [FromQuery] string kdGiat,
+        [FromQuery] string kdOutput,
+        [FromQuery] string kdSOutput,
+        [FromQuery] string kdKmpnen,
+        [FromQuery] string kdSkmpnen,
+        [FromQuery] string kdAkun,
+        [FromQuery] string noItem)
+    {
+        // Get pagu from anggaran master
+        var anggaran = await _context.AnggaranMasters
+            .FirstOrDefaultAsync(x => 
+                x.TahunAnggaran == tahun &&
+                x.Revisi == revisi &&
+                x.KdProgram == kdProgram &&
+                x.KdGiat == kdGiat &&
+                x.KdOutput == kdOutput &&
+                x.KdSOutput == kdSOutput &&
+                x.KdKmpnen == kdKmpnen &&
+                x.KdSkmpnen == kdSkmpnen &&
+                x.KdAkun == kdAkun &&
+                x.NoItem == noItem);
+
+        if (anggaran == null)
+            return Ok(new { success = false, message = "Item tidak ditemukan di anggaran" });
+
+        // Calculate realisasi from approved STPB details
+        var realisasi = await _context.StpbDetails
+            .Where(d => 
+                d.Tahun == tahun &&
+                d.Revisi == revisi &&
+                d.KodeProgram == kdProgram &&
+                d.KodeKegiatan == kdGiat &&
+                d.KodeOutput == kdOutput &&
+                d.KodeSuboutput == kdSOutput &&
+                d.KodeKomponen == kdKmpnen &&
+                d.KodeSubkomponen == kdSkmpnen &&
+                d.KodeAkun == kdAkun &&
+                d.NoItem == noItem &&
+                d.Stpb.Status == StpbStatus.Approve)
+            .SumAsync(d => d.JumlahHarga);
+
+        var sisaPagu = anggaran.Pagu - realisasi;
+
+        return Ok(new { 
+            success = true, 
+            data = new {
+                pagu = anggaran.Pagu,
+                realisasi = realisasi,
+                sisaPagu = sisaPagu
+            }
+        });
+    }
+
     [HttpGet("distinct-suboutputs")]
     public async Task<IActionResult> GetDistinctSuboutputs([FromQuery] int tahun, [FromQuery] int revisi, [FromQuery] string kdProgram, [FromQuery] string kdGiat, [FromQuery] string kdOutput)
     {

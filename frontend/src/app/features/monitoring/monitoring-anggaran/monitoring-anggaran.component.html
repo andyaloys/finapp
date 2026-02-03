@@ -15,7 +15,7 @@
         <nz-statistic 
           [nzValue]="totalPagu" 
           [nzTitle]="'Total Pagu Anggaran'"
-          [nzPrefix]="'Rp'"
+          [nzPrefix]="'Rp '"
           [nzValueStyle]="{ color: '#1890ff' }">
         </nz-statistic>
       </nz-card>
@@ -24,7 +24,7 @@
         <nz-statistic 
           [nzValue]="totalRealisasi" 
           [nzTitle]="'Total Realisasi'"
-          [nzPrefix]="'Rp'"
+          [nzPrefix]="'Rp '"
           [nzValueStyle]="{ color: '#52c41a' }">
         </nz-statistic>
       </nz-card>
@@ -33,16 +33,16 @@
         <nz-statistic 
           [nzValue]="totalSisa" 
           [nzTitle]="'Sisa Anggaran'"
-          [nzPrefix]="'Rp'"
+          [nzPrefix]="'Rp '"
           [nzValueStyle]="{ color: '#faad14' }">
         </nz-statistic>
       </nz-card>
       
       <nz-card class="summary-card">
         <nz-statistic 
-          [nzValue]="persenRealisasiTotal.toFixed(2)" 
+          [nzValue]="persenRealisasiTotal" 
           [nzTitle]="'Persentase Realisasi'"
-          [nzSuffix]="'%'"
+          [nzSuffix]="' %'"
           [nzValueStyle]="{ color: persenRealisasiTotal > 80 ? '#f5222d' : '#52c41a' }">
         </nz-statistic>
       </nz-card>

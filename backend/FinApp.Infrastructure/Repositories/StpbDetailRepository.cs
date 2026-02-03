@@ -28,4 +28,32 @@ public class StpbDetailRepository : Repository<StpbDetail>, IStpbDetailRepositor
             .OrderByDescending(d => d.CreatedAt)
             .ToListAsync();
     }
+
+    public async Task<decimal> GetRealisasiByItemAsync(
+        int tahun, 
+        int revisi, 
+        string kdProgram, 
+        string kdGiat, 
+        string kdOutput, 
+        string kdSOutput, 
+        string kdKmpnen, 
+        string kdSkmpnen, 
+        string kdAkun, 
+        string noItem)
+    {
+        return await _dbSet
+            .Include(d => d.Stpb)
+            .Where(d =>
+                d.Stpb.Tahun == tahun &&
+                d.KodeProgram == kdProgram &&
+                d.KodeKegiatan == kdGiat &&
+                d.KodeOutput == kdOutput &&
+                d.KodeSuboutput == kdSOutput &&
+                d.KodeKomponen == kdKmpnen &&
+                d.KodeSubkomponen == kdSkmpnen &&
+                d.KodeAkun == kdAkun &&
+                d.NoItem == noItem &&
+                d.Stpb.Status == StpbStatus.Approve)
+            .SumAsync(d => d.JumlahHarga);
+    }
 }

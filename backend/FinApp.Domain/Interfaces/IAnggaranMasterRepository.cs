@@ -6,4 +6,15 @@ public interface IAnggaranMasterRepository : IRepository<AnggaranMaster>
 {
     Task<List<AnggaranMaster>> GetByTahunRevisiAsync(int tahun, int revisi);
     Task<int> GetLastRevisiAsync(int tahun);
+    Task<AnggaranMaster?> GetAnggaranByKeysAsync(
+        int tahun, 
+        int revisi, 
+        string kdProgram, 
+        string kdGiat, 
+        string kdOutput, 
+        string kdSOutput, 
+        string kdKmpnen, 
+        string kdSkmpnen, 
+        string kdAkun, 
+        string noItem);
 }

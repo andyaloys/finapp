@@ -3,6 +3,7 @@ using System;
 using FinApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260202091813_AddPpkBendaharaIdToUser")]
+    partial class AddPpkBendaharaIdToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -508,7 +511,7 @@ namespace FinApp.Infrastructure.Migrations
                             Description = "Administrator dengan akses penuh",
                             IsAdmin = true,
                             Name = "Admin",
-                            UpdatedAt = new DateTime(2026, 2, 2, 9, 23, 56, 875, DateTimeKind.Utc).AddTicks(47)
+                            UpdatedAt = new DateTime(2026, 2, 2, 9, 18, 12, 737, DateTimeKind.Utc).AddTicks(1528)
                         },
                         new
                         {
@@ -517,7 +520,7 @@ namespace FinApp.Infrastructure.Migrations
                             Description = "User biasa dengan akses terbatas",
                             IsAdmin = false,
                             Name = "User",
-                            UpdatedAt = new DateTime(2026, 2, 2, 9, 23, 56, 875, DateTimeKind.Utc).AddTicks(58)
+                            UpdatedAt = new DateTime(2026, 2, 2, 9, 18, 12, 737, DateTimeKind.Utc).AddTicks(1538)
                         });
                 });
 

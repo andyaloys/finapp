@@ -11,6 +11,14 @@ public class UserRepository : Repository<User>, IUserRepository
     {
     }
 
+    public override async Task<IEnumerable<User>> GetAllAsync()
+    {
+        return await _dbSet
+            .Include(u => u.Role)
+            .Include(u => u.PpkBendahara)
+            .ToListAsync();
+    }
+
     public async Task<User?> GetByUsernameAsync(string username)
     {
         return await _dbSet.FirstOrDefaultAsync(u => u.Username == username);
@@ -21,6 +29,7 @@ public class UserRepository : Repository<User>, IUserRepository
         return await _dbSet
             .Include(u => u.Role)
                 .ThenInclude(r => r.RoleSuboutputs)
+            .Include(u => u.PpkBendahara)
             .FirstOrDefaultAsync(u => u.Username == username);
     }
 
@@ -29,6 +38,7 @@ public class UserRepository : Repository<User>, IUserRepository
         return await _dbSet
             .Include(u => u.Role)
                 .ThenInclude(r => r.RoleSuboutputs)
+            .Include(u => u.PpkBendahara)
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 

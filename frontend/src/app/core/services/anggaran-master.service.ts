@@ -49,6 +49,10 @@ export class AnggaranMasterService {
     return this.http.get<any>(`${this.apiUrl}/distinct-items?tahun=${tahun}&revisi=${revisi}&kdProgram=${kdProgram}&kdGiat=${kdGiat}&kdOutput=${kdOutput}&kdSOutput=${kdSOutput}&kdKmpnen=${kdKmpnen}&kdSkmpnen=${kdSkmpnen}&kdAkun=${kdAkun}`);
   }
 
+  checkPagu(tahun: number, revisi: number, kdProgram: string, kdGiat: string, kdOutput: string, kdSOutput: string, kdKmpnen: string, kdSkmpnen: string, kdAkun: string, noItem: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/check-pagu?tahun=${tahun}&revisi=${revisi}&kdProgram=${kdProgram}&kdGiat=${kdGiat}&kdOutput=${kdOutput}&kdSOutput=${kdSOutput}&kdKmpnen=${kdKmpnen}&kdSkmpnen=${kdSkmpnen}&kdAkun=${kdAkun}&noItem=${noItem}`);
+  }
+
   getDistinctKegiatans(tahun: number, revisi: number, kdProgram: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/distinct-kegiatans?tahun=${tahun}&revisi=${revisi}&kdProgram=${kdProgram}`);
   }

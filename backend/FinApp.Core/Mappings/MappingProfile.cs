@@ -65,10 +65,13 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Stpb, opt => opt.Ignore());
 
         // User mappings
-        CreateMap<User, UserDto>();
+        CreateMap<User, UserDto>()
+            .ForMember(dest => dest.PpkBendaharaName, opt => opt.MapFrom(src => src.PpkBendahara != null ? src.PpkBendahara.Nama : null))
+            .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.RoleId));
         CreateMap<CreateUserDto, User>()
             .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
-            .ForMember(dest => dest.Role, opt => opt.Ignore());
+            .ForMember(dest => dest.Role, opt => opt.Ignore())
+            .ForMember(dest => dest.PpkBendahara, opt => opt.Ignore());
 
         // Program mappings
         CreateMap<Program, ProgramDto>();

@@ -88,7 +88,7 @@ public class MonitoringService : IMonitoringService
                     r.NoItem == anggaran.NoItem
                 )?.TotalRealisasi ?? 0;
 
-            var pagu = anggaran.Pagu ?? 0;
+            var pagu = anggaran.Netto ?? 0; // Use Netto instead of Pagu
             var sisa = pagu - realisasi;
             var persen = pagu > 0 ? (realisasi / pagu) * 100 : 0;
 

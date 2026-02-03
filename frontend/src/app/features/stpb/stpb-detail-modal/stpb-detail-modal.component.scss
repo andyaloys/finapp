@@ -62,6 +62,22 @@
   }
 }
 
+.pagu-info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  
+  .label {
+    font-weight: 500;
+    color: #595959;
+  }
+  
+  .value {
+    font-weight: 600;
+    color: #262626;
+  }
+}
+
 :host ::ng-deep {
   .ant-form-item-label > label {
     font-weight: 600;

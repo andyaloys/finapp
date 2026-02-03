@@ -11,6 +11,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { UserService } from '../../../core/services/user.service';
 import { RoleService } from '../../../core/services/role.service';
+import { PpkBendaharaService } from '../../../core/services/ppk-bendahara.service';
 import { Role } from '../../../core/models/role.model';
 
 @Component({
@@ -35,11 +36,13 @@ export class UserFormComponent implements OnInit {
   userId?: string;
   isLoading = false;
   roles: Role[] = [];
+  ppkBendaharas: any[] = [];
 
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
     private roleService: RoleService,
+    private ppkBendaharaService: PpkBendaharaService,
     private router: Router,
     private route: ActivatedRoute,
     private message: NzMessageService
@@ -48,6 +51,7 @@ export class UserFormComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadRoles();
+    this.loadPpkBendaharas();
     
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -78,8 +82,52 @@ export class UserFormComponent implements OnInit {
       fullName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       roleId: [null, [Validators.required]],
+      ppkBendaharaId: [null],
       isActive: [true]
     });
+  }
+
+  loadPpkBendaharas(): void {
+    this.ppkBendaharaService.getActive().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.ppkBendaharas = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading PPK/Bendahara:', error);
+        this.message.error('Gagal memuat data PPK/Bendahara');
+      }
+    });
+  }
+
+  get selectedRole(): Role | undefined {
+    const roleId = this.userForm.get('roleId')?.value;
+    return this.roles.find(r => r.id === roleId);
+  }
+
+  get showPpkBendaharaField(): boolean {
+    const role = this.selectedRole;
+    return role?.name === 'PPK' || role?.name === 'Bendahara';
+  }
+  
+  get filteredPpkBendaharas(): any[] {
+    const role = this.selectedRole;
+    if (!role) return [];
+    return this.ppkBendaharas.filter(p => p.jabatanName === role.name);
+  }
+
+  onRoleChange(): void {
+    const ppkBendaharaControl = this.userForm.get('ppkBendaharaId');
+    
+    // Reset and update validators based on role
+    if (this.showPpkBendaharaField) {
+      ppkBendaharaControl?.setValidators([Validators.required]);
+    } else {
+      ppkBendaharaControl?.clearValidators();
+      this.userForm.patchValue({ ppkBendaharaId: null });
+    }
+    ppkBendaharaControl?.updateValueAndValidity();
   }
 
   loadUser(id: string): void {
@@ -92,8 +140,11 @@ export class UserFormComponent implements OnInit {
             fullName: response.data.fullName,
             email: response.data.email,
             roleId: response.data.roleId,
+            ppkBendaharaId: response.data.ppkBendaharaId,
             isActive: response.data.isActive
           });
+          // Update validators after setting role
+          this.onRoleChange();
           // Make username readonly in edit mode
           this.userForm.get('username')?.disable();
         }
