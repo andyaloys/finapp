@@ -113,7 +113,8 @@ public class StpbController : BaseApiController
     {
         try
         {
-            var result = await _stpbService.DeleteAsync(id);
+            var userId = GetUserId();
+            var result = await _stpbService.DeleteAsync(id, userId);
             return Ok(ApiResponse<bool>.SuccessResponse(result, "STPB deleted successfully"));
         }
         catch (Exception ex)

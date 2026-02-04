@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { StpbListComponent } from './stpb-list/stpb-list.component';
 import { StpbFormComponent } from './stpb-form/stpb-form.component';
+import { StpbDetailComponent } from './stpb-detail/stpb-detail.component';
 
 export const STPB_ROUTES: Routes = [
   {
@@ -14,5 +15,9 @@ export const STPB_ROUTES: Routes = [
   {
     path: 'edit/:id',
     component: StpbFormComponent
+  },
+  {
+    path: 'detail/:id',
+    component: StpbDetailComponent
   }
 ];

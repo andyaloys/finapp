@@ -48,7 +48,8 @@ public class MonitoringService : IMonitoringService
             .ToList();
 
         // Filter by user role and assigned suboutputs
-        if (user.Role.Name != "Admin")
+        // Admin, PPK, and Bendahara can see all data
+        if (user.Role.Name != "Admin" && user.Role.Name != "PPK" && user.Role.Name != "Bendahara")
         {
             var userSuboutputs = user.Role.RoleSuboutputs
                 .Select(rs => rs.KodeSuboutput)

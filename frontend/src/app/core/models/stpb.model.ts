@@ -17,6 +17,7 @@ export interface Stpb {
   createdAt: Date;
   updatedAt: Date;
   createdBy: string;
+  creatorName?: string;
   updatedBy?: string;
 }
 

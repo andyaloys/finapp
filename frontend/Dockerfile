@@ -3,13 +3,13 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY frontend/package*.json ./
 
 # Install dependencies
 RUN npm ci
 
 # Copy source files
-COPY . .
+COPY frontend/ .
 
 # Build Angular app for production
 RUN npm run build -- --configuration production
@@ -25,7 +25,7 @@ RUN rm -rf ./*
 COPY --from=build /app/dist/finapp-frontend/browser ./
 
 # Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
@@ -20,6 +22,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { StpbService } from '../../../core/services/stpb.service';
 import { PpkBendaharaService } from '../../../core/services/ppk-bendahara.service';
 import { YearService } from '../../../core/services/year.service';
+import { environment } from '../../../../environments/environment';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StpbDetailModalComponent } from '../stpb-detail-modal/stpb-detail-modal.component';
 import { Stpb, CreateStpb, UpdateStpb } from '../../../core/models/stpb.model';
@@ -65,6 +68,9 @@ export class StpbFormComponent implements OnInit {
   detailModalVisible = false;
   editingDetail: StpbDetailDto | null = null;
   
+  pdfModalVisible = false;
+  pdfUrl: SafeResourceUrl | null = null;
+  
   StpbStatus = StpbStatus;
   
   constructor(
@@ -75,7 +81,9 @@ export class StpbFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private message: NzMessageService,
-    private modal: NzModalService
+    private modal: NzModalService,
+    private http: HttpClient,
+    private sanitizer: DomSanitizer
   ) {
     const selectedYear = this.yearService.getSelectedYear();
     this.stpbForm = this.fb.group({
@@ -112,13 +120,15 @@ export class StpbFormComponent implements OnInit {
   }
 
   loadStpb(id: string): void {
+    console.log('Loading STPB with id:', id);
     this.isLoading = true;
     this.stpbService.getById(id).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.stpb = response.data;
-          // Cast to any to preserve all properties from API
-          this.details = (response.data.details || []) as any[];
+          // Force array reassignment to trigger change detection
+          this.details = [...(response.data.details || [])];
+          console.log('STPB loaded, details count:', this.details.length);
           
           this.stpbForm.patchValue({
             tahun: response.data.tahun,
@@ -344,11 +354,50 @@ export class StpbFormComponent implements OnInit {
   }
 
   onDetailModalSuccess(): void {
-    console.log('Detail modal success - reloading STPB data');
+    console.log('=== Detail modal success event received ===');
+    console.log('STPB ID:', this.stpbId);
+    console.log('Current details count:', this.details.length);
+    
     if (this.stpbId) {
+      console.log('Calling loadStpb to refresh data...');
       this.loadStpb(this.stpbId);
+    } else {
+      console.error('No STPB ID available!');
     }
-    this.detailModalVisible = false;
+    
+    // Close modal after small delay to ensure data is refreshed
+    setTimeout(() => {
+      this.detailModalVisible = false;
+      console.log('Modal closed');
+    }, 200);
+  }
+
+  printPdf(): void {
+    if (!this.stpbId) return;
+    
+    const url = `${environment.apiUrl}/Stpb/${this.stpbId}/pdf`;
+    const token = localStorage.getItem('finapp_token');
+    
+    this.http.get(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      responseType: 'blob'
+    }).subscribe({
+      next: (blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl);
+        this.pdfModalVisible = true;
+      },
+      error: () => {
+        this.message.error('Gagal membuka PDF');
+      }
+    });
+  }
+
+  closePdfModal(): void {
+    this.pdfModalVisible = false;
+    this.pdfUrl = null;
   }
 
   onCancel(): void {

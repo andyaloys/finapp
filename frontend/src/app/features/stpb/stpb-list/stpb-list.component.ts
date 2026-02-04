@@ -50,6 +50,7 @@ export class StpbListComponent implements OnInit {
   pdfModalVisible = false;
   pdfUrl: SafeResourceUrl | null = null;
   selectedYear: number = new Date().getFullYear();
+  currentUser: any;
 
   constructor(
     private stpbService: StpbService,
@@ -65,6 +66,7 @@ export class StpbListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.currentUser = this.authService.getCurrentUser();
     this.loadStpbs();
   }
 
@@ -107,6 +109,10 @@ export class StpbListComponent implements OnInit {
 
   edit(id: string): void {
     this.router.navigate(['/stpb/edit', id]);
+  }
+
+  viewDetail(id: string): void {
+    this.router.navigate(['/stpb/detail', id]);
   }
 
   delete(id: string, nomor: string): void {
@@ -154,56 +160,38 @@ export class StpbListComponent implements OnInit {
   }
 
   canEdit(stpb: Stpb): boolean {
-    return stpb.status === StpbStatus.Draft || stpb.status === StpbStatus.Dikembalikan;
-  }
-
-  canApprove(stpb: Stpb): boolean {
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) return false;
+    if (!this.currentUser) {
+      console.log('No current user');
+      return false;
+    }
     
-    const role = currentUser.role;
-    // Only PPK, Bendahara, or Admin can approve
-    return (role === 'PPK' || role === 'Bendahara' || role === 'Admin') && 
-           stpb.status === StpbStatus.Kirim;
+    console.log('Current User:', this.currentUser);
+    console.log('SPTB Created By:', stpb.createdBy);
+    console.log('Current User ID:', this.currentUser.userId);
+    console.log('Is Creator:', stpb.createdBy === this.currentUser.userId);
+    console.log('SPTB Status:', stpb.status);
+    
+    // Admin can edit anything
+    if (this.currentUser.role === 'Admin') return true;
+    
+    // Creator can edit only Draft and Dikembalikan
+    const isCreator = stpb.createdBy === this.currentUser.userId;
+    const isEditableStatus = stpb.status === StpbStatus.Draft || stpb.status === StpbStatus.Dikembalikan;
+    
+    return isCreator && isEditableStatus;
   }
 
-  approve(id: string, nomor: string): void {
-    this.modal.confirm({
-      nzTitle: 'Konfirmasi Approve',
-      nzContent: `Apakah Anda yakin ingin meng-approve STPB ${nomor}?`,
-      nzOnOk: () => {
-        this.stpbService.approve(id).subscribe({
-          next: () => {
-            this.message.success('SPTB berhasil di-approve');
-            this.loadStpbs();
-          },
-          error: (error) => {
-            this.message.error(error.error?.message || 'Gagal meng-approve STPB');
-          }
-        });
-      }
-    });
-  }
-
-  kembalikan(id: string, nomor: string): void {
-    this.modal.confirm({
-      nzTitle: 'Kembalikan SPTB',
-      nzContent: 'Masukkan alasan pengembalian:',
-      nzOkText: 'Kembalikan',
-      nzCancelText: 'Batal',
-      nzOnOk: (instance: any) => {
-        const alasan = instance.nzContent || 'Tidak ada alasan';
-        this.stpbService.kembalikan(id, alasan).subscribe({
-          next: () => {
-            this.message.success('SPTB berhasil dikembalikan');
-            this.loadStpbs();
-          },
-          error: (error) => {
-            this.message.error(error.error?.message || 'Gagal mengembalikan STPB');
-          }
-        });
-      }
-    });
+  canDelete(stpb: Stpb): boolean {
+    if (!this.currentUser) return false;
+    
+    // Admin can delete anything
+    if (this.currentUser.role === 'Admin') return true;
+    
+    // Creator can delete only Draft and Dikembalikan
+    const isCreator = stpb.createdBy === this.currentUser.userId;
+    const isDeletableStatus = stpb.status === StpbStatus.Draft || stpb.status === StpbStatus.Dikembalikan;
+    
+    return isCreator && isDeletableStatus;
   }
 
   getStatusClass(status: StpbStatus): string {

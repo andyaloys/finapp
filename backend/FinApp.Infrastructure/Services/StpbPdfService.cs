@@ -23,6 +23,11 @@ public class StpbPdfService : IStpbPdfService
             throw new FileNotFoundException($"STPB dengan ID {stpbId} tidak ditemukan");
 
         var details = await _unitOfWork.StpbDetails.GetByStpbIdAsync(stpbId);
+        
+        // Load PpkBendahara untuk mendapatkan nama, jabatan, dan NIP
+        var ppkBendahara = await _unitOfWork.PpkBendaharas.GetByIdAsync(stpb.PpkBendaharaId);
+        if (ppkBendahara == null)
+            throw new FileNotFoundException($"PPK/Bendahara tidak ditemukan");
 
         var document = Document.Create(container =>
         {
@@ -33,17 +38,20 @@ public class StpbPdfService : IStpbPdfService
                 page.PageColor(Colors.White);
                 page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Times New Roman"));
 
-                page.Header().Element(ComposeHeader);
+                page.Header().Element(content => ComposeHeader(content, stpb, ppkBendahara));
                 page.Content().Element(content => ComposeContent(content, stpb, details));
-                page.Footer().Element(footer => ComposeFooter(footer, stpb));
+                page.Footer().Element(footer => ComposeFooter(footer, stpb, ppkBendahara));
             });
         });
 
         return document.GeneratePdf();
     }
 
-    private void ComposeHeader(IContainer container)
+    private void ComposeHeader(IContainer container, Domain.Entities.Stpb stpb, Domain.Entities.PpkBendahara ppkBendahara)
     {
+        // Tentukan jenis surat (LS atau UP)
+        var jenisSurat = ppkBendahara.Jabatan == Domain.Entities.JabatanType.PPK ? "LS" : "UP";
+        
         container.Column(column =>
         {
             // Header text
@@ -67,12 +75,16 @@ public class StpbPdfService : IStpbPdfService
             column.Item().AlignCenter().PaddingTop(10).Text("SURAT PERNYATAAN TANGGUNG JAWAB BELANJA")
                 .Bold().FontSize(12);
             
+            // Nomor SPTB dari database
             column.Item().AlignCenter().PaddingTop(5).Text(text =>
             {
-                text.Span("Nomor : SPTB-").FontSize(10);
-                text.Span("___").Underline().FontSize(10);
-                text.Span("/FPK/DJPFR/2026").FontSize(10);
+                text.Span("Nomor : ").FontSize(10);
+                text.Span(stpb.NomorSTPB).FontSize(10);
             });
+            
+            // Jenis Surat (LS atau UP)
+            column.Item().AlignCenter().PaddingTop(5).Text($"({jenisSurat})")
+                .FontSize(10).Bold();
         });
     }
 
@@ -80,55 +92,18 @@ public class StpbPdfService : IStpbPdfService
     {
         container.PaddingTop(20).Column(column =>
         {
-            // Details section
-            column.Item().Table(table =>
-            {
-                table.ColumnsDefinition(columns =>
-                {
-                    columns.ConstantColumn(20);
-                    columns.RelativeColumn(2);
-                    columns.ConstantColumn(10);
-                    columns.RelativeColumn(3);
-                });
-
-                table.Cell().Row(1).Column(1).Text("1.");
-                table.Cell().Row(1).Column(2).Text("Kode Satuan Kerja");
-                table.Cell().Row(1).Column(3).Text(":");
-                table.Cell().Row(1).Column(4).Text("455422");
-
-                table.Cell().Row(2).Column(1).Text("2.");
-                table.Cell().Row(2).Column(2).Text("Nama Satuan Kerja");
-                table.Cell().Row(2).Column(3).Text(":");
-                table.Cell().Row(2).Column(4).Text("Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko");
-
-                table.Cell().Row(3).Column(1).Text("3.");
-                table.Cell().Row(3).Column(2).Text("Nomor DIPA");
-                table.Cell().Row(3).Column(3).Text(":");
-                table.Cell().Row(3).Column(4).Text("SP DIPA-015.07.1.455401/2026");
-
-                table.Cell().Row(4).Column(1).Text("4.");
-                table.Cell().Row(4).Column(2).Text("Tanggal DIPA");
-                table.Cell().Row(4).Column(3).Text(":");
-                table.Cell().Row(4).Column(4).Text("01 Desember 2025");
-
-                table.Cell().Row(5).Column(1).Text("5.");
-                table.Cell().Row(5).Column(2).Text("Maksud Pembayaran");
-                table.Cell().Row(5).Column(3).Text(":");
-                table.Cell().Row(5).Column(4).Text($"Uang Persediaan (UP) / Langsung (LS)");
-            });
-
+            // Details section - removed points 1-5
             // Statement paragraph
-            column.Item().PaddingTop(15).Text("Yang bertanda tangan di bawah ini Pejabat Pembuat Komitmen Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko menyatakan bahwa saya bertanggung jawab penuh atas segala pengeluaran yang dibayarkan kepada yang berhak menerima dengan perincian sebagai berikut:")
+            column.Item().Text("Yang bertanda tangan di bawah ini Pejabat Pembuat Komitmen Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko menyatakan bahwa saya bertanggung jawab penuh atas segala pengeluaran yang dibayarkan kepada yang berhak menerima dengan perincian sebagai berikut:")
                 .FontSize(10).LineHeight(1.5f);
 
             // Detail table
             column.Item().PaddingTop(15).Table(table =>
             {
-                // Define columns
+                // Define columns - removed COA column
                 table.ColumnsDefinition(columns =>
                 {
                     columns.ConstantColumn(30);    // No
-                    columns.RelativeColumn(3);      // COA
                     columns.RelativeColumn(4);      // Uraian
                     columns.RelativeColumn(2);      // Jumlah
                     columns.RelativeColumn(1);      // PPN
@@ -139,7 +114,6 @@ public class StpbPdfService : IStpbPdfService
                 table.Header(header =>
                 {
                     header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("No");
-                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("COA");
                     header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("Uraian");
                     header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("Jumlah");
                     header.Cell().ColumnSpan(2).Border(1).Padding(5).AlignCenter().Text("Pajak Pungut / Setor");
@@ -154,35 +128,18 @@ public class StpbPdfService : IStpbPdfService
                 for (int i = 0; i < detailsList.Count; i++)
                 {
                     var detail = detailsList[i];
-                    var coa = $"{detail.KodeProgram}.{detail.KodeKegiatan}.{detail.KodeOutput}.{detail.KodeSuboutput}.{detail.KodeKomponen}.{detail.KodeSubkomponen}.{detail.KodeAkun}.{detail.NoItem}";
                     var totalPph = detail.PPH21 + detail.PPH22 + detail.PPH23;
 
                     table.Cell().Border(1).Padding(5).AlignCenter().Text((i + 1).ToString());
-                    table.Cell().Border(1).Padding(5).Text(text =>
-                    {
-                        text.Span("Data COA Lengkap sd Level Nama Item\n").FontSize(8);
-                        text.Span(coa).FontSize(8);
-                    });
-                    table.Cell().Border(1).Padding(5).Text(detail.NamaItem ?? "-");
+                    table.Cell().Border(1).Padding(5).Text(detail.Keterangan ?? "-");
                     table.Cell().Border(1).Padding(5).AlignRight().Text($"{detail.JumlahHarga:N0}");
                     table.Cell().Border(1).Padding(5).AlignRight().Text($"{detail.PPN:N0}");
                     table.Cell().Border(1).Padding(5).AlignRight().Text($"{totalPph:N0}");
                 }
 
-                // Empty rows
-                for (int i = detailsList.Count; i < 3; i++)
-                {
-                    table.Cell().Border(1).Padding(5).AlignCenter().Text((i + 1).ToString());
-                    table.Cell().Border(1).Padding(5).Text("");
-                    table.Cell().Border(1).Padding(5).Text("");
-                    table.Cell().Border(1).Padding(5).Text("");
-                    table.Cell().Border(1).Padding(5).Text("");
-                    table.Cell().Border(1).Padding(5).Text("");
-                }
-
                 // Total row
                 var totalJumlah = detailsList.Sum(d => d.JumlahHarga);
-                table.Cell().ColumnSpan(3).Border(1).Padding(5).AlignCenter().Text("Jumlah").Bold();
+                table.Cell().ColumnSpan(2).Border(1).Padding(5).AlignCenter().Text("Jumlah").Bold();
                 table.Cell().Border(1).Padding(5).AlignRight().Text($"{totalJumlah:N0}").Bold();
                 table.Cell().ColumnSpan(2).Border(1).Padding(5).Text("");
             });
@@ -196,15 +153,20 @@ public class StpbPdfService : IStpbPdfService
         });
     }
 
-    private void ComposeFooter(IContainer container, Domain.Entities.Stpb stpb)
+    private void ComposeFooter(IContainer container, Domain.Entities.Stpb stpb, Domain.Entities.PpkBendahara ppkBendahara)
     {
+        // Tentukan jabatan display
+        var jabatanDisplay = ppkBendahara.Jabatan == Domain.Entities.JabatanType.PPK 
+            ? "Pejabat Pembuat Komitmen" 
+            : "Bendahara Pengeluaran";
+        
         container.AlignRight().PaddingTop(20).Column(column =>
         {
-            column.Item().Text($"Jakarta,          {DateTime.Now.Year}");
-            column.Item().Text("Pejabat Pembuat Komitmen");
+            column.Item().Text($"Jakarta, {stpb.TanggalSTPB:dd MMMM yyyy}");
+            column.Item().Text(jabatanDisplay);
             column.Item().PaddingTop(60).Text("Ditandatangani secara elektronik").FontSize(8).Italic();
-            column.Item().Text("Setyo Maulana");
-            column.Item().Text("NIP 197412101995111001");
+            column.Item().Text(ppkBendahara.Nama);
+            column.Item().Text($"NIP {ppkBendahara.NIP}");
         });
     }
 }

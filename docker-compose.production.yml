@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # .NET Backend API
+  backend:
+    image: andyaloys/finapp-backend:latest
+    container_name: finapp-backend
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=10.100.83.166;Port=3366;Database=finapp;User=root;Password=P@ssw0rd;
+      - Jwt__Secret=YourSuperSecretKeyForJWTToken123456789MinimumLength32Characters!
+      - Jwt__Issuer=FinAppAPI
+      - Jwt__Audience=FinAppClient
+      - Jwt__ExpirationInMinutes=60
+    ports:
+      - "5001:8080"
+    networks:
+      - finapp-network
+
+  # Angular Frontend
+  frontend:
+    image: andyaloys/finapp-frontend:latest
+    container_name: finapp-frontend
+    restart: unless-stopped
+    ports:
+      - "8008:80"
+    depends_on:
+      - backend
+    networks:
+      - finapp-network
+
+networks:
+  finapp-network:
+    driver: bridge

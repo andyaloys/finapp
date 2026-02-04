@@ -1,0 +1,109 @@
+<app-page-header 
+  [title]="'Detail SPTB'" 
+  [subtitle]="stpb ? stpb.nomorSTPB : ''">
+  <div class="header-actions">
+    <button nz-button nzType="default" (click)="back()">
+      <i nz-icon nzType="arrow-left"></i>
+      Kembali
+    </button>
+    <button nz-button nzType="default" (click)="print()" *ngIf="stpb">
+      <i nz-icon nzType="printer"></i>
+      Cetak PDF
+    </button>
+  </div>
+</app-page-header>
+
+<nz-card [nzLoading]="loading">
+  <div *ngIf="stpb">
+    <!-- Header Info -->
+    <nz-descriptions nzBordered [nzColumn]="2">
+      <nz-descriptions-item nzTitle="Nomor SPTB">
+        {{ stpb.nomorSTPB }}
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Tanggal">
+        {{ stpb.tanggalSTPB | date:'dd/MM/yyyy' }}
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Tahun Anggaran">
+        {{ stpb.tahun }}
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Status">
+        <nz-tag [nzColor]="getStatusClass(stpb.status)">
+          {{ getStatusDisplay(stpb.status) }}
+        </nz-tag>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Ditujukan Kepada">
+        {{ stpb.ppkBendahara?.nama }}
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Jabatan">
+        {{ stpb.ppkBendahara?.jabatan === 1 ? 'PPK' : 'Bendahara' }}
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Total Nilai" [nzSpan]="2">
+        <strong>{{ stpb.totalNilai | number:'1.0-0' }}</strong>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Keterangan" [nzSpan]="2" *ngIf="stpb.keterangan">
+        {{ stpb.keterangan }}
+      </nz-descriptions-item>
+    </nz-descriptions>
+
+    <nz-divider></nz-divider>
+
+    <!-- Detail Transaksi Table -->
+    <h3>Detail Transaksi</h3>
+    <nz-table 
+      #detailTable 
+      [nzData]="stpb.details || []" 
+      [nzShowPagination]="false"
+      nzSize="small">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Program</th>
+          <th>Kegiatan</th>
+          <th>Output</th>
+          <th>Item</th>
+          <th>Keterangan</th>
+          <th>Volume</th>
+          <th>Harga Satuan</th>
+          <th>Jumlah Harga</th>
+          <th>PPN</th>
+          <th>PPh</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let detail of stpb.details; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ detail.namaProgram }}</td>
+          <td>{{ detail.namaKegiatan }}</td>
+          <td>{{ detail.namaOutput }}</td>
+          <td>{{ detail.namaItem }}</td>
+          <td>{{ detail.keterangan }}</td>
+          <td>{{ detail.volume }}</td>
+          <td>{{ detail.hargaSatuan | number:'1.0-0' }}</td>
+          <td>{{ detail.jumlahHarga | number:'1.0-0' }}</td>
+          <td>{{ detail.ppn | number:'1.0-0' }}</td>
+          <td>{{ (detail.ppH21 + detail.ppH22 + detail.ppH23) | number:'1.0-0' }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="8" style="text-align: right;"><strong>Total:</strong></td>
+          <td><strong>{{ getTotalNilai() | number:'1.0-0' }}</strong></td>
+          <td><strong>{{ getTotalPPN() | number:'1.0-0' }}</strong></td>
+          <td><strong>{{ getTotalPPH() | number:'1.0-0' }}</strong></td>
+        </tr>
+      </tbody>
+    </nz-table>
+
+    <nz-divider></nz-divider>
+
+    <!-- Action Buttons (Only for PPK/Bendahara with status Kirim) -->
+    <div class="action-buttons" *ngIf="canApprove()">
+      <button nz-button nzType="primary" nzSize="large" (click)="approve()">
+        <i nz-icon nzType="check-circle"></i>
+        Approve
+      </button>
+      <button nz-button nzType="default" nzDanger nzSize="large" (click)="kembalikan()">
+        <i nz-icon nzType="close-circle"></i>
+        Kembalikan
+      </button>
+    </div>
+  </div>
+</nz-card>

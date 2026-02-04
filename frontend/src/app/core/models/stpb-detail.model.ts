@@ -25,9 +25,9 @@ export interface StpbDetail {
   jumlahHarga: number;
   penerima?: string;
   ppn: number;
-  pph21: number;
-  pph22: number;
-  pph23: number;
+  ppH21: number;
+  ppH22: number;
+  ppH23: number;
   nilaiBersih: number;
 }
 
@@ -56,9 +56,9 @@ export interface CreateStpbDetailDto {
   hargaSatuan: number;
   penerima?: string;
   ppn: number;
-  pph21: number;
-  pph22: number;
-  pph23: number;
+  ppH21: number;
+  ppH22: number;
+  ppH23: number;
 }
 
 export interface StpbDetailDto {
@@ -88,8 +88,8 @@ export interface StpbDetailDto {
   jumlahHarga: number;
   penerima?: string;
   ppn: number;
-  pph21: number;
-  pph22: number;
-  pph23: number;
+  ppH21: number;
+  ppH22: number;
+  ppH23: number;
   nilaiBersih: number;
 }

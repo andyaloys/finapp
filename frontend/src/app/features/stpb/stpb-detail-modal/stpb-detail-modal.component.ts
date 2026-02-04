@@ -659,9 +659,9 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
         hargaSatuan: formValue.nilaiTransaksi,
         penerima: formValue.penerima,
         ppn: formValue.ppn || 0,
-        pph21: formValue.pph21 || 0,
-        pph22: formValue.pph22 || 0,
-        pph23: formValue.pph23 || 0
+        ppH21: formValue.pph21 || 0,
+        ppH22: formValue.pph22 || 0,
+        ppH23: formValue.pph23 || 0
       };
 
       const request = this.isEditMode && this.detail
@@ -673,8 +673,10 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
           this.message.success(
             this.isEditMode ? 'Detail berhasil diperbarui' : 'Detail berhasil ditambahkan'
           );
-          this.handleCancel();
+          // Emit success FIRST before closing modal
           this.onSuccess.emit();
+          // Small delay to ensure parent receives event before modal closes
+          setTimeout(() => this.handleCancel(), 100);
         },
         error: (error: any) => {
           this.message.error(error.error?.message || 'Terjadi kesalahan');

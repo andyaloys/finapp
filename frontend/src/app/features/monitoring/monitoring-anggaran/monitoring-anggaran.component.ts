@@ -13,7 +13,7 @@ import { MonitoringService } from '../../../core/services/monitoring.service';
 import { YearService } from '../../../core/services/year.service';
 import { MonitoringAnggaran, StpbDetailMonitoring } from '../../../core/models/monitoring.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 
 @Component({
   selector: 'app-monitoring-anggaran',
@@ -143,78 +143,165 @@ export class MonitoringAnggaranComponent implements OnInit {
   }
 
   exportToExcel(): void {
-    try {
-      // Prepare data for export
-      const exportData: any[] = this.filteredData.map((item, index) => ({
-        'No': index + 1,
-        'COA': item.coa,
-        'Nama Item': item.namaItem,
-        'Nama Akun': item.namaAkun,
-        'Program': item.namaProgram,
-        'Kegiatan': item.namaKegiatan,
-        'Output': item.namaOutput,
-        'Suboutput': item.namaSuboutput,
-        'Komponen': item.namaKomponen,
-        'Subkomponen': item.namaSubkomponen,
-        'Pagu Anggaran': item.paguAnggaran,
-        'Realisasi': item.realisasi,
-        'Sisa Anggaran': item.sisaAnggaran,
-        'Persentase Realisasi (%)': Number(item.persenRealisasi.toFixed(2))
-      }));
+    this.loading = true;
+    this.message.loading('Memuat detail transaksi...', { nzDuration: 0 });
 
-      // Add summary row
-      exportData.push({
-        'No': '',
-        'COA': '',
-        'Nama Item': '',
-        'Nama Akun': '',
-        'Program': '',
-        'Kegiatan': '',
-        'Output': '',
-        'Suboutput': '',
-        'Komponen': '',
-        'Subkomponen': 'TOTAL',
-        'Pagu Anggaran': this.totalPagu,
-        'Realisasi': this.totalRealisasi,
-        'Sisa Anggaran': this.totalSisa,
-        'Persentase Realisasi (%)': Number(this.persenRealisasiTotal.toFixed(2))
-      });
+    // Load all details for all filtered items
+    const detailRequests = this.filteredData.map((item, index) => 
+      this.monitoringService.getStpbDetails(item).toPromise()
+        .then(response => ({ index, item, details: response?.data || [] }))
+        .catch(() => ({ index, item, details: [] }))
+    );
 
-      // Create worksheet
-      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+    Promise.all(detailRequests).then(results => {
+      try {
+        this.message.remove();
 
-      // Set column widths
-      ws['!cols'] = [
-        { wch: 5 },   // No
-        { wch: 40 },  // COA
-        { wch: 30 },  // Nama Item
-        { wch: 25 },  // Nama Akun
-        { wch: 30 },  // Program
-        { wch: 30 },  // Kegiatan
-        { wch: 30 },  // Output
-        { wch: 30 },  // Suboutput
-        { wch: 30 },  // Komponen
-        { wch: 30 },  // Subkomponen
-        { wch: 18 },  // Pagu Anggaran
-        { wch: 18 },  // Realisasi
-        { wch: 18 },  // Sisa Anggaran
-        { wch: 20 }   // Persentase Realisasi
-      ];
+        // Create workbook using ExcelJS
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet(`Monitoring ${this.selectedTahun}`);
 
-      // Create workbook
-      const wb: XLSX.WorkBook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, `Monitoring ${this.selectedTahun}`);
+        // Define columns
+        worksheet.columns = [
+          { header: 'No', key: 'no', width: 8 },
+          { header: 'COA', key: 'coa', width: 45 },
+          { header: 'Nama Item', key: 'namaItem', width: 35 },
+          { header: 'Nama Akun', key: 'namaAkun', width: 40 },
+          { header: 'Program', key: 'program', width: 30 },
+          { header: 'Kegiatan', key: 'kegiatan', width: 20 },
+          { header: 'Output', key: 'output', width: 18 },
+          { header: 'Suboutput', key: 'suboutput', width: 20 },
+          { header: 'Komponen', key: 'komponen', width: 18 },
+          { header: 'Subkomponen', key: 'subkomponen', width: 25 },
+          { header: 'Pagu Anggaran', key: 'paguAnggaran', width: 18 },
+          { header: 'Realisasi', key: 'realisasi', width: 18 },
+          { header: 'Sisa Anggaran', key: 'sisaAnggaran', width: 18 },
+          { header: 'Persentase Realisasi (%)', key: 'persenRealisasi', width: 20 }
+        ];
 
-      // Generate filename
-      const fileName = `Monitoring_Anggaran_${this.selectedTahun}_${new Date().toISOString().split('T')[0]}.xlsx`;
+        // Style header row
+        worksheet.getRow(1).font = { bold: true };
+        worksheet.getRow(1).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFE0E0E0' }
+        };
 
-      // Save file
-      XLSX.writeFile(wb, fileName);
+        let rowNumber = 1;
+        let totalDetails = 0;
 
-      this.message.success('File Excel berhasil diunduh');
-    } catch (error) {
-      console.error('Error exporting to Excel:', error);
-      this.message.error('Gagal mengekspor data ke Excel');
-    }
+        // Add data rows
+        results.forEach(result => {
+          const item = result.item;
+          
+          // Add main anggaran row
+          const anggaranRow = worksheet.addRow({
+            no: rowNumber++,
+            coa: item.coa,
+            namaItem: item.namaItem,
+            namaAkun: item.namaAkun,
+            program: item.namaProgram,
+            kegiatan: item.namaKegiatan,
+            output: item.namaOutput,
+            suboutput: item.namaSuboutput,
+            komponen: item.namaKomponen,
+            subkomponen: item.namaSubkomponen,
+            paguAnggaran: item.paguAnggaran,
+            realisasi: item.realisasi,
+            sisaAnggaran: item.sisaAnggaran,
+            persenRealisasi: Number(item.persenRealisasi.toFixed(2))
+          });
+
+          // Format number cells
+          anggaranRow.getCell('paguAnggaran').numFmt = '#,##0';
+          anggaranRow.getCell('realisasi').numFmt = '#,##0';
+          anggaranRow.getCell('sisaAnggaran').numFmt = '#,##0';
+          anggaranRow.getCell('persenRealisasi').numFmt = '0.00';
+
+          // Add detail rows below if any
+          if (result.details && result.details.length > 0) {
+            result.details.forEach((detail) => {
+              totalDetails++;
+              const detailRow = worksheet.addRow({
+                no: '',
+                coa: detail.noStpb,
+                namaItem: new Date(detail.tanggalStpb).toLocaleDateString('id-ID'),
+                namaAkun: detail.keterangan,
+                program: detail.penerima || '-',
+                kegiatan: detail.nilaiKotor,
+                output: '',
+                suboutput: '',
+                komponen: '',
+                subkomponen: '',
+                paguAnggaran: '',
+                realisasi: '',
+                sisaAnggaran: '',
+                persenRealisasi: ''
+              });
+
+              // Apply italic, gray, and thin style to detail rows
+              detailRow.font = {
+                italic: true,
+                color: { argb: 'FF808080' }
+              };
+
+              // Format number cells for details
+              detailRow.getCell('kegiatan').numFmt = '#,##0';
+            });
+          }
+        });
+
+        // Add summary row at the end
+        const summaryRow = worksheet.addRow({
+          no: '',
+          coa: '',
+          namaItem: '',
+          namaAkun: '',
+          program: '',
+          kegiatan: '',
+          output: '',
+          suboutput: '',
+          komponen: '',
+          subkomponen: 'TOTAL',
+          paguAnggaran: this.totalPagu,
+          realisasi: this.totalRealisasi,
+          sisaAnggaran: this.totalSisa,
+          persenRealisasi: Number(this.persenRealisasiTotal.toFixed(2))
+        });
+
+        // Style summary row
+        summaryRow.font = { bold: true };
+        summaryRow.getCell('paguAnggaran').numFmt = '#,##0';
+        summaryRow.getCell('realisasi').numFmt = '#,##0';
+        summaryRow.getCell('sisaAnggaran').numFmt = '#,##0';
+        summaryRow.getCell('persenRealisasi').numFmt = '0.00';
+
+        // Generate filename
+        const fileName = `Monitoring_Anggaran_${this.selectedTahun}_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+        // Save file
+        workbook.xlsx.writeBuffer().then((buffer) => {
+          const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const url = window.URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = fileName;
+          anchor.click();
+          window.URL.revokeObjectURL(url);
+
+          this.loading = false;
+          this.message.success(`File Excel berhasil diunduh dengan ${totalDetails} detail transaksi`);
+        });
+      } catch (error) {
+        console.error('Error exporting to Excel:', error);
+        this.loading = false;
+        this.message.error('Gagal mengekspor data ke Excel');
+      }
+    }).catch(error => {
+      console.error('Error loading details:', error);
+      this.message.remove();
+      this.loading = false;
+      this.message.error('Gagal memuat detail transaksi');
+    });
   }
 }

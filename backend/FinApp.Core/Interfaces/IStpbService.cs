@@ -9,7 +9,7 @@ public interface IStpbService
     Task<StpbDto?> GetByIdAsync(Guid id);
     Task<StpbDto> CreateAsync(CreateStpbDto dto, Guid userId);
     Task<StpbDto> UpdateAsync(Guid id, UpdateStpbDto dto);
-    Task<bool> DeleteAsync(Guid id);
+    Task<bool> DeleteAsync(Guid id, Guid userId);
     Task<IEnumerable<StpbDto>> GetByUserIdAsync(Guid userId);
     
     // Workflow methods

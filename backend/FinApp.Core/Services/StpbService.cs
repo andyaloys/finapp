@@ -38,7 +38,7 @@ public class StpbService : IStpbService
         // Filter by role
         if (!userWithRole.Role.IsAdmin)
         {
-            // For PPK role: show all STPB with status Kirim that are directed to PPK jabatan
+            // For PPK role: show all STPB (except Draft) that are directed to PPK jabatan
             if (userWithRole.Role.Name == "PPK")
             {
                 var ppkBendaharaIds = await _unitOfWork.PpkBendaharas.GetAllAsync();
@@ -48,10 +48,10 @@ public class StpbService : IStpbService
                     .ToList();
                 
                 items = items.Where(s => 
-                    s.Status == StpbStatus.Kirim && 
+                    s.Status != StpbStatus.Draft && 
                     ppkIds.Contains(s.PpkBendaharaId)).ToList();
             }
-            // For Bendahara role: show all STPB with status Kirim that are directed to Bendahara jabatan
+            // For Bendahara role: show all STPB (except Draft) that are directed to Bendahara jabatan
             else if (userWithRole.Role.Name == "Bendahara")
             {
                 var ppkBendaharaIds = await _unitOfWork.PpkBendaharas.GetAllAsync();
@@ -61,7 +61,7 @@ public class StpbService : IStpbService
                     .ToList();
                 
                 items = items.Where(s => 
-                    s.Status == StpbStatus.Kirim && 
+                    s.Status != StpbStatus.Draft && 
                     bendaharaIds.Contains(s.PpkBendaharaId)).ToList();
             }
             // For regular User: show only STPB created by user and filter by RBAC suboutput
@@ -128,7 +128,7 @@ public class StpbService : IStpbService
         {
             var year = dto.Tahun;
             var nextNumber = await _unitOfWork.SequenceNumbers.GetNextNumberAsync("STPB", year);
-            dto.NomorSTPB = $"STPB-{nextNumber}/{year}"; // No D3 format = unlimited numbers
+            dto.NomorSTPB = $"{nextNumber:D4}/DJPPR/{year}";
         }
         else
         {
@@ -185,7 +185,7 @@ public class StpbService : IStpbService
         return _mapper.Map<StpbDto>(stpb);
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(Guid id, Guid userId)
     {
         var stpb = await _unitOfWork.Stpbs.GetByIdAsync(id);
         
@@ -194,10 +194,27 @@ public class StpbService : IStpbService
             throw new NotFoundException($"STPB with ID {id} not found");
         }
 
-        // Check if status allows deletion
-        if (stpb.Status != StpbStatus.Draft && stpb.Status != StpbStatus.Dikembalikan)
+        // Get user with role
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user == null)
+            throw new UnauthorizedException("User not found");
+
+        var userWithRole = await _unitOfWork.Users.GetByIdWithRoleAsync(userId);
+        if (userWithRole == null)
+            throw new UnauthorizedException("User role not found");
+
+        // Admin can delete anything
+        if (!userWithRole.Role.IsAdmin)
         {
-            throw new ValidationException("STPB hanya dapat dihapus dalam status Draft atau Dikembalikan");
+            // Non-admin can only delete their own STPB
+            if (stpb.CreatedBy != userId)
+                throw new UnauthorizedException("Anda hanya dapat menghapus STPB yang Anda buat");
+
+            // Check if status allows deletion
+            if (stpb.Status != StpbStatus.Draft && stpb.Status != StpbStatus.Dikembalikan)
+            {
+                throw new ValidationException("STPB hanya dapat dihapus dalam status Draft atau Dikembalikan");
+            }
         }
 
         await _unitOfWork.Stpbs.DeleteAsync(id);
@@ -327,7 +344,6 @@ public class StpbService : IStpbService
         }
 
         stpb.Status = StpbStatus.Dikembalikan;
-        stpb.Keterangan = $"Dikembalikan: {alasan}";
         stpb.UpdatedAt = DateTime.UtcNow;
 
         await _unitOfWork.Stpbs.UpdateAsync(stpb);

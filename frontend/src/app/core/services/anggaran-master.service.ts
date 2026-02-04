@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AnggaranMasterService {
-  private apiUrl = 'http://localhost:5000/api/anggaranmasterquery';
-  private uploadApiUrl = 'http://localhost:5000/api/AnggaranMaster';
+  private apiUrl = `${environment.apiUrl}/anggaranmasterquery`;
+  private uploadApiUrl = `${environment.apiUrl}/AnggaranMaster`;
 
   constructor(private http: HttpClient) {}
 
