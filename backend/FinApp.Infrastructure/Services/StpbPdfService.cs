@@ -40,7 +40,6 @@ public class StpbPdfService : IStpbPdfService
 
                 page.Header().Element(content => ComposeHeader(content, stpb, ppkBendahara));
                 page.Content().Element(content => ComposeContent(content, stpb, details));
-                page.Footer().Element(footer => ComposeFooter(footer, stpb, ppkBendahara));
             });
         });
 
@@ -75,21 +74,25 @@ public class StpbPdfService : IStpbPdfService
             column.Item().AlignCenter().PaddingTop(10).Text("SURAT PERNYATAAN TANGGUNG JAWAB BELANJA")
                 .Bold().FontSize(12);
             
-            // Nomor SPTB dari database
+            // Nomor SPTB dan jenis surat (LS atau UP) digabung dengan 3 spasi
             column.Item().AlignCenter().PaddingTop(5).Text(text =>
             {
                 text.Span("Nomor : ").FontSize(10);
                 text.Span(stpb.NomorSTPB).FontSize(10);
+                text.Span("   ").FontSize(10); // 3 spasi
+                text.Span($"({jenisSurat})").FontSize(10).Bold();
             });
-            
-            // Jenis Surat (LS atau UP)
-            column.Item().AlignCenter().PaddingTop(5).Text($"({jenisSurat})")
-                .FontSize(10).Bold();
         });
     }
 
     private void ComposeContent(IContainer container, Domain.Entities.Stpb stpb, IEnumerable<Domain.Entities.StpbDetail> details)
     {
+        // Get PPK/Bendahara info for signature
+        var ppkBendahara = stpb.PpkBendahara;
+        var jabatanDisplay = ppkBendahara.Jabatan == Domain.Entities.JabatanType.PPK 
+            ? "Pejabat Pembuat Komitmen" 
+            : "Bendahara Pengeluaran";
+        
         container.PaddingTop(20).Column(column =>
         {
             // Details section - removed points 1-5
@@ -100,10 +103,11 @@ public class StpbPdfService : IStpbPdfService
             // Detail table
             column.Item().PaddingTop(15).Table(table =>
             {
-                // Define columns - removed COA column
+                // Define columns with COA
                 table.ColumnsDefinition(columns =>
                 {
                     columns.ConstantColumn(30);    // No
+                    columns.RelativeColumn(2);      // COA
                     columns.RelativeColumn(4);      // Uraian
                     columns.RelativeColumn(2);      // Jumlah
                     columns.RelativeColumn(1);      // PPN
@@ -114,6 +118,7 @@ public class StpbPdfService : IStpbPdfService
                 table.Header(header =>
                 {
                     header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("No");
+                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("COA");
                     header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("Uraian");
                     header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("Jumlah");
                     header.Cell().ColumnSpan(2).Border(1).Padding(5).AlignCenter().Text("Pajak Pungut / Setor");
@@ -129,8 +134,12 @@ public class StpbPdfService : IStpbPdfService
                 {
                     var detail = detailsList[i];
                     var totalPph = detail.PPH21 + detail.PPH22 + detail.PPH23;
+                    
+                    // Build COA string
+                    var coa = $"{detail.KodeProgram}.{detail.KodeKegiatan}.{detail.KodeOutput}.{detail.KodeSuboutput}.{detail.KodeKomponen}.{detail.KodeSubkomponen}.{detail.KodeAkun}.{detail.NoItem}";
 
                     table.Cell().Border(1).Padding(5).AlignCenter().Text((i + 1).ToString());
+                    table.Cell().Border(1).Padding(5).Text(coa).FontSize(8);
                     table.Cell().Border(1).Padding(5).Text(detail.Keterangan ?? "-");
                     table.Cell().Border(1).Padding(5).AlignRight().Text($"{detail.JumlahHarga:N0}");
                     table.Cell().Border(1).Padding(5).AlignRight().Text($"{detail.PPN:N0}");
@@ -139,7 +148,7 @@ public class StpbPdfService : IStpbPdfService
 
                 // Total row
                 var totalJumlah = detailsList.Sum(d => d.JumlahHarga);
-                table.Cell().ColumnSpan(2).Border(1).Padding(5).AlignCenter().Text("Jumlah").Bold();
+                table.Cell().ColumnSpan(3).Border(1).Padding(5).AlignCenter().Text("Jumlah").Bold();
                 table.Cell().Border(1).Padding(5).AlignRight().Text($"{totalJumlah:N0}").Bold();
                 table.Cell().ColumnSpan(2).Border(1).Padding(5).Text("");
             });
@@ -148,8 +157,18 @@ public class StpbPdfService : IStpbPdfService
             column.Item().PaddingTop(15).Text("Bukti – bukti tersebut di atas disimpan sesuai ketentuan yang berlaku pada Satuan Kerja Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko untuk kelengkapan administrasi dan keperluan pemeriksaan aparat pengawas fungsional.")
                 .FontSize(10).LineHeight(1.5f);
 
-            column.Item().PaddingTop(10).Text("Demikian surat pernyataan ini dibuat dengan sebenarnya.")
+            column.Item().PaddingTop(5).Text("Demikian surat pernyataan ini dibuat dengan sebenarnya.")
                 .FontSize(10);
+            
+            // Signature section - moved from footer to content
+            column.Item().AlignRight().PaddingTop(10).Column(signatureColumn =>
+            {
+                signatureColumn.Item().Text($"Jakarta, {stpb.TanggalSTPB:dd MMMM yyyy}");
+                signatureColumn.Item().Text(jabatanDisplay);
+                signatureColumn.Item().PaddingTop(60).Text("Ditandatangani secara elektronik").FontSize(8).Italic();
+                signatureColumn.Item().Text(ppkBendahara.Nama);
+                signatureColumn.Item().Text($"NIP {ppkBendahara.NIP}");
+            });
         });
     }
 
@@ -160,7 +179,7 @@ public class StpbPdfService : IStpbPdfService
             ? "Pejabat Pembuat Komitmen" 
             : "Bendahara Pengeluaran";
         
-        container.AlignRight().PaddingTop(20).Column(column =>
+        container.AlignRight().Column(column =>
         {
             column.Item().Text($"Jakarta, {stpb.TanggalSTPB:dd MMMM yyyy}");
             column.Item().Text(jabatanDisplay);
