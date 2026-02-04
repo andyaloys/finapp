@@ -1,75 +1,80 @@
 <div class="login-wrapper">
-  <div class="login-background">
-    <div class="shape shape-1"></div>
-    <div class="shape shape-2"></div>
-  </div>
-  
   <div class="login-container">
-    <div class="login-card">
-      <div class="login-header">
-        <div class="logo">
-          <i nz-icon nzType="wallet" nzTheme="twotone" class="logo-icon"></i>
-        </div>
-        <h1>Finance App</h1>
-        <p>Sistem Manajemen Keuangan</p>
-      </div>
-
-      <form nz-form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-        <div class="form-group">
-          <label class="form-label">Username</label>
-          <nz-form-item>
-            <nz-form-control>
-              <input 
-                type="text" 
-                nz-input 
-                formControlName="username" 
-                placeholder="Masukkan username"
-                class="custom-input"
-                nzSize="large"
-              />
-            </nz-form-control>
-          </nz-form-item>
+    <!-- Left Side - Login Form -->
+    <div class="login-form-side">
+      <div class="form-content">
+        <div class="logo-section">
+          <div class="logo">
+            <span class="logo-text">Fin<span class="logo-accent">App</span></span>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <nz-form-item>
-            <nz-form-control>
+        <div class="welcome-section">
+          <h1>Selamat Datang!</h1>
+          <p>Untuk terhubung ke akun Anda, silakan masukkan username dan password Anda.</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <div class="form-group">
+            <input 
+              type="text" 
+              nz-input 
+              formControlName="username" 
+              placeholder="Username Anda"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <div class="password-wrapper">
               <input 
                 [type]="passwordVisible ? 'text' : 'password'"
                 nz-input 
                 formControlName="password" 
-                placeholder="Masukkan password"
-                class="custom-input"
-                nzSize="large"
+                placeholder="Password Anda"
+                class="form-input"
               />
-            </nz-form-control>
-          </nz-form-item>
-        </div>
+              <span class="password-toggle" (click)="passwordVisible = !passwordVisible">
+                <i nz-icon [nzType]="passwordVisible ? 'eye-invisible' : 'eye'" nzTheme="outline"></i>
+              </span>
+            </div>
+          </div>
 
-        <div class="form-footer">
-          <label nz-checkbox [(ngModel)]="rememberMe" class="remember-me">
-            Ingat saya
-          </label>
-          <a href="javascript:void(0);" class="forgot-password">Lupa password?</a>
-        </div>
+          <div class="form-footer">
+            <a href="javascript:void(0);" class="forgot-link">Lupa password?</a>
+          </div>
 
-        <nz-form-item class="login-actions">
           <button 
             nz-button 
-            nzType="primary" 
             nzBlock 
             [nzLoading]="isLoading"
             [disabled]="!loginForm.valid"
-            class="login-button">
+            class="submit-button">
             Masuk
           </button>
-        </nz-form-item>
 
-        <div class="register-link">
-          Belum punya akun? <a href="javascript:void(0);">Hubungi Administrator</a>
+          <div class="support-text">
+            Tidak bisa login? <a href="javascript:void(0);">Hubungi Administrator</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="footer-text">
+        © 2026
+      </div>
+    </div>
+
+    <!-- Right Side - Image/Content -->
+    <div class="login-image-side">
+      <div class="image-content">
+        <div class="content-card">
+          <div class="card-icon">
+            <i nz-icon nzType="line-chart" nzTheme="outline"></i>
+          </div>
+          <h2>Kelola Keuangan dengan Lebih Efisien</h2>
+          <p>Sistem manajemen keuangan modern yang membantu Anda mengelola SPTB, anggaran, dan pelaporan dengan mudah dan akurat.</p>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </div>
