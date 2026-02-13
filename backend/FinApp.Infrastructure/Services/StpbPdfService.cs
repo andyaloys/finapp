@@ -108,10 +108,10 @@ public class StpbPdfService : IStpbPdfService
                 {
                     columns.ConstantColumn(30);    // No
                     columns.RelativeColumn(2);      // COA
-                    columns.RelativeColumn(4);      // Uraian
-                    columns.RelativeColumn(2);      // Jumlah
-                    columns.RelativeColumn(1);      // PPN
-                    columns.RelativeColumn(1);      // PPh
+                    columns.RelativeColumn(3);      // Uraian (dikurangi untuk memberi ruang ke kolom angka)
+                    columns.RelativeColumn(2);      // Jumlah (dapat menampung 9.000.000.000)
+                    columns.RelativeColumn(1.5f);   // PPN (dapat menampung 900.000.000)
+                    columns.RelativeColumn(1.5f);   // PPh (dapat menampung 900.000.000)
                 });
 
                 // Header

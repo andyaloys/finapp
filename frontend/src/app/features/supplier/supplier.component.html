@@ -1,0 +1,116 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>Master Supplier</h2>
+    <button nz-button nzType="primary" (click)="showAddModal()">
+      <span nz-icon nzType="plus"></span>
+      Tambah Supplier
+    </button>
+  </div>
+
+  <nz-table 
+    #supplierTable 
+    [nzData]="suppliers" 
+    [nzLoading]="isLoading"
+    [nzPageSize]="10"
+    [nzShowSizeChanger]="true"
+    [nzPageSizeOptions]="[10, 20, 50, 100]">
+    <thead>
+      <tr>
+        <th nzWidth="50px">No</th>
+        <th>Nama Supplier</th>
+        <th nzWidth="180px">NPWP</th>
+        <th>Alamat</th>
+        <th nzWidth="100px" nzAlign="center">Status</th>
+        <th nzWidth="150px" nzAlign="center">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let supplier of supplierTable.data; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td><strong>{{ supplier.nama }}</strong></td>
+        <td>{{ supplier.npwp || '-' }}</td>
+        <td>{{ supplier.alamat || '-' }}</td>
+        <td nzAlign="center">
+          <nz-tag [nzColor]="supplier.isActive ? 'success' : 'default'">
+            {{ supplier.isActive ? 'Aktif' : 'Nonaktif' }}
+          </nz-tag>
+        </td>
+        <td nzAlign="center">
+          <nz-space>
+            <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="showEditModal(supplier)">
+              <span nz-icon nzType="edit"></span>
+            </button>
+            <button *nzSpaceItem 
+              nz-button 
+              nzType="primary" 
+              nzDanger 
+              nzSize="small"
+              nz-popconfirm
+              nzPopconfirmTitle="Yakin ingin menghapus supplier ini?"
+              (nzOnConfirm)="deleteSupplier(supplier.id)">
+              <span nz-icon nzType="delete"></span>
+            </button>
+          </nz-space>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<!-- Modal Form -->
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  [nzTitle]="modalTitle"
+  [nzClosable]="true"
+  [nzMaskClosable]="false"
+  [nzWidth]="600"
+  (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooter">
+  
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="supplierForm" nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-label nzRequired>Nama Supplier</nz-form-label>
+        <nz-form-control nzErrorTip="Nama supplier harus diisi (max 200 karakter)">
+          <input nz-input formControlName="nama" placeholder="Masukkan nama supplier" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>NPWP</nz-form-label>
+        <nz-form-control nzErrorTip="NPWP maksimal 20 karakter">
+          <input nz-input formControlName="npwp" placeholder="Masukkan NPWP (opsional)" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Alamat</nz-form-label>
+        <nz-form-control nzErrorTip="Alamat maksimal 500 karakter">
+          <textarea 
+            nz-input 
+            formControlName="alamat" 
+            placeholder="Masukkan alamat (opsional)"
+            [nzAutosize]="{ minRows: 3, maxRows: 6 }">
+          </textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Status</nz-form-label>
+        <nz-form-control>
+          <nz-switch formControlName="isActive"></nz-switch>
+          <span style="margin-left: 8px; color: #8c8c8c;">
+            {{ supplierForm.get('isActive')?.value ? 'Aktif' : 'Nonaktif' }}
+          </span>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Batal</button>
+    <button nz-button nzType="primary" [nzLoading]="isLoading" (click)="handleOk()">
+      {{ isEditMode ? 'Update' : 'Simpan' }}
+    </button>
+  </ng-template>
+</nz-modal>

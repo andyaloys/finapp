@@ -1,0 +1,116 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>Master Tarif Pajak</h2>
+    <button nz-button nzType="primary" (click)="showAddModal()">
+      <span nz-icon nzType="plus"></span>
+      Tambah Tarif Pajak
+    </button>
+  </div>
+
+  <nz-table
+    #table
+    [nzData]="taxRates"
+    [nzLoading]="isLoading"
+    [nzPageSize]="10"
+    nzShowSizeChanger
+    [nzPageSizeOptions]="[10, 20, 50]">
+    <thead>
+      <tr>
+        <th nzWidth="50px">No</th>
+        <th>Kode Pajak</th>
+        <th>Nama Pajak</th>
+        <th nzWidth="120px" nzAlign="center">Tarif (%)</th>
+        <th nzWidth="100px" nzAlign="center">Status</th>
+        <th nzWidth="150px" nzAlign="center">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let rate of table.data; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ rate.taxCode }}</td>
+        <td>{{ rate.taxName }}</td>
+        <td nzAlign="center"><strong>{{ rate.rate | number:'1.2-2' }}%</strong></td>
+        <td nzAlign="center">
+          <nz-tag [nzColor]="rate.isActive ? 'green' : 'red'">
+            {{ rate.isActive ? 'Aktif' : 'Nonaktif' }}
+          </nz-tag>
+        </td>
+        <td nzAlign="center">
+          <button nz-button nzType="link" nzSize="small" (click)="showEditModal(rate)">
+            <span nz-icon nzType="edit"></span>
+            Edit
+          </button>
+          <button 
+            nz-button 
+            nzType="link" 
+            nzSize="small" 
+            nzDanger
+            nz-popconfirm
+            nzPopconfirmTitle="Yakin ingin menghapus tarif pajak ini?"
+            (nzOnConfirm)="deleteTaxRate(rate.id)">
+            <span nz-icon nzType="delete"></span>
+            Hapus
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  [nzTitle]="isEditMode ? 'Edit Tarif Pajak' : 'Tambah Tarif Pajak'"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  nzWidth="500px">
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="taxRateForm" nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-label nzRequired>Kode Pajak</nz-form-label>
+        <nz-form-control nzErrorTip="Kode pajak harus diisi (maks. 20 karakter)">
+          <input 
+            nz-input 
+            formControlName="taxCode" 
+            placeholder="Contoh: PPN, PPH21"
+            [disabled]="isEditMode" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Nama Pajak</nz-form-label>
+        <nz-form-control nzErrorTip="Nama pajak harus diisi (maks. 100 karakter)">
+          <input 
+            nz-input 
+            formControlName="taxName" 
+            placeholder="Contoh: Pajak Pertambahan Nilai" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Tarif (%)</nz-form-label>
+        <nz-form-control nzErrorTip="Tarif harus diisi (0.01 - 100)">
+          <nz-input-number
+            formControlName="rate"
+            [nzMin]="0.01"
+            [nzMax]="100"
+            [nzStep]="0.01"
+            [nzPrecision]="2"
+            style="width: 100%;"
+            nzPlaceHolder="Contoh: 11.00">
+          </nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Status</nz-form-label>
+        <nz-form-control>
+          <nz-switch 
+            formControlName="isActive"
+            nzCheckedChildren="Aktif"
+            nzUnCheckedChildren="Nonaktif">
+          </nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

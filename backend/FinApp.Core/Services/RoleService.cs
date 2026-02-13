@@ -56,6 +56,7 @@ public class RoleService : IRoleService
 
         var role = _mapper.Map<Role>(dto);
         role.CreatedAt = DateTime.UtcNow;
+        role.UpdatedAt = DateTime.UtcNow;
 
         await _unitOfWork.Roles.AddAsync(role);
         await _unitOfWork.SaveChangesAsync();

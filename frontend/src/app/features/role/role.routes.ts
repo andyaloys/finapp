@@ -21,4 +21,9 @@ export const ROLE_ROUTES: Routes = [
     loadComponent: () =>
       import('./role-assign.component').then((m) => m.RoleAssignComponent),
   },
+  {
+    path: 'permissions/:id',
+    loadComponent: () =>
+      import('./role-permissions.component').then((m) => m.RolePermissionsComponent),
+  },
 ];

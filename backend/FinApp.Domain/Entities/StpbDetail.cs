@@ -51,7 +51,7 @@ public class StpbDetail : BaseEntity
     public decimal HargaSatuan { get; set; }
     public decimal JumlahHarga { get; set; }
     public string? Keterangan { get; set; }
-    public string? Penerima { get; set; }
+    public int? PenerimaId { get; set; }
     
     // Tax/Potongan
     public decimal PPN { get; set; }
@@ -63,4 +63,5 @@ public class StpbDetail : BaseEntity
     // Navigation properties
     public Stpb Stpb { get; set; } = null!;
     public Item? Item { get; set; }
+    public Penerima? Penerima { get; set; }
 }

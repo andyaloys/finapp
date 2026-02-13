@@ -120,5 +120,10 @@ public class StpbDetailConfiguration : IEntityTypeConfiguration<StpbDetail>
             .WithMany()
             .HasForeignKey(x => x.ItemId)
             .OnDelete(DeleteBehavior.SetNull);
+        
+        builder.HasOne(x => x.Penerima)
+            .WithMany(p => p.Stpbs)
+            .HasForeignKey(x => x.PenerimaId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

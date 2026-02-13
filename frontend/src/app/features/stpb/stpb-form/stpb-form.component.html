@@ -185,7 +185,7 @@
               <div class="coa-name">{{ detail.namaItem || '-' }}</div>
             </div>
           </td>
-          <td>{{ detail.penerima || '-' }}</td>
+          <td>{{ detail.penerimaNama || '-' }}</td>
           <td>{{ detail.keterangan }}</td>
           <td nzAlign="right">{{ detail.jumlahHarga | number: '1.0-0' }}</td>
           <td nzAlign="right">{{ detail.ppn | number: '1.0-0' }}</td>
@@ -226,6 +226,25 @@
               </button>
             </div>
           </td>
+        </tr>
+        <!-- Total Row -->
+        <tr *ngIf="details.length > 0" style="background-color: #fafafa; font-weight: 600;">
+          <td colspan="4" nzAlign="right" style="padding-right: 16px;">
+            <strong>TOTAL</strong>
+          </td>
+          <td nzAlign="right" style="color: #1890ff;">
+            {{ getTotalJumlahHarga() | number: '1.0-0' }}
+          </td>
+          <td nzAlign="right" style="color: #1890ff;">
+            {{ getTotalPpn() | number: '1.0-0' }}
+          </td>
+          <td nzAlign="right" style="color: #1890ff;">
+            {{ getTotalAllPph() | number: '1.0-0' }}
+          </td>
+          <td nzAlign="right" style="color: #1890ff;">
+            <strong>{{ getTotalNilaiBersih() | number: '1.0-0' }}</strong>
+          </td>
+          <td></td>
         </tr>
       </tbody>
     </nz-table>

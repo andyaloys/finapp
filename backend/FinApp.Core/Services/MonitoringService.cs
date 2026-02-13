@@ -217,7 +217,7 @@ public class MonitoringService : IMonitoringService
                 NoStpb = stpb.NomorSTPB,
                 TanggalStpb = detail.TanggalTransaksi,
                 Keterangan = detail.Keterangan ?? detail.NamaItem ?? "-",
-                Penerima = detail.Penerima,
+                Penerima = detail.Penerima?.Nama,
                 NilaiKotor = detail.JumlahHarga,
                 Pajak = totalPajak,
                 NilaiBersih = detail.NilaiBersih,

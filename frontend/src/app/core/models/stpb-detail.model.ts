@@ -23,7 +23,8 @@ export interface StpbDetail {
   satuan: string;
   hargaSatuan: number;
   jumlahHarga: number;
-  penerima?: string;
+  penerimaId?: number;
+  penerimaNama?: string;
   ppn: number;
   ppH21: number;
   ppH22: number;
@@ -54,7 +55,7 @@ export interface CreateStpbDetailDto {
   volume: number;
   satuan: string;
   hargaSatuan: number;
-  penerima?: string;
+  penerimaId?: number;
   ppn: number;
   ppH21: number;
   ppH22: number;
@@ -86,7 +87,8 @@ export interface StpbDetailDto {
   satuan: string;
   hargaSatuan: number;
   jumlahHarga: number;
-  penerima?: string;
+  penerimaId?: number;
+  penerimaNama?: string;
   ppn: number;
   ppH21: number;
   ppH22: number;

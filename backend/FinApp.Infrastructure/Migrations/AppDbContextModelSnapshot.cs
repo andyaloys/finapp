@@ -340,6 +340,160 @@ namespace FinApp.Infrastructure.Migrations
                     b.ToTable("Komponens", (string)null);
                 });
 
+            modelBuilder.Entity("FinApp.Domain.Entities.Menu", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ParentKey")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Menus", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("2d367bdd-6435-4b82-ba30-4dc4ddb3b82b"),
+                            CreatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(7330),
+                            Icon = "dollar",
+                            IsActive = true,
+                            Key = "transaksi",
+                            Label = "Transaksi",
+                            Order = 1,
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(7260)
+                        },
+                        new
+                        {
+                            Id = new Guid("3031a6ea-a38c-4c87-9fca-42836b5d22c9"),
+                            CreatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(7340),
+                            Icon = "file-text",
+                            IsActive = true,
+                            Key = "transaksi-stpb",
+                            Label = "SPTB",
+                            Order = 1,
+                            ParentKey = "transaksi",
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(7336)
+                        },
+                        new
+                        {
+                            Id = new Guid("096a9193-fe97-4a84-8ba7-3bd2e1877c88"),
+                            CreatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8442),
+                            Icon = "file-done",
+                            IsActive = true,
+                            Key = "anggaran",
+                            Label = "Anggaran",
+                            Order = 2,
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(7435)
+                        },
+                        new
+                        {
+                            Id = new Guid("b9406d3b-2ac6-486d-94f0-6d69cf3a5cf2"),
+                            CreatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8578),
+                            Icon = "unordered-list",
+                            IsActive = true,
+                            Key = "anggaran-list",
+                            Label = "Daftar Anggaran",
+                            Order = 1,
+                            ParentKey = "anggaran",
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8468)
+                        },
+                        new
+                        {
+                            Id = new Guid("242139b9-863a-4519-b42c-eed580c08915"),
+                            CreatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8587),
+                            Icon = "bar-chart",
+                            IsActive = true,
+                            Key = "monitoring",
+                            Label = "Monitoring",
+                            Order = 3,
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8581)
+                        },
+                        new
+                        {
+                            Id = new Guid("154dc217-9dd0-45f9-a8d2-7e3a95a8e9b7"),
+                            CreatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8593),
+                            Icon = "database",
+                            IsActive = true,
+                            Key = "master-data",
+                            Label = "Master Data",
+                            Order = 4,
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8589)
+                        },
+                        new
+                        {
+                            Id = new Guid("0dc1cf6f-7e27-402b-813c-3b4de6bbe54e"),
+                            CreatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8598),
+                            Icon = "team",
+                            IsActive = true,
+                            Key = "master-ppkbendahara",
+                            Label = "PPK/Bendahara",
+                            Order = 1,
+                            ParentKey = "master-data",
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8595)
+                        },
+                        new
+                        {
+                            Id = new Guid("329c02f3-2a7c-4544-a199-d9e70a47eba2"),
+                            CreatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8632),
+                            Icon = "setting",
+                            IsActive = true,
+                            Key = "administration",
+                            Label = "Administration",
+                            Order = 5,
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8600)
+                        },
+                        new
+                        {
+                            Id = new Guid("b63b1d66-1e5b-4c66-b962-abf9dc47f876"),
+                            CreatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8638),
+                            Icon = "user",
+                            IsActive = true,
+                            Key = "admin-users",
+                            Label = "User Management",
+                            Order = 1,
+                            ParentKey = "administration",
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8634)
+                        },
+                        new
+                        {
+                            Id = new Guid("3368cc0c-af7f-41d3-b6d6-cea76f72bc39"),
+                            CreatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8643),
+                            Icon = "safety",
+                            IsActive = true,
+                            Key = "admin-roles",
+                            Label = "Role Management",
+                            Order = 2,
+                            ParentKey = "administration",
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(8640)
+                        });
+                });
+
             modelBuilder.Entity("FinApp.Domain.Entities.Output", b =>
                 {
                     b.Property<Guid>("Id")
@@ -508,7 +662,7 @@ namespace FinApp.Infrastructure.Migrations
                             Description = "Administrator dengan akses penuh",
                             IsAdmin = true,
                             Name = "Admin",
-                            UpdatedAt = new DateTime(2026, 2, 3, 6, 12, 59, 396, DateTimeKind.Utc).AddTicks(4552)
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(3753)
                         },
                         new
                         {
@@ -517,8 +671,42 @@ namespace FinApp.Infrastructure.Migrations
                             Description = "User biasa dengan akses terbatas",
                             IsAdmin = false,
                             Name = "User",
-                            UpdatedAt = new DateTime(2026, 2, 3, 6, 12, 59, 396, DateTimeKind.Utc).AddTicks(4570)
+                            UpdatedAt = new DateTime(2026, 2, 5, 1, 49, 7, 475, DateTimeKind.Utc).AddTicks(3765)
                         });
+                });
+
+            modelBuilder.Entity("FinApp.Domain.Entities.RoleMenuPermission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid>("MenuId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("MenuKey")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RoleMenuPermissions", (string)null);
                 });
 
             modelBuilder.Entity("FinApp.Domain.Entities.RoleSuboutput", b =>
@@ -1006,6 +1194,25 @@ namespace FinApp.Infrastructure.Migrations
                     b.Navigation("Kegiatan");
                 });
 
+            modelBuilder.Entity("FinApp.Domain.Entities.RoleMenuPermission", b =>
+                {
+                    b.HasOne("FinApp.Domain.Entities.Menu", "Menu")
+                        .WithMany("RoleMenuPermissions")
+                        .HasForeignKey("MenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinApp.Domain.Entities.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Menu");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("FinApp.Domain.Entities.RoleSuboutput", b =>
                 {
                     b.HasOne("FinApp.Domain.Entities.Role", "Role")
@@ -1106,6 +1313,11 @@ namespace FinApp.Infrastructure.Migrations
             modelBuilder.Entity("FinApp.Domain.Entities.Komponen", b =>
                 {
                     b.Navigation("Subkomponens");
+                });
+
+            modelBuilder.Entity("FinApp.Domain.Entities.Menu", b =>
+                {
+                    b.Navigation("RoleMenuPermissions");
                 });
 
             modelBuilder.Entity("FinApp.Domain.Entities.Output", b =>

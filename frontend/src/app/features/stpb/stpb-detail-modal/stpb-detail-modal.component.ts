@@ -1,6 +1,6 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -14,7 +14,12 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { AnggaranMasterService } from '../../../core/services/anggaran-master.service';
 import { StpbService } from '../../../core/services/stpb.service';
+import { PenerimaService } from '../../../core/services/penerima.service';
+import { TaxRateService } from '../../../core/services/tax-rate.service';
 import { CreateStpbDetailDto, StpbDetailDto } from '../../../core/models/stpb-detail.model';
+import { Penerima } from '../../../core/models/penerima.model';
+import { TaxRatesForCalculation } from '../../../core/models/tax-rate.model';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 
 @Component({
   selector: 'app-stpb-detail-modal',
@@ -22,6 +27,7 @@ import { CreateStpbDetailDto, StpbDetailDto } from '../../../core/models/stpb-de
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     NzModalModule,
     NzFormModule,
     NzInputModule,
@@ -30,7 +36,8 @@ import { CreateStpbDetailDto, StpbDetailDto } from '../../../core/models/stpb-de
     NzButtonModule,
     NzDividerModule,
     NzAlertModule,
-    NzDatePickerModule
+    NzDatePickerModule,
+    NzCheckboxModule
   ],
   templateUrl: './stpb-detail-modal.component.html',
   styleUrls: ['./stpb-detail-modal.component.scss']
@@ -56,6 +63,13 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
   subkomponens: any[] = [];
   akuns: any[] = [];
   items: any[] = [];
+  suppliers: Penerima[] = [];
+  
+  // Tax rates & applied taxes
+  taxRates: TaxRatesForCalculation = { ppn: 0, pph21: 0, pph22: 0, pph23: 0 };
+  appliedTaxes = { ppn: false, pph21: false, pph22: false, pph23: false };
+  calculatedTaxes = { ppn: 0, pph21: 0, pph22: 0, pph23: 0 };
+  manualEditFlags = { ppn: false, pph21: false, pph22: false, pph23: false };
   
   // Pagu info
   paguInfo: any = null;
@@ -69,6 +83,8 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
     private fb: FormBuilder,
     private anggaranMasterService: AnggaranMasterService,
     private stpbService: StpbService,
+    private penerimaService: PenerimaService,
+    private taxRateService: TaxRateService,
     private message: NzMessageService
   ) {
     this.detailForm = this.fb.group({
@@ -83,7 +99,7 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
       kodeItem: [null, [Validators.required]],
       uraian: ['', [Validators.required]],
       nilaiTransaksi: [0, [Validators.required, Validators.min(1)]],
-      penerima: [''],
+      penerimaId: [null],
       ppn: [0, [Validators.min(0)]],
       pph21: [0, [Validators.min(0)]],
       pph22: [0, [Validators.min(0)]],
@@ -97,7 +113,10 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
     this.revisi = 0;
     
     this.loadAnggaranData();
+    this.loadSuppliers();
+    this.loadTaxRates();
     this.setupCascading();
+    this.setupTaxCalculation();
     
     if (this.detail) {
       this.isEditMode = true;
@@ -172,6 +191,164 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
         this.message.error('Gagal memuat data anggaran');
       }
     });
+  }
+
+  loadSuppliers(): void {
+    this.penerimaService.getAllActive().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.suppliers = response.data;
+        }
+      },
+      error: () => {
+        this.message.error('Gagal memuat data supplier');
+      }
+    });
+  }
+
+  loadTaxRates(): void {
+    this.taxRateService.getTaxRatesForCalculation().subscribe({
+      next: (rates) => {
+        this.taxRates = rates;
+        console.log('Tax rates loaded:', this.taxRates);
+      },
+      error: () => {
+        this.message.error('Gagal memuat data tarif pajak');
+      }
+    });
+  }
+
+  setupTaxCalculation(): void {
+    // Watch for volume/harga changes
+    this.detailForm.get('nilaiTransaksi')?.valueChanges.subscribe(() => {
+      this.calculateTaxes();
+    });
+  }
+
+  calculateTaxes(): void {
+    const nilaiTransaksi = this.detailForm.value.nilaiTransaksi || 0;
+    
+    // Calculate each tax if applied and not manually edited
+    if (!this.manualEditFlags.ppn) {
+      // PPN = (((100/111) × Nilai Transaksi) × (11/12)) × Rate
+      this.calculatedTaxes.ppn = this.appliedTaxes.ppn 
+        ? Math.round(((100/111) * nilaiTransaksi * (11/12)) * (this.taxRates.ppn / 100))
+        : 0;
+    }
+      
+    if (!this.manualEditFlags.pph21) {
+      this.calculatedTaxes.pph21 = this.appliedTaxes.pph21
+        ? Math.round(nilaiTransaksi * (this.taxRates.pph21 / 100))
+        : 0;
+    }
+      
+    if (!this.manualEditFlags.pph22) {
+      // PPH 22 = (100/111) * Nilai Transaksi * Rate
+      this.calculatedTaxes.pph22 = this.appliedTaxes.pph22
+        ? Math.round((100/111) * nilaiTransaksi * (this.taxRates.pph22 / 100))
+        : 0;
+    }
+      
+    if (!this.manualEditFlags.pph23) {
+      // PPH 23 = (100/111) * Nilai Transaksi * Rate
+      this.calculatedTaxes.pph23 = this.appliedTaxes.pph23
+        ? Math.round((100/111) * nilaiTransaksi * (this.taxRates.pph23 / 100))
+        : 0;
+    }
+
+    // Update form values (for submission)
+    this.detailForm.patchValue({
+      ppn: this.calculatedTaxes.ppn,
+      pph21: this.calculatedTaxes.pph21,
+      pph22: this.calculatedTaxes.pph22,
+      pph23: this.calculatedTaxes.pph23
+    }, { emitEvent: false });
+  }
+
+  onTaxCheckboxChange(taxType?: 'ppn' | 'pph21' | 'pph22' | 'pph23'): void {
+    console.log('Tax checkbox changed:', taxType, 'checked:', this.appliedTaxes[taxType!]);
+    if (taxType) {
+      if (!this.appliedTaxes[taxType]) {
+        // Unchecking - reset manual edit flag and value
+        this.manualEditFlags[taxType] = false;
+        this.calculatedTaxes[taxType] = 0;
+        console.log('Unchecked, reset to 0');
+      } else {
+        // Checking - calculate immediately
+        this.manualEditFlags[taxType] = false; // Reset manual edit flag
+        const nilaiTransaksi = this.detailForm.value.nilaiTransaksi || 0;
+        const rate = this.taxRates[taxType] || 0;
+        this.calculatedTaxes[taxType] = Math.round(nilaiTransaksi * (rate / 100));
+        console.log(`Tax ${taxType} calculated:`, this.calculatedTaxes[taxType], 'from', nilaiTransaksi, 'x', rate, '%');
+        console.log('appliedTaxes:', this.appliedTaxes);
+        console.log('calculatedTaxes:', this.calculatedTaxes);
+      }
+      
+      // Update form value immediately
+      this.detailForm.patchValue({
+        [taxType]: this.calculatedTaxes[taxType]
+      }, { emitEvent: false });
+    }
+    this.calculateTaxes();
+  }
+
+  toggleTax(taxType: 'ppn' | 'pph21' | 'pph22' | 'pph23', checked: boolean): void {
+    console.log('Toggle tax:', taxType, 'checked:', checked);
+    this.appliedTaxes[taxType] = checked;
+    
+    if (checked) {
+      // Calculate tax value
+      this.manualEditFlags[taxType] = false;
+      const nilaiTransaksi = this.detailForm.value.nilaiTransaksi || 0;
+      const rate = this.taxRates[taxType] || 0;
+      
+      if (taxType === 'ppn') {
+        // PPN = (((100/111) × Nilai Transaksi) × (11/12)) × Rate
+        this.calculatedTaxes[taxType] = Math.round(((100/111) * nilaiTransaksi * (11/12)) * (rate / 100));
+      } else if (taxType === 'pph22' || taxType === 'pph23') {
+        // PPH 22 & 23 menggunakan faktor (100/111)
+        this.calculatedTaxes[taxType] = Math.round((100/111) * nilaiTransaksi * (rate / 100));
+      } else {
+        // PPH 21
+        this.calculatedTaxes[taxType] = Math.round(nilaiTransaksi * (rate / 100));
+      }
+      
+      console.log(`Tax ${taxType} calculated:`, this.calculatedTaxes[taxType]);
+    } else {
+      // Reset
+      this.manualEditFlags[taxType] = false;
+      this.calculatedTaxes[taxType] = 0;
+    }
+    
+    // Update form value
+    this.detailForm.patchValue({
+      [taxType]: this.calculatedTaxes[taxType]
+    }, { emitEvent: false });
+    
+    this.calculateTaxes();
+  }
+
+  onTaxManualEdit(taxType: 'ppn' | 'pph21' | 'pph22' | 'pph23', value: number): void {
+    // Mark as manually edited
+    this.manualEditFlags[taxType] = true;
+    this.calculatedTaxes[taxType] = value || 0;
+    
+    // Update form value
+    this.detailForm.patchValue({
+      [taxType]: value || 0
+    }, { emitEvent: false });
+  }
+
+  getTotalPajak(): number {
+    return this.calculatedTaxes.ppn 
+         + this.calculatedTaxes.pph21 
+         + this.calculatedTaxes.pph22 
+         + this.calculatedTaxes.pph23;
+  }
+
+  getNilaiBersih(): number {
+    const nilaiTransaksi = this.detailForm.value.nilaiTransaksi || 0;
+    return nilaiTransaksi - this.getTotalPajak();
   }
 
   loadPrograms(): void {
@@ -564,7 +741,7 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
           kodeItem: detailAny.noItem || null,
           uraian: detailAny.keterangan || '',
           nilaiTransaksi: detailAny.hargaSatuan || 0,
-          penerima: detailAny.penerima || '',
+          penerimaId: detailAny.penerimaId || null,
           ppn: detailAny.ppn ?? 0,
           pph21: detailAny.ppH21 ?? 0,
           pph22: detailAny.ppH22 ?? 0,
@@ -610,12 +787,22 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
     }
   }
 
-  formatRupiah = (value: number): string => {
+  formatRupiah = (value: number | null): string => {
+    if (value === null || value === undefined) return 'Rp 0';
     return 'Rp ' + value.toLocaleString('id-ID');
   }
 
   parseRupiah = (value: string): string => {
     return value.replace(/Rp\s?|[^\d]/g, '');
+  }
+
+  formatNumber = (value: number | null): string => {
+    if (value === null || value === undefined) return '0';
+    return value.toLocaleString('id-ID');
+  }
+
+  parseNumber = (value: string): string => {
+    return value.replace(/[^\d]/g, '');
   }
 
   handleOk(): void {
@@ -657,7 +844,7 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
         volume: 1,
         satuan: 'unit',
         hargaSatuan: formValue.nilaiTransaksi,
-        penerima: formValue.penerima,
+        penerimaId: formValue.penerimaId,
         ppn: formValue.ppn || 0,
         ppH21: formValue.pph21 || 0,
         ppH22: formValue.pph22 || 0,
@@ -679,7 +866,36 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
           setTimeout(() => this.handleCancel(), 100);
         },
         error: (error: any) => {
-          this.message.error(error.error?.message || 'Terjadi kesalahan');
+          console.error('=== Full Error Object ===', error);
+          console.error('error.error:', error.error);
+          console.error('error.message:', error.message);
+          console.error('error.status:', error.status);
+          
+          // Try to extract error message from various possible locations
+          let errorMessage = 'Terjadi kesalahan';
+          
+          if (error.error) {
+            // Check for errors array first (ValidationException format)
+            if (error.error.errors && Array.isArray(error.error.errors) && error.error.errors.length > 0) {
+              errorMessage = error.error.errors.join(', ');
+              console.log('Using errors array:', errorMessage);
+            } else if (typeof error.error === 'string') {
+              errorMessage = error.error;
+              console.log('Using error.error string:', errorMessage);
+            } else if (error.error.message) {
+              errorMessage = error.error.message;
+              console.log('Using error.error.message:', errorMessage);
+            } else if (error.error.title) {
+              errorMessage = error.error.title;
+              console.log('Using error.error.title:', errorMessage);
+            }
+          } else if (error.message) {
+            errorMessage = error.message;
+            console.log('Using error.message:', errorMessage);
+          }
+          
+          console.log('Final error message:', errorMessage);
+          this.message.error(errorMessage);
           this.isLoading = false;
         }
       });

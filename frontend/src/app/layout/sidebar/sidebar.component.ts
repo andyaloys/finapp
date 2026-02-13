@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,8 +12,10 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   @Input() isCollapsed = false;
+  
+  menuPermissions: string[] = [];
 
   // Track which submenus are open
   openMap: { [key: string]: boolean } = {
@@ -21,6 +24,17 @@ export class SidebarComponent {
     anggaran: false,
     admin: false
   };
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit() {
+    const currentUser = this.authService.getCurrentUser();
+    this.menuPermissions = currentUser?.menuPermissions || [];
+  }
+
+  canViewMenu(menuKey: string): boolean {
+    return this.menuPermissions.includes(menuKey);
+  }
 
   openHandler(value: string): void {
     // Close all other submenus when one is opened in inline mode

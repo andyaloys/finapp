@@ -3,19 +3,19 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy solution file
-COPY backend/FinApp.sln ./
+COPY FinApp.sln ./
 
 # Copy project files
-COPY backend/FinApp.Domain/FinApp.Domain.csproj FinApp.Domain/
-COPY backend/FinApp.Core/FinApp.Core.csproj FinApp.Core/
-COPY backend/FinApp.Infrastructure/FinApp.Infrastructure.csproj FinApp.Infrastructure/
-COPY backend/FinApp.API/FinApp.API.csproj FinApp.API/
+COPY FinApp.Domain/FinApp.Domain.csproj FinApp.Domain/
+COPY FinApp.Core/FinApp.Core.csproj FinApp.Core/
+COPY FinApp.Infrastructure/FinApp.Infrastructure.csproj FinApp.Infrastructure/
+COPY FinApp.API/FinApp.API.csproj FinApp.API/
 
 # Restore dependencies
 RUN dotnet restore
 
 # Copy all source files
-COPY backend/ .
+COPY . .
 
 # Build and publish
 WORKDIR /src/FinApp.API

@@ -21,5 +21,8 @@ public interface IStpbService
     Task<StpbDetailDto> AddDetailAsync(Guid stpbId, CreateStpbDetailDto dto, Guid userId);
     Task<StpbDetailDto> UpdateDetailAsync(Guid stpbId, Guid detailId, CreateStpbDetailDto dto, Guid userId);
     Task<bool> DeleteDetailAsync(Guid stpbId, Guid detailId, Guid userId);
+    
+    // Maintenance methods
+    Task<int> RecalculateAllTotalsAsync();
 }
 

@@ -43,9 +43,18 @@ public static class ServiceExtensions
         services.AddScoped<ISubkomponenService, SubkomponenService>();
         services.AddScoped<IAkunService, AkunService>();
         services.AddScoped<IItemService, ItemService>();
+        services.AddScoped<IPenerimaService, PenerimaService>();
+        services.AddScoped<ITaxRateService, TaxRateService>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPpkBendaharaService, PpkBendaharaService>();
         services.AddScoped<IMonitoringService, MonitoringService>();
+        services.AddScoped<IMenuService, MenuService>();
+        
+        // Repositories
+        services.AddScoped<IMenuRepository, MenuRepository>();
+        services.AddScoped<IRoleMenuPermissionRepository, RoleMenuPermissionRepository>();
+        services.AddScoped<IPenerimaRepository, PenerimaRepository>();
+        services.AddScoped<ITaxRateRepository, TaxRateRepository>();
 
         // AutoMapper
         services.AddAutoMapper(typeof(MappingProfile));

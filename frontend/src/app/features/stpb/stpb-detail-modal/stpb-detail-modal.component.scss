@@ -32,6 +32,113 @@
   }
 }
 
+.tax-section {
+  margin: 16px 0;
+
+  .tax-list-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 16px;
+    background: #fafafa;
+    border-radius: 8px;
+  }
+
+  .tax-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tax-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: #fafafa;
+    border-radius: 8px;
+
+    .tax-item-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      background: white;
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      transition: all 0.3s;
+
+      &:hover {
+        border-color: #1890ff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      label {
+        margin-bottom: 0;
+        min-width: 150px;
+        flex-shrink: 0;
+      }
+
+      .tax-name {
+        font-weight: 500;
+        color: #262626;
+      }
+
+      .tax-value-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        
+        .tax-calculated-value {
+          font-weight: 600;
+          color: #1890ff;
+          font-size: 15px;
+          white-space: nowrap;
+        }
+      }
+
+      .tax-amount-display {
+        display: none; // Hidden, input shows the value
+      }
+    }
+  }
+
+  .tax-item-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: #1890ff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    label {
+      margin-bottom: 0;
+      min-width: 130px;
+      flex-shrink: 0;
+    }
+
+    .tax-name {
+      font-weight: 500;
+      color: #262626;
+    }
+
+    .tax-amount {
+      font-weight: 600;
+      color: #1890ff;
+      margin-left: auto;
+      padding-left: 16px;
+    }
+  }
+}
+
 .total-section {
   padding: 16px;
   background: #f5f5f5;

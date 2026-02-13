@@ -1,69 +1,98 @@
 <div class="sidebar-header">
-  <i nz-icon nzType="wallet" nzTheme="twotone" *ngIf="!isCollapsed" class="sidebar-logo-icon"></i>
-  <h1 *ngIf="!isCollapsed" class="sidebar-title">Finance App</h1>
-  <i nz-icon nzType="wallet" nzTheme="twotone" *ngIf="isCollapsed" class="sidebar-logo-icon-small"></i>
+  <div class="sidebar-logo-wrapper" *ngIf="!isCollapsed">
+    <span class="sidebar-logo-text">deta</span>
+    <span class="sidebar-logo-shape"></span>
+  </div>
+  <i nz-icon nzType="bank" nzTheme="twotone" *ngIf="isCollapsed" class="sidebar-logo-icon-small"></i>
 </div>
 
 <ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed" nzTheme="dark" class="sidebar-menu">
   <li nz-submenu 
+      *ngIf="canViewMenu('transaksi')"
       nzTitle="Transaksi" 
       nzIcon="dollar"
       [(nzOpen)]="openMap['transaksi']"
       (nzOpenChange)="openHandler('transaksi')">
     <ul>
-      <li nz-menu-item nzMatchRouter>
+      <li nz-menu-item nzMatchRouter *ngIf="canViewMenu('transaksi-stpb')">
         <a routerLink="/stpb">
+          <span nz-icon nzType="file-text" nzTheme="outline"></span>
           <span>SPTB</span>
         </a>
       </li>
     </ul>
   </li>
   <li nz-submenu 
+      *ngIf="canViewMenu('anggaran')"
       nzTitle="Anggaran" 
       nzIcon="file-done"
       [(nzOpen)]="openMap['anggaran']"
       (nzOpenChange)="openHandler('anggaran')">
     <ul>
-      <li nz-menu-item nzMatchRouter>
+      <li nz-menu-item nzMatchRouter *ngIf="canViewMenu('anggaran-list')">
         <a routerLink="/anggaran">
+          <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
           <span>Daftar Anggaran</span>
         </a>
       </li>
     </ul>
   </li>
-  <li nz-menu-item nzMatchRouter>
+  <li nz-menu-item nzMatchRouter *ngIf="canViewMenu('monitoring')">
     <a routerLink="/monitoring/anggaran">
-      <span nz-icon nzType="bar-chart"></span>
+      <span nz-icon nzType="bar-chart" nzTheme="outline"></span>
       <span>Monitoring</span>
     </a>
   </li>
   <li nz-submenu 
+      *ngIf="canViewMenu('master-data')"
       nzTitle="Master Data" 
       nzIcon="database"
       [(nzOpen)]="openMap['master']"
       (nzOpenChange)="openHandler('master')">
     <ul>
-      <li nz-menu-item nzMatchRouter>
+      <li nz-menu-item nzMatchRouter *ngIf="canViewMenu('master-ppkbendahara')">
         <a routerLink="/ppkbendahara">
+          <span nz-icon nzType="team" nzTheme="outline"></span>
           <span>PPK/Bendahara</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter *ngIf="canViewMenu('master-supplier')">
+        <a routerLink="/supplier">
+          <span nz-icon nzType="shop" nzTheme="outline"></span>
+          <span>Supplier</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter *ngIf="canViewMenu('master-taxrate')">
+        <a routerLink="/tax-rate">
+          <span nz-icon nzType="percentage" nzTheme="outline"></span>
+          <span>Tarif Pajak</span>
         </a>
       </li>
     </ul>
   </li>
   <li nz-submenu 
-      nzTitle="Administration" 
+      *ngIf="canViewMenu('admin')"
+      nzTitle="Admin" 
       nzIcon="setting"
       [(nzOpen)]="openMap['admin']"
       (nzOpenChange)="openHandler('admin')">
     <ul>
-      <li nz-menu-item nzMatchRouter>
+      <li nz-menu-item nzMatchRouter *ngIf="canViewMenu('admin-users')">
         <a routerLink="/user">
+          <span nz-icon nzType="user" nzTheme="outline"></span>
           <span>User Management</span>
         </a>
       </li>
-      <li nz-menu-item nzMatchRouter>
+      <li nz-menu-item nzMatchRouter *ngIf="canViewMenu('admin-roles')">
         <a routerLink="/role">
+          <span nz-icon nzType="team" nzTheme="outline"></span>
           <span>Role Management</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter *ngIf="canViewMenu('admin-ppk-bendahara')">
+        <a routerLink="/ppkbendahara">
+          <span nz-icon nzType="user-check" nzTheme="outline"></span>
+          <span>PPK & Bendahara</span>
         </a>
       </li>
     </ul>

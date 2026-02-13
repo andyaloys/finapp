@@ -31,7 +31,8 @@ public class StpbDetailDto
     public decimal HargaSatuan { get; set; }
     public decimal JumlahHarga { get; set; }
     public string? Keterangan { get; set; }
-    public string? Penerima { get; set; }
+    public int? PenerimaId { get; set; }
+    public string? PenerimaNama { get; set; }
     
     // Tax/Potongan
     public decimal PPN { get; set; }

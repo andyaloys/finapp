@@ -9,6 +9,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { RoleService } from '../../core/services/role.service';
 import { Role } from '../../core/models/role.model';
 
@@ -23,7 +24,8 @@ import { Role } from '../../core/models/role.model';
     NzIconModule,
     NzInputModule,
     NzModalModule,
-    NzTagModule
+    NzTagModule,
+    NzToolTipModule
   ],
   template: `
     <div class="page-container">
@@ -82,6 +84,8 @@ import { Role } from '../../core/models/role.model';
                 nz-button
                 nzType="default"
                 nzSize="small"
+                nz-tooltip
+                nzTooltipTitle="Edit Role"
                 (click)="navigateToEdit(role.id)"
                 style="margin-right: 8px;"
               >
@@ -91,17 +95,31 @@ import { Role } from '../../core/models/role.model';
                 nz-button
                 nzType="default"
                 nzSize="small"
+                nz-tooltip
+                nzTooltipTitle="Kelola Suboutputs"
                 (click)="navigateToAssign(role.id)"
                 style="margin-right: 8px;"
               >
                 <span nz-icon nzType="setting"></span>
-                Suboutputs
+              </button>
+              <button
+                nz-button
+                nzType="default"
+                nzSize="small"
+                nz-tooltip
+                nzTooltipTitle="Kelola Menu Permissions"
+                (click)="navigateToPermissions(role.id)"
+                style="margin-right: 8px;"
+              >
+                <span nz-icon nzType="safety"></span>
               </button>
               <button
                 nz-button
                 nzType="primary"
                 nzDanger
                 nzSize="small"
+                nz-tooltip
+                nzTooltipTitle="Hapus Role"
                 (click)="confirmDelete(role)"
                 [disabled]="role.isAdmin"
               >
@@ -192,6 +210,10 @@ export class RoleListComponent implements OnInit {
 
   navigateToAssign(id: string): void {
     this.router.navigate(['/role/assign', id]);
+  }
+
+  navigateToPermissions(id: string): void {
+    this.router.navigate(['/role/permissions', id]);
   }
 
   confirmDelete(role: Role): void {

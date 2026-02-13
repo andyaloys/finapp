@@ -18,5 +18,16 @@ export interface LoginResponse {
   fullName: string;
   email: string;
   role: string;
+  menuPermissions: string[];
   expiresAt: Date;
+}
+
+export interface Menu {
+  id: string;
+  key: string;
+  label: string;
+  icon?: string;
+  parentKey?: string;
+  order: number;
+  isActive: boolean;
 }

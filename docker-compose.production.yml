@@ -9,7 +9,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=10.100.83.166;Port=3366;Database=finapp;User=root;Password=P@ssw0rd;
+      - ConnectionStrings__DefaultConnection=Server=10.100.83.166;Port=3306;Database=finapp;User=root;Password=P@ssw0rd;
       - Jwt__Secret=YourSuperSecretKeyForJWTToken123456789MinimumLength32Characters!
       - Jwt__Issuer=FinAppAPI
       - Jwt__Audience=FinAppClient
@@ -25,7 +25,7 @@ services:
     container_name: finapp-frontend
     restart: unless-stopped
     ports:
-      - "8008:80"
+      - "80:80"
     depends_on:
       - backend
     networks:

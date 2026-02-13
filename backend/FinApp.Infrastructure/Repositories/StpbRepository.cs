@@ -17,6 +17,7 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
             .Include(s => s.Creator)
             .Include(s => s.PpkBendahara)
             .Include(s => s.StpbDetails)
+                .ThenInclude(d => d.Penerima)
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
@@ -26,6 +27,7 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
             .Include(s => s.Creator)
             .Include(s => s.PpkBendahara)
             .Include(s => s.StpbDetails)
+                .ThenInclude(d => d.Penerima)
             .Where(s => s.CreatedBy == userId)
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
@@ -37,6 +39,7 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
             .Include(s => s.Creator)
             .Include(s => s.PpkBendahara)
             .Include(s => s.StpbDetails)
+                .ThenInclude(d => d.Penerima)
             .FirstOrDefaultAsync(s => s.NomorSTPB == nomorStpb);
     }
 
@@ -50,6 +53,7 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
             .Include(s => s.Creator)
             .Include(s => s.PpkBendahara)
             .Include(s => s.StpbDetails)
+                .ThenInclude(d => d.Penerima)
             .Where(s => s.Status == statusEnum)
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
@@ -64,6 +68,7 @@ public class StpbRepository : Repository<Stpb>, IStpbRepository
             .Include(s => s.Creator)
             .Include(s => s.PpkBendahara)
             .Include(s => s.StpbDetails)
+                .ThenInclude(d => d.Penerima)
             .AsQueryable();
 
         // Apply search filter

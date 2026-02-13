@@ -29,7 +29,7 @@ public class CreateStpbDetailDto
     public string Satuan { get; set; } = string.Empty;
     public decimal HargaSatuan { get; set; }
     public string? Keterangan { get; set; }
-    public string? Penerima { get; set; }
+    public int? PenerimaId { get; set; }
     
     // Tax/Potongan
     public decimal PPN { get; set; }

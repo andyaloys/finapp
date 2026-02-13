@@ -339,6 +339,8 @@ export class StpbFormComponent implements OnInit {
   }
 
   getTotalNilai(): number {
+    // Always calculate from details to ensure accuracy and sync with table
+    // Don't use stpb.totalNilai as it might be stale or incorrect from old bugs
     return this.details.reduce((sum, detail) => sum + detail.jumlahHarga, 0);
   }
 
@@ -351,6 +353,22 @@ export class StpbFormComponent implements OnInit {
     const pph23 = Number(detail['ppH23']) || 0;
     
     return pph21 + pph22 + pph23;
+  }
+
+  getTotalJumlahHarga(): number {
+    return this.details.reduce((sum, detail) => sum + (detail.jumlahHarga || 0), 0);
+  }
+
+  getTotalPpn(): number {
+    return this.details.reduce((sum, detail) => sum + (detail.ppn || 0), 0);
+  }
+
+  getTotalAllPph(): number {
+    return this.details.reduce((sum, detail) => sum + this.getTotalPph(detail), 0);
+  }
+
+  getTotalNilaiBersih(): number {
+    return this.details.reduce((sum, detail) => sum + (detail.nilaiBersih || 0), 0);
   }
 
   onDetailModalSuccess(): void {

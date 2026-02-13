@@ -45,8 +45,7 @@ public class StpbConfiguration : IEntityTypeConfiguration<Stpb>
         builder.HasIndex(x => x.CreatedBy);
 
         builder.Property(x => x.TotalNilai)
-            .HasColumnType("decimal(18,2)")
-            .HasDefaultValue(0.00m);
+            .HasColumnType("decimal(18,2)");
 
         builder.Property(x => x.Keterangan)
             .HasColumnType("text");

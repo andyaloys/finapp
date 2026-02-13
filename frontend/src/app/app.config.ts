@@ -11,6 +11,13 @@ import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { NzMessageModule } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { provideNzIcons } from 'ng-zorro-antd/icon';
+import * as AllIcons from '@ant-design/icons-angular/icons';
+
+const antDesignIcons = AllIcons as {
+  [key: string]: any;
+};
+const icons: any[] = Object.keys(antDesignIcons).map(key => antDesignIcons[key]);
 
 registerLocaleData(en);
 
@@ -20,6 +27,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([jwtInterceptor, errorInterceptor])),
     provideAnimations(),
     provideNzI18n(en_US),
+    provideNzIcons(icons),
     importProvidersFrom(FormsModule, NzMessageModule, NzModalModule)
   ]
 };

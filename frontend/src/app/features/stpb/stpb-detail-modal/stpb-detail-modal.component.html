@@ -27,10 +27,18 @@
       <nz-form-item>
         <nz-form-label>Penerima</nz-form-label>
         <nz-form-control>
-          <input
-            nz-input
-            formControlName="penerima"
-            placeholder="Nama penerima (opsional)">
+          <nz-select
+            formControlName="penerimaId"
+            nzAllowClear
+            nzShowSearch
+            nzPlaceHolder="Pilih penerima (opsional)"
+            style="width: 100%;">
+            <nz-option 
+              *ngFor="let supplier of suppliers" 
+              [nzValue]="supplier.id" 
+              [nzLabel]="supplier.nama">
+            </nz-option>
+          </nz-select>
         </nz-form-control>
       </nz-form-item>
       
@@ -265,133 +273,199 @@
 
       <nz-divider nzText="Potongan Pajak"></nz-divider>
 
-      <!-- Pajak Section -->
-      <div nz-row [nzGutter]="16">
-        <div nz-col [nzSpan]="12">
-          <nz-form-item>
-            <nz-form-label>PPN</nz-form-label>
-            <nz-form-control>
-              <nz-input-number
-                formControlName="ppn"
-                [nzMin]="0"
-                [nzStep]="1000"
-                [nzFormatter]="currencyFormatter"
-                [nzParser]="currencyParser"
-                style="width: 100%;">
-              </nz-input-number>
-            </nz-form-control>
-          </nz-form-item>
-        </div>
+      <!-- Pajak Section - Checkbox Style with Editable Values -->
+      <div class="tax-section">
+        <nz-form-item>
+          <nz-form-label>Pajak yang Berlaku</nz-form-label>
+          <nz-form-control>
+            <div class="tax-list-grid">
+              <!-- Column 1 -->
+              <div class="tax-column">
+                <!-- PPN -->
+                <div class="tax-item-row">
+                  <label nz-checkbox 
+                         [nzChecked]="appliedTaxes.ppn"
+                         (nzCheckedChange)="toggleTax('ppn', $event)">
+                    PPN ({{ taxRates.ppn | number:'1.2-2' }}%)
+                  </label>
+                  <ng-container *ngIf="appliedTaxes.ppn">
+                    <nz-input-number
+                      [(ngModel)]="calculatedTaxes.ppn"
+                      [ngModelOptions]="{standalone: true}"
+                      (ngModelChange)="onTaxManualEdit('ppn', $event)"
+                      [nzMin]="0"
+                      [nzStep]="1000"
+                      [nzFormatter]="formatNumber"
+                      [nzParser]="parseNumber"
+                      style="width: 200px; margin-left: 12px;"
+                      placeholder="Masukkan nilai pajak">
+                    </nz-input-number>
+                  </ng-container>
+                </div>
 
-        <div nz-col [nzSpan]="12">
-          <nz-form-item>
-            <nz-form-label>PPH 21</nz-form-label>
-            <nz-form-control>
-              <nz-input-number
-                formControlName="pph21"
-                [nzMin]="0"
-                [nzStep]="1000"
-                [nzFormatter]="currencyFormatter"
-                [nzParser]="currencyParser"
-                style="width: 100%;">
-              </nz-input-number>
-            </nz-form-control>
-          </nz-form-item>
-        </div>
-      </div>
+                <!-- PPH 21 -->
+                <div class="tax-item-row">
+                  <label nz-checkbox 
+                         [nzChecked]="appliedTaxes.pph21"
+                         (nzCheckedChange)="toggleTax('pph21', $event)">
+                    PPH 21 ({{ taxRates.pph21 | number:'1.2-2' }}%)
+                  </label>
+                  <ng-container *ngIf="appliedTaxes.pph21">
+                    <nz-input-number
+                      [(ngModel)]="calculatedTaxes.pph21"
+                      [ngModelOptions]="{standalone: true}"
+                      (ngModelChange)="onTaxManualEdit('pph21', $event)"
+                      [nzMin]="0"
+                      [nzStep]="1000"
+                      [nzFormatter]="formatNumber"
+                      [nzParser]="parseNumber"
+                      style="width: 200px; margin-left: 12px;"
+                      placeholder="Masukkan nilai pajak">
+                    </nz-input-number>
+                  </ng-container>
+                </div>
+              </div>
 
-      <div nz-row [nzGutter]="16">
-        <div nz-col [nzSpan]="12">
-          <nz-form-item>
-            <nz-form-label>PPH 22</nz-form-label>
-            <nz-form-control>
-              <nz-input-number
-                formControlName="pph22"
-                [nzMin]="0"
-                [nzStep]="1000"
-                [nzFormatter]="currencyFormatter"
-                [nzParser]="currencyParser"
-                style="width: 100%;">
-              </nz-input-number>
-            </nz-form-control>
-          </nz-form-item>
-        </div>
+              <!-- Column 2 -->
+              <div class="tax-column">
+                <!-- PPH 22 -->
+                <div class="tax-item-row">
+                  <label nz-checkbox 
+                         [nzChecked]="appliedTaxes.pph22"
+                         (nzCheckedChange)="toggleTax('pph22', $event)">
+                    PPH 22 ({{ taxRates.pph22 | number:'1.2-2' }}%)
+                  </label>
+                  <ng-container *ngIf="appliedTaxes.pph22">
+                    <nz-input-number
+                      [(ngModel)]="calculatedTaxes.pph22"
+                      [ngModelOptions]="{standalone: true}"
+                      (ngModelChange)="onTaxManualEdit('pph22', $event)"
+                      [nzMin]="0"
+                      [nzStep]="1000"
+                      [nzFormatter]="formatNumber"
+                      [nzParser]="parseNumber"
+                      style="width: 200px; margin-left: 12px;"
+                      placeholder="Masukkan nilai pajak">
+                    </nz-input-number>
+                  </ng-container>
+                </div>
 
-        <div nz-col [nzSpan]="12">
-          <nz-form-item>
-            <nz-form-label>PPH 23</nz-form-label>
-            <nz-form-control>
-              <nz-input-number
-                formControlName="pph23"
-                [nzMin]="0"
-                [nzStep]="1000"
-                [nzFormatter]="currencyFormatter"
-                [nzParser]="currencyParser"
-                style="width: 100%;">
-              </nz-input-number>
-            </nz-form-control>
-          </nz-form-item>
-        </div>
+                <!-- PPH 23 -->
+                <div class="tax-item-row">
+                  <label nz-checkbox 
+                         [nzChecked]="appliedTaxes.pph23"
+                         (nzCheckedChange)="toggleTax('pph23', $event)">
+                    PPH 23 ({{ taxRates.pph23 | number:'1.2-2' }}%)
+                  </label>
+                  <ng-container *ngIf="appliedTaxes.pph23">
+                    <nz-input-number
+                      [(ngModel)]="calculatedTaxes.pph23"
+                      [ngModelOptions]="{standalone: true}"
+                      (ngModelChange)="onTaxManualEdit('pph23', $event)"
+                      [nzMin]="0"
+                      [nzStep]="1000"
+                      [nzFormatter]="formatNumber"
+                      [nzParser]="parseNumber"
+                      style="width: 200px; margin-left: 12px;"
+                      placeholder="Masukkan nilai pajak">
+                    </nz-input-number>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
       </div>
 
       <!-- Calculated Totals -->
       <div class="total-section">
         <div class="total-row">
-          <span class="total-label">Jumlah Harga:</span>
-          <span class="total-value">Rp {{ totalNilai | number: '1.0-0' }}</span>
+          <span class="total-label">Nilai Transaksi:</span>
+          <span class="total-value">Rp {{ (detailForm.value.nilaiTransaksi || 0) | number: '1.0-0' }}</span>
         </div>
         <div class="total-row">
-          <span class="total-label">PPN:</span>
-          <span class="total-value">Rp {{ (detailForm.get('ppn')?.value || 0) | number: '1.0-0' }}</span>
+          <span class="total-label">Total Pajak:</span>
+          <span class="total-value">Rp {{ getTotalPajak() | number: '1.0-0' }}</span>
         </div>
-        <div class="total-row">
-          <span class="total-label">Total PPH:</span>
-          <span class="total-value">Rp {{ totalPPH | number: '1.0-0' }}</span>
-        </div>
-        <nz-divider></nz-divider>
         <div class="total-row final">
           <span class="total-label"><strong>Nilai Bersih:</strong></span>
-          <span class="total-value"><strong>Rp {{ nilaiBersih | number: '1.0-0' }}</strong></span>
+          <span class="total-value"><strong>Rp {{ getNilaiBersih() | number: '1.0-0' }}</strong></span>
         </div>
       </div>
+
+      <!-- Hidden fields for form submission -->
+      <input type="hidden" formControlName="ppn">
+      <input type="hidden" formControlName="pph21">
+      <input type="hidden" formControlName="pph22">
+      <input type="hidden" formControlName="pph23">
       
       <!-- Pagu Info Alert -->
       <nz-alert 
         *ngIf="paguInfo && !isEditMode"
         [nzType]="paguInfo.isOverPagu ? 'error' : 'info'"
         [nzShowIcon]="true"
+        [nzMessage]="paguInfo.isOverPagu ? 'NILAI MELEBIHI PAGU!' : 'Informasi Pagu'"
         style="margin-top: 16px;">
-        <div nz-row [nzGutter]="8">
-          <div nz-col [nzSpan]="12">
-            <div class="pagu-info-item">
-              <span class="label">Pagu:</span>
-              <span class="value">Rp {{ paguInfo.pagu | number: '1.0-0' }}</span>
+        
+        <ng-container *nzAlertDescription>
+          <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed rgba(0,0,0,0.15);">
+            <div style="margin-bottom: 6px;">
+              <span style="color: #595959; font-size: 13px;">Pagu Anggaran:</span>
+              <span style="font-weight: 600; margin-left: 8px; color: #262626;">Rp {{ paguInfo.pagu | number: '1.0-0' }}</span>
             </div>
-            <div class="pagu-info-item">
-              <span class="label">Realisasi:</span>
-              <span class="value">Rp {{ paguInfo.realisasi | number: '1.0-0' }}</span>
+            <div style="margin-bottom: 6px;">
+              <span style="color: #595959; font-size: 13px;">Sudah Direalisasi:</span>
+              <span style="color: #faad14; font-weight: 500; margin-left: 8px;">Rp {{ paguInfo.realisasi | number: '1.0-0' }}</span>
+              <span style="color: #8c8c8c; font-size: 12px; margin-left: 8px;">
+                ({{ (paguInfo.realisasi / paguInfo.pagu * 100) | number: '1.1-1' }}%)
+              </span>
             </div>
-          </div>
-          <div nz-col [nzSpan]="12">
-            <div class="pagu-info-item">
-              <span class="label">Sisa Pagu:</span>
-              <span class="value">Rp {{ paguInfo.sisaPagu | number: '1.0-0' }}</span>
-            </div>
-            <div class="pagu-info-item">
-              <span class="label">Nilai Input:</span>
-              <span class="value">Rp {{ paguInfo.nilaiInput | number: '1.0-0' }}</span>
+            <div style="margin-bottom: 6px;">
+              <span style="color: #595959; font-size: 13px;">Sisa Pagu Tersedia:</span>
+              <span style="font-weight: 600; color: #52c41a; margin-left: 8px;">Rp {{ paguInfo.sisaPagu | number: '1.0-0' }}</span>
             </div>
           </div>
-        </div>
-        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1);">
-          <strong>Sisa setelah input: </strong>
-          <span [style.color]="paguInfo.isOverPagu ? 'red' : 'green'">
-            Rp {{ paguInfo.sisaSetelahInput | number: '1.0-0' }}
-          </span>
-          <span *ngIf="paguInfo.isOverPagu" style="color: red; margin-left: 8px;">
-            ⚠️ Melebihi pagu yang tersedia!
-          </span>
-        </div>
+          
+          <div style="background: #f5f5f5; padding: 10px; border-radius: 4px; margin-bottom: 8px;">
+            <div style="margin-bottom: 4px;">
+              <span style="color: #595959; font-size: 13px;">Nilai yang akan diinput:</span>
+              <span [style.color]="paguInfo.isOverPagu ? '#cf1322' : '#1890ff'" style="font-weight: 700; font-size: 16px; margin-left: 8px;">
+                Rp {{ paguInfo.nilaiInput | number: '1.0-0' }}
+              </span>
+            </div>
+          </div>
+          
+          <div [style.padding]="'10px'" 
+               [style.background]="paguInfo.isOverPagu ? '#fff2f0' : '#f6ffed'" 
+               [style.border-radius]="'4px'" 
+               [style.border]="paguInfo.isOverPagu ? '1px solid #ffccc7' : '1px solid #b7eb8f'">
+            <div>
+              <strong [style.color]="paguInfo.isOverPagu ? '#cf1322' : '#389e0d'">Sisa Pagu Setelah Input:</strong>
+              <span [style.color]="paguInfo.isOverPagu ? '#cf1322' : '#52c41a'" style="font-weight: 700; font-size: 17px; margin-left: 8px;">
+                Rp {{ paguInfo.sisaSetelahInput | number: '1.0-0' }}
+              </span>
+            </div>
+          </div>
+          
+          <div *ngIf="paguInfo.isOverPagu" style="margin-top: 12px; padding: 12px; background: #fff1f0; border: 2px solid #ff4d4f; border-radius: 4px;">
+            <div style="display: flex; align-items: start;">
+              <span style="font-size: 20px; margin-right: 8px;">⚠️</span>
+              <div style="flex: 1;">
+                <strong style="color: #cf1322; font-size: 14px;">PERINGATAN:</strong>
+                <div style="color: #cf1322; margin-top: 6px; line-height: 1.6;">
+                  Nilai yang akan diinput sebesar <strong>Rp {{ paguInfo.nilaiInput | number: '1.0-0' }}</strong> 
+                  melebihi sisa pagu yang tersedia sebesar <strong>Rp {{ paguInfo.sisaPagu | number: '1.0-0' }}</strong>.
+                </div>
+                <div style="color: #cf1322; margin-top: 6px; line-height: 1.6;">
+                  Kelebihan: <strong>Rp {{ (paguInfo.nilaiInput - paguInfo.sisaPagu) | number: '1.0-0' }}</strong>
+                </div>
+                <div style="color: #8c8c8c; margin-top: 8px; font-size: 12px;">
+                  💡 Silakan kurangi volume atau harga satuan agar tidak melebihi pagu yang tersedia.
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
       </nz-alert>
       
     </form>

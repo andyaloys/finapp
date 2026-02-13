@@ -11,6 +11,9 @@ using FinApp.Core.DTOs.Subkomponen;
 using FinApp.Core.DTOs.Akun;
 using FinApp.Core.DTOs.Item;
 using FinApp.Core.DTOs.PpkBendahara;
+using FinApp.Core.DTOs.Menu;
+using FinApp.Core.DTOs.Penerima;
+using FinApp.Core.DTOs.TaxRate;
 using FinApp.Domain.Entities;
 
 namespace FinApp.Core.Mappings;
@@ -19,6 +22,9 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
+        // Menu mappings
+        CreateMap<Menu, MenuDto>();
+        
         // Role mappings
         CreateMap<Role, RoleDto>();
         CreateMap<CreateRoleDto, Role>();
@@ -58,7 +64,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.StpbDetails, opt => opt.Ignore());
 
         // StpbDetail mappings
-        CreateMap<StpbDetail, StpbDetailDto>();
+        CreateMap<StpbDetail, StpbDetailDto>()
+            .ForMember(dest => dest.PenerimaNama, opt => opt.MapFrom(src => src.Penerima != null ? src.Penerima.Nama : null));
         CreateMap<CreateStpbDetailDto, StpbDetail>()
             .ForMember(dest => dest.JumlahHarga, opt => opt.MapFrom(src => src.Volume * src.HargaSatuan))
             .ForMember(dest => dest.StpbId, opt => opt.Ignore())
@@ -113,5 +120,20 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.kodeAkun, opt => opt.MapFrom(src => src.Akun != null ? src.Akun.Kode : string.Empty));
         CreateMap<CreateItemDto, Item>();
         CreateMap<UpdateItemDto, Item>();
+
+        // Penerima mappings
+        CreateMap<Penerima, PenerimaDto>();
+        CreateMap<CreatePenerimaDto, Penerima>();
+        CreateMap<UpdatePenerimaDto, Penerima>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+        // TaxRate mappings
+        CreateMap<TaxRate, TaxRateDto>();
+        CreateMap<CreateTaxRateDto, TaxRate>();
+        CreateMap<UpdateTaxRateDto, TaxRate>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.TaxCode, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
     }
 }

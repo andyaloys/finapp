@@ -149,10 +149,11 @@ public class StpbService : IStpbService
         {
             var detail = _mapper.Map<StpbDetail>(d);
             detail.JumlahHarga = d.Volume * d.HargaSatuan;
+            detail.NilaiBersih = detail.JumlahHarga - d.PPN - (d.PPH21 + d.PPH22 + d.PPH23);
             return detail;
         }).ToList();
 
-        // Calculate total
+        // Calculate total using JumlahHarga
         stpb.TotalNilai = stpb.StpbDetails.Sum(d => d.JumlahHarga);
 
         await _unitOfWork.Stpbs.AddAsync(stpb);
@@ -421,12 +422,14 @@ public class StpbService : IStpbService
         detail.NilaiBersih = detail.JumlahHarga - dto.PPN - (dto.PPH21 + dto.PPH22 + dto.PPH23);
 
         await _unitOfWork.StpbDetails.AddAsync(detail);
+        await _unitOfWork.SaveChangesAsync();
 
-        // Recalculate total (use NilaiBersih for total)
-        stpb.TotalNilai = stpb.StpbDetails.Sum(d => d.NilaiBersih) + detail.NilaiBersih;
+        // Recalculate total after adding detail
+        // Get fresh list of all details from database to ensure accuracy
+        var allDetails = await _unitOfWork.StpbDetails.GetByStpbIdAsync(stpbId);
+        stpb.TotalNilai = allDetails.Sum(d => d.JumlahHarga);
         stpb.UpdatedAt = DateTime.UtcNow;
         await _unitOfWork.Stpbs.UpdateAsync(stpb);
-
         await _unitOfWork.SaveChangesAsync();
 
         return _mapper.Map<StpbDetailDto>(detail);
@@ -468,13 +471,13 @@ public class StpbService : IStpbService
         detail.UpdatedAt = DateTime.UtcNow;
 
         await _unitOfWork.StpbDetails.UpdateAsync(detail);
+        await _unitOfWork.SaveChangesAsync();
 
-        // Recalculate total (use NilaiBersih)
+        // Recalculate total (use JumlahHarga)
         var allDetails = await _unitOfWork.StpbDetails.GetByStpbIdAsync(stpbId);
-        stpb.TotalNilai = allDetails.Sum(d => d.NilaiBersih);
+        stpb.TotalNilai = allDetails.Sum(d => d.JumlahHarga);
         stpb.UpdatedAt = DateTime.UtcNow;
         await _unitOfWork.Stpbs.UpdateAsync(stpb);
-
         await _unitOfWork.SaveChangesAsync();
 
         return _mapper.Map<StpbDetailDto>(detail);
@@ -500,16 +503,33 @@ public class StpbService : IStpbService
             throw new NotFoundException($"Detail with ID {detailId} not found in this STPB");
 
         await _unitOfWork.StpbDetails.DeleteAsync(detailId);
+        await _unitOfWork.SaveChangesAsync();
 
         // Recalculate total
         var allDetails = await _unitOfWork.StpbDetails.GetByStpbIdAsync(stpbId);
-        stpb.TotalNilai = allDetails.Where(d => d.Id != detailId).Sum(d => d.JumlahHarga);
+        stpb.TotalNilai = allDetails.Sum(d => d.JumlahHarga);
         stpb.UpdatedAt = DateTime.UtcNow;
         await _unitOfWork.Stpbs.UpdateAsync(stpb);
-
         await _unitOfWork.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<int> RecalculateAllTotalsAsync()
+    {
+        var allStpbs = await _unitOfWork.Stpbs.GetAllAsync();
+        int count = 0;
+
+        foreach (var stpb in allStpbs)
+        {
+            var details = await _unitOfWork.StpbDetails.GetByStpbIdAsync(stpb.Id);
+            stpb.TotalNilai = details.Sum(d => d.JumlahHarga);
+            await _unitOfWork.Stpbs.UpdateAsync(stpb);
+            count++;
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+        return count;
     }
 }
 

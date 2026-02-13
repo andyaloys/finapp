@@ -10,7 +10,7 @@ services:
       MYSQL_ROOT_PASSWORD: P@ssw0rd
       MYSQL_DATABASE: finapp
     ports:
-      - "3306:3306"
+      - "3306:3306"  # Port host:container (ubah 3307 sesuai kebutuhan)
     volumes:
       - mysql-data:/var/lib/mysql
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql

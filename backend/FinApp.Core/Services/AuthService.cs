@@ -10,11 +10,13 @@ public class AuthService : IAuthService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IJwtService _jwtService;
+    private readonly IRoleMenuPermissionRepository _roleMenuPermissionRepository;
 
-    public AuthService(IUnitOfWork unitOfWork, IJwtService jwtService)
+    public AuthService(IUnitOfWork unitOfWork, IJwtService jwtService, IRoleMenuPermissionRepository roleMenuPermissionRepository)
     {
         _unitOfWork = unitOfWork;
         _jwtService = jwtService;
+        _roleMenuPermissionRepository = roleMenuPermissionRepository;
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
@@ -32,6 +34,9 @@ public class AuthService : IAuthService
         }
 
         var token = _jwtService.GenerateToken(user);
+        
+        // Get menu permissions for user's role
+        var menuPermissions = await _roleMenuPermissionRepository.GetMenuKeysByRoleIdAsync(user.RoleId);
 
         return new LoginResponseDto
         {
@@ -41,6 +46,7 @@ public class AuthService : IAuthService
             FullName = user.FullName,
             Email = user.Email,
             Role = user.Role?.Name ?? "User",
+            MenuPermissions = menuPermissions,
             ExpiresAt = DateTime.UtcNow.AddHours(1)
         };
     }

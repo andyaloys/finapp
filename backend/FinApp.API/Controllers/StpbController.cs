@@ -267,6 +267,21 @@ public class StpbController : BaseApiController
             return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error generating PDF"));
         }
     }
+
+    [HttpPost("recalculate-all")]
+    public async Task<ActionResult<ApiResponse<string>>> RecalculateAllTotals()
+    {
+        try
+        {
+            var count = await _stpbService.RecalculateAllTotalsAsync();
+            return Ok(ApiResponse<string>.SuccessResponse($"Berhasil recalculate {count} STPB"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error recalculating STPB totals");
+            return StatusCode(500, ApiResponse<string>.ErrorResponse("Error recalculating totals"));
+        }
+    }
 }
 
 // Request model for Kembalikan endpoint
