@@ -17,9 +17,10 @@
     <thead>
       <tr>
         <th nzWidth="50px">No</th>
-        <th>Kode Pajak</th>
-        <th>Nama Pajak</th>
+        <th nzWidth="100px">Jenis</th>
+        <th>Kategori</th>
         <th nzWidth="120px" nzAlign="center">Tarif (%)</th>
+        <th nzWidth="80px" nzAlign="center">Default</th>
         <th nzWidth="100px" nzAlign="center">Status</th>
         <th nzWidth="150px" nzAlign="center">Aksi</th>
       </tr>
@@ -27,9 +28,16 @@
     <tbody>
       <tr *ngFor="let rate of table.data; let i = index">
         <td>{{ i + 1 }}</td>
-        <td>{{ rate.taxCode }}</td>
-        <td>{{ rate.taxName }}</td>
+        <td>
+          <nz-tag [nzColor]="getTaxTypeColor(rate.taxType)">
+            {{ rate.taxType }}
+          </nz-tag>
+        </td>
+        <td>{{ rate.category }}</td>
         <td nzAlign="center"><strong>{{ rate.rate | number:'1.2-2' }}%</strong></td>
+        <td nzAlign="center">
+          <nz-tag *ngIf="rate.isDefault" nzColor="gold">Default</nz-tag>
+        </td>
         <td nzAlign="center">
           <nz-tag [nzColor]="rate.isActive ? 'green' : 'red'">
             {{ rate.isActive ? 'Aktif' : 'Nonaktif' }}
@@ -66,23 +74,25 @@
   <ng-container *nzModalContent>
     <form nz-form [formGroup]="taxRateForm" nzLayout="vertical">
       <nz-form-item>
-        <nz-form-label nzRequired>Kode Pajak</nz-form-label>
-        <nz-form-control nzErrorTip="Kode pajak harus diisi (maks. 20 karakter)">
-          <input 
-            nz-input 
-            formControlName="taxCode" 
-            placeholder="Contoh: PPN, PPH21"
-            [disabled]="isEditMode" />
+        <nz-form-label nzRequired>Jenis Pajak</nz-form-label>
+        <nz-form-control nzErrorTip="Jenis pajak harus dipilih">
+          <nz-select
+            formControlName="taxType"
+            nzPlaceHolder="Pilih jenis pajak"
+            [nzDisabled]="isEditMode"
+            style="width: 100%;">
+            <nz-option *ngFor="let type of taxTypes" [nzValue]="type.value" [nzLabel]="type.label"></nz-option>
+          </nz-select>
         </nz-form-control>
       </nz-form-item>
 
       <nz-form-item>
-        <nz-form-label nzRequired>Nama Pajak</nz-form-label>
-        <nz-form-control nzErrorTip="Nama pajak harus diisi (maks. 100 karakter)">
+        <nz-form-label nzRequired>Kategori</nz-form-label>
+        <nz-form-control nzErrorTip="Kategori harus diisi (maks. 100 karakter)">
           <input 
             nz-input 
-            formControlName="taxName" 
-            placeholder="Contoh: Pajak Pertambahan Nilai" />
+            formControlName="category" 
+            placeholder="Contoh: PPN 11%, Tarif 5%" />
         </nz-form-control>
       </nz-form-item>
 
@@ -101,16 +111,67 @@
         </nz-form-control>
       </nz-form-item>
 
-      <nz-form-item *ngIf="isEditMode">
-        <nz-form-label>Status</nz-form-label>
+      <nz-form-item>
+        <nz-form-label>Deskripsi</nz-form-label>
         <nz-form-control>
-          <nz-switch 
-            formControlName="isActive"
-            nzCheckedChildren="Aktif"
-            nzUnCheckedChildren="Nonaktif">
-          </nz-switch>
+          <textarea
+            nz-input
+            formControlName="description"
+            rows="2"
+            placeholder="Deskripsi tarif pajak (opsional)">
+          </textarea>
         </nz-form-control>
       </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Kode Referensi</nz-form-label>
+        <nz-form-control>
+          <input 
+            nz-input 
+            formControlName="referenceCode" 
+            placeholder="Contoh: PP-NO-23-2024" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="8">
+          <nz-form-item>
+            <nz-form-label>Urutan</nz-form-label>
+            <nz-form-control>
+              <nz-input-number
+                formControlName="displayOrder"
+                [nzMin]="1"
+                [nzStep]="1"
+                style="width: 100%;">
+              </nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="8">
+          <nz-form-item>
+            <nz-form-label>Default</nz-form-label>
+            <nz-form-control>
+              <nz-switch 
+                formControlName="isDefault"
+                nzCheckedChildren="Ya"
+                nzUnCheckedChildren="Tidak">
+              </nz-switch>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="8">
+          <nz-form-item>
+            <nz-form-label>Status</nz-form-label>
+            <nz-form-control>
+              <nz-switch 
+                formControlName="isActive"
+                nzCheckedChildren="Aktif"
+                nzUnCheckedChildren="Nonaktif">
+              </nz-switch>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
     </form>
   </ng-container>
 </nz-modal>

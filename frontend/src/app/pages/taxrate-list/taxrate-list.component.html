@@ -1,0 +1,96 @@
+<div class="page-container">
+  <nz-page-header class="site-page-header" nzTitle="Master Tarif Pajak" nzSubtitle="Kelola tarif PPN dan PPH">
+  </nz-page-header>
+
+  <div class="content-card">
+    <!-- Filter & Action Bar -->
+    <div class="action-bar">
+      <div class="filters">
+        <nz-select 
+          [(ngModel)]="filterTaxType" 
+          (ngModelChange)="onFilterChange()"
+          nzPlaceHolder="Filter Jenis Pajak"
+          nzAllowClear
+          style="width: 200px;">
+          <nz-option *ngFor="let type of taxTypes" [nzValue]="type.value" [nzLabel]="type.label"></nz-option>
+        </nz-select>
+        
+        <button nz-button nzType="default" (click)="clearFilter()" *ngIf="filterTaxType">
+          <span nz-icon nzType="close-circle"></span>
+          Clear Filter
+        </button>
+      </div>
+
+      <button nz-button nzType="primary" (click)="showCreateModal()">
+        <span nz-icon nzType="plus"></span>
+        Tambah Tarif Pajak
+      </button>
+    </div>
+
+    <!-- Table -->
+    <nz-table 
+      #taxRateTable 
+      [nzData]="filteredTaxRates" 
+      [nzLoading]="loading"
+      [nzPageSize]="10"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50]">
+      <thead>
+        <tr>
+          <th nzWidth="120px">Jenis Pajak</th>
+          <th nzWidth="200px">Kategori</th>
+          <th nzWidth="100px" nzAlign="right">Rate (%)</th>
+          <th>Deskripsi</th>
+          <th nzWidth="120px">Referensi</th>
+          <th nzWidth="80px" nzAlign="center">Default</th>
+          <th nzWidth="80px" nzAlign="center">Status</th>
+          <th nzWidth="80px" nzAlign="center">Order</th>
+          <th nzWidth="120px" nzAlign="center">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let taxRate of taxRateTable.data">
+          <td>
+            <nz-tag [nzColor]="getTaxTypeColor(taxRate.taxType)">
+              {{ taxRate.taxType }}
+            </nz-tag>
+          </td>
+          <td><strong>{{ taxRate.category }}</strong></td>
+          <td nzAlign="right">{{ taxRate.rate | number:'1.2-2' }}</td>
+          <td>{{ taxRate.description || '-' }}</td>
+          <td><small>{{ taxRate.referenceCode || '-' }}</small></td>
+          <td nzAlign="center">
+            <nz-tag [nzColor]="taxRate.isDefault ? 'green' : 'default'">
+              {{ taxRate.isDefault ? 'Ya' : 'Tidak' }}
+            </nz-tag>
+          </td>
+          <td nzAlign="center">
+            <nz-tag [nzColor]="taxRate.isActive ? 'success' : 'error'">
+              {{ taxRate.isActive ? 'Aktif' : 'Nonaktif' }}
+            </nz-tag>
+          </td>
+          <td nzAlign="center">{{ taxRate.displayOrder }}</td>
+          <td nzAlign="center">
+            <button 
+              nz-button 
+              nzType="link" 
+              nzSize="small"
+              (click)="showEditModal(taxRate)"
+              nz-tooltip="Edit">
+              <span nz-icon nzType="edit"></span>
+            </button>
+            <button 
+              nz-button 
+              nzType="link" 
+              nzSize="small" 
+              nzDanger
+              (click)="deleteTaxRate(taxRate.id)"
+              nz-tooltip="Hapus">
+              <span nz-icon nzType="delete"></span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>

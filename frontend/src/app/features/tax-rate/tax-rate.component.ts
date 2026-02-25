@@ -12,8 +12,9 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { TaxRateService } from '../../core/services/tax-rate.service';
-import { TaxRate, CreateTaxRateDto, UpdateTaxRateDto } from '../../core/models/tax-rate.model';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { TaxRateService } from '../../services/taxrate.service';
+import { TaxRateDto as TaxRate, CreateTaxRateDto, UpdateTaxRateDto } from '../../models/taxrate.model';
 
 @Component({
   selector: 'app-tax-rate',
@@ -30,7 +31,8 @@ import { TaxRate, CreateTaxRateDto, UpdateTaxRateDto } from '../../core/models/t
     NzSwitchModule,
     NzPopconfirmModule,
     NzIconModule,
-    NzTagModule
+    NzTagModule,
+    NzSelectModule
   ],
   templateUrl: './tax-rate.component.html',
   styleUrls: ['./tax-rate.component.scss']
@@ -40,8 +42,15 @@ export class TaxRateComponent implements OnInit {
   isLoading = false;
   isModalVisible = false;
   isEditMode = false;
-  currentTaxRateId?: number;
+  currentTaxRateId?: string;
   taxRateForm!: FormGroup;
+
+  taxTypes = [
+    { label: 'PPN', value: 'PPN' },
+    { label: 'PPH21', value: 'PPH21' },
+    { label: 'PPH22', value: 'PPH22' },
+    { label: 'PPH23', value: 'PPH23' }
+  ];
 
   constructor(
     private taxRateService: TaxRateService,
@@ -57,20 +66,22 @@ export class TaxRateComponent implements OnInit {
 
   initForm(): void {
     this.taxRateForm = this.fb.group({
-      taxCode: ['', [Validators.required, Validators.maxLength(20)]],
-      taxName: ['', [Validators.required, Validators.maxLength(100)]],
+      taxType: ['', [Validators.required]],
+      category: ['', [Validators.required, Validators.maxLength(100)]],
       rate: [0, [Validators.required, Validators.min(0.01), Validators.max(100)]],
-      isActive: [true]
+      description: ['', [Validators.maxLength(500)]],
+      referenceCode: ['', [Validators.maxLength(50)]],
+      isDefault: [false],
+      isActive: [true],
+      displayOrder: [1, [Validators.required, Validators.min(1)]]
     });
   }
 
   loadTaxRates(): void {
     this.isLoading = true;
     this.taxRateService.getAll().subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.taxRates = response.data;
-        }
+      next: (data) => {
+        this.taxRates = data;
         this.isLoading = false;
       },
       error: () => {
@@ -84,12 +95,16 @@ export class TaxRateComponent implements OnInit {
     this.isEditMode = false;
     this.currentTaxRateId = undefined;
     this.taxRateForm.reset({
-      taxCode: '',
-      taxName: '',
+      taxType: '',
+      category: '',
       rate: 0,
-      isActive: true
+      description: '',
+      referenceCode: '',
+      isDefault: false,
+      isActive: true,
+      displayOrder: 1
     });
-    this.taxRateForm.get('taxCode')?.enable();
+    this.taxRateForm.get('taxType')?.enable();
     this.isModalVisible = true;
   }
 
@@ -97,12 +112,16 @@ export class TaxRateComponent implements OnInit {
     this.isEditMode = true;
     this.currentTaxRateId = taxRate.id;
     this.taxRateForm.patchValue({
-      taxCode: taxRate.taxCode,
-      taxName: taxRate.taxName,
+      taxType: taxRate.taxType,
+      category: taxRate.category,
       rate: taxRate.rate,
-      isActive: taxRate.isActive
+      description: taxRate.description || '',
+      referenceCode: taxRate.referenceCode || '',
+      isDefault: taxRate.isDefault,
+      isActive: taxRate.isActive,
+      displayOrder: taxRate.displayOrder
     });
-    this.taxRateForm.get('taxCode')?.disable();
+    this.taxRateForm.get('taxType')?.disable();
     this.isModalVisible = true;
   }
 
@@ -125,20 +144,21 @@ export class TaxRateComponent implements OnInit {
 
   createTaxRate(): void {
     const dto: CreateTaxRateDto = {
-      taxCode: this.taxRateForm.value.taxCode,
-      taxName: this.taxRateForm.value.taxName,
-      rate: this.taxRateForm.value.rate
+      taxType: this.taxRateForm.value.taxType,
+      category: this.taxRateForm.value.category,
+      rate: this.taxRateForm.value.rate,
+      description: this.taxRateForm.value.description,
+      referenceCode: this.taxRateForm.value.referenceCode,
+      isDefault: this.taxRateForm.value.isDefault,
+      isActive: this.taxRateForm.value.isActive,
+      displayOrder: this.taxRateForm.value.displayOrder
     };
 
     this.taxRateService.create(dto).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.message.success('Tarif pajak berhasil ditambahkan');
-          this.isModalVisible = false;
-          this.loadTaxRates();
-        } else {
-          this.message.error(response.message || 'Gagal menambahkan tarif pajak');
-        }
+      next: () => {
+        this.message.success('Tarif pajak berhasil ditambahkan');
+        this.isModalVisible = false;
+        this.loadTaxRates();
       },
       error: (error) => {
         this.message.error(error.error?.message || 'Gagal menambahkan tarif pajak');
@@ -148,20 +168,20 @@ export class TaxRateComponent implements OnInit {
 
   updateTaxRate(): void {
     const dto: UpdateTaxRateDto = {
-      taxName: this.taxRateForm.value.taxName,
+      category: this.taxRateForm.value.category,
       rate: this.taxRateForm.value.rate,
-      isActive: this.taxRateForm.value.isActive
+      description: this.taxRateForm.value.description,
+      referenceCode: this.taxRateForm.value.referenceCode,
+      isDefault: this.taxRateForm.value.isDefault,
+      isActive: this.taxRateForm.value.isActive,
+      displayOrder: this.taxRateForm.value.displayOrder
     };
 
     this.taxRateService.update(this.currentTaxRateId!, dto).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.message.success('Tarif pajak berhasil diupdate');
-          this.isModalVisible = false;
-          this.loadTaxRates();
-        } else {
-          this.message.error(response.message || 'Gagal mengupdate tarif pajak');
-        }
+      next: () => {
+        this.message.success('Tarif pajak berhasil diupdate');
+        this.isModalVisible = false;
+        this.loadTaxRates();
       },
       error: (error) => {
         this.message.error(error.error?.message || 'Gagal mengupdate tarif pajak');
@@ -169,23 +189,30 @@ export class TaxRateComponent implements OnInit {
     });
   }
 
-  deleteTaxRate(id: number): void {
+  deleteTaxRate(id: string): void {
     this.taxRateService.delete(id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.message.success('Tarif pajak berhasil dihapus');
-          this.loadTaxRates();
-        } else {
-          this.message.error(response.message || 'Gagal menghapus tarif pajak');
-        }
+      next: () => {
+        this.message.success('Tarif pajak berhasil dihapus');
+        this.loadTaxRates();
       },
-      error: (error) => {
+      error: (error: any) => {
         this.message.error(error.error?.message || 'Gagal menghapus tarif pajak');
       }
     });
   }
 
+  getTaxTypeColor(taxType: string): string {
+    const colors: { [key: string]: string } = {
+      'PPN': 'blue',
+      'PPH21': 'green',
+      'PPH22': 'orange',
+      'PPH23': 'purple'
+    };
+    return colors[taxType] || 'default';
+  }
+
   handleCancel(): void {
     this.isModalVisible = false;
+    this.taxRateForm.reset();
   }
 }

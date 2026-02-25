@@ -164,7 +164,14 @@ export class MonitoringAnggaranComponent implements OnInit {
         // Define columns
         worksheet.columns = [
           { header: 'No', key: 'no', width: 8 },
-          { header: 'COA', key: 'coa', width: 45 },
+          { header: 'Kode Program', key: 'kodeProgram', width: 12 },
+          { header: 'Kode Kegiatan', key: 'kodeKegiatan', width: 12 },
+          { header: 'Kode Output', key: 'kodeOutput', width: 12 },
+          { header: 'Kode Suboutput', key: 'kodeSuboutput', width: 12 },
+          { header: 'Kode Komponen', key: 'kodeKomponen', width: 12 },
+          { header: 'Kode Subkomponen', key: 'kodeSubkomponen', width: 15 },
+          { header: 'Kode Akun', key: 'kodeAkun', width: 12 },
+          { header: 'No Item', key: 'noItem', width: 10 },
           { header: 'Nama Item', key: 'namaItem', width: 35 },
           { header: 'Nama Akun', key: 'namaAkun', width: 40 },
           { header: 'Program', key: 'program', width: 30 },
@@ -194,10 +201,20 @@ export class MonitoringAnggaranComponent implements OnInit {
         results.forEach(result => {
           const item = result.item;
           
+          // Parse COA string to extract individual codes
+          const coaParts = item.coa.split('.');
+          
           // Add main anggaran row
           const anggaranRow = worksheet.addRow({
             no: rowNumber++,
-            coa: item.coa,
+            kodeProgram: coaParts[0] || '',
+            kodeKegiatan: coaParts[1] || '',
+            kodeOutput: coaParts[2] || '',
+            kodeSuboutput: coaParts[3] || '',
+            kodeKomponen: coaParts[4] || '',
+            kodeSubkomponen: coaParts[5] || '',
+            kodeAkun: coaParts[6] || '',
+            noItem: coaParts[7] || '',
             namaItem: item.namaItem,
             namaAkun: item.namaAkun,
             program: item.namaProgram,
@@ -224,11 +241,18 @@ export class MonitoringAnggaranComponent implements OnInit {
               totalDetails++;
               const detailRow = worksheet.addRow({
                 no: '',
-                coa: detail.noStpb,
-                namaItem: new Date(detail.tanggalStpb).toLocaleDateString('id-ID'),
-                namaAkun: detail.keterangan,
-                program: detail.penerima || '-',
-                kegiatan: detail.nilaiKotor,
+                kodeProgram: detail.noStpb,
+                kodeKegiatan: new Date(detail.tanggalStpb).toLocaleDateString('id-ID'),
+                kodeOutput: detail.keterangan,
+                kodeSuboutput: detail.penerima || '-',
+                kodeKomponen: detail.nilaiKotor,
+                kodeSubkomponen: '',
+                kodeAkun: '',
+                noItem: '',
+                namaItem: '',
+                namaAkun: '',
+                program: '',
+                kegiatan: '',
                 output: '',
                 suboutput: '',
                 komponen: '',
@@ -246,7 +270,7 @@ export class MonitoringAnggaranComponent implements OnInit {
               };
 
               // Format number cells for details
-              detailRow.getCell('kegiatan').numFmt = '#,##0';
+              detailRow.getCell('kodeKomponen').numFmt = '#,##0';
             });
           }
         });
@@ -254,7 +278,14 @@ export class MonitoringAnggaranComponent implements OnInit {
         // Add summary row at the end
         const summaryRow = worksheet.addRow({
           no: '',
-          coa: '',
+          kodeProgram: '',
+          kodeKegiatan: '',
+          kodeOutput: '',
+          kodeSuboutput: '',
+          kodeKomponen: '',
+          kodeSubkomponen: '',
+          kodeAkun: '',
+          noItem: '',
           namaItem: '',
           namaAkun: '',
           program: '',

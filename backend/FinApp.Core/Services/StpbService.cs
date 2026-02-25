@@ -30,10 +30,14 @@ public class StpbService : IStpbService
         if (userWithRole == null)
             throw new UnauthorizedException("User role not found");
 
-        var (items, totalCount) = await _unitOfWork.Stpbs.GetPagedAsync(pageNumber, pageSize, searchTerm);
+        // Get ALL items for filtering (we'll do manual pagination after filtering)
+        var (allItems, _) = await _unitOfWork.Stpbs.GetPagedAsync(1, int.MaxValue, searchTerm);
+        
+        // Convert to List for in-memory filtering
+        var filteredItems = allItems.ToList();
         
         // Filter by tahun first
-        items = items.Where(s => s.Tahun == tahun).ToList();
+        filteredItems = filteredItems.Where(s => s.Tahun == tahun).ToList();
         
         // Filter by role
         if (!userWithRole.Role.IsAdmin)
@@ -47,7 +51,7 @@ public class StpbService : IStpbService
                     .Select(p => p.Id)
                     .ToList();
                 
-                items = items.Where(s => 
+                filteredItems = filteredItems.Where(s => 
                     s.Status != StpbStatus.Draft && 
                     ppkIds.Contains(s.PpkBendaharaId)).ToList();
             }
@@ -60,7 +64,7 @@ public class StpbService : IStpbService
                     .Select(p => p.Id)
                     .ToList();
                 
-                items = items.Where(s => 
+                filteredItems = filteredItems.Where(s => 
                     s.Status != StpbStatus.Draft && 
                     bendaharaIds.Contains(s.PpkBendaharaId)).ToList();
             }
@@ -68,19 +72,22 @@ public class StpbService : IStpbService
             else
             {
                 var allowedSuboutputs = userWithRole.Role.RoleSuboutputs.Select(rs => rs.KodeSuboutput).ToList();
-                items = items.Where(s => 
+                filteredItems = filteredItems.Where(s => 
                     s.CreatedBy == userId && 
                     s.StpbDetails.Any(d => allowedSuboutputs.Contains(d.KodeSuboutput))).ToList();
             }
-            
-            totalCount = items.Count();
-        }
-        else
-        {
-            totalCount = items.Count();
         }
 
-        var dtos = _mapper.Map<IEnumerable<StpbDto>>(items);
+        // Calculate total count after all filtering
+        var totalCount = filteredItems.Count();
+
+        // Apply pagination manually
+        var pagedItems = filteredItems
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        var dtos = _mapper.Map<IEnumerable<StpbDto>>(pagedItems);
 
         return new PagedResult<StpbDto>
         {

@@ -273,104 +273,179 @@
 
       <nz-divider nzText="Potongan Pajak"></nz-divider>
 
-      <!-- Pajak Section - Checkbox Style with Editable Values -->
+      <!-- Pajak Section - Checkbox + Dropdown + Nilai (Horizontal) -->
       <div class="tax-section">
+        <!-- PPN -->
         <nz-form-item>
-          <nz-form-label>Pajak yang Berlaku</nz-form-label>
-          <nz-form-control>
-            <div class="tax-list-grid">
-              <!-- Column 1 -->
-              <div class="tax-column">
-                <!-- PPN -->
-                <div class="tax-item-row">
-                  <label nz-checkbox 
-                         [nzChecked]="appliedTaxes.ppn"
-                         (nzCheckedChange)="toggleTax('ppn', $event)">
-                    PPN ({{ taxRates.ppn | number:'1.2-2' }}%)
-                  </label>
-                  <ng-container *ngIf="appliedTaxes.ppn">
-                    <nz-input-number
-                      [(ngModel)]="calculatedTaxes.ppn"
-                      [ngModelOptions]="{standalone: true}"
-                      (ngModelChange)="onTaxManualEdit('ppn', $event)"
-                      [nzMin]="0"
-                      [nzStep]="1000"
-                      [nzFormatter]="formatNumber"
-                      [nzParser]="parseNumber"
-                      style="width: 200px; margin-left: 12px;"
-                      placeholder="Masukkan nilai pajak">
-                    </nz-input-number>
-                  </ng-container>
-                </div>
-
-                <!-- PPH 21 -->
-                <div class="tax-item-row">
-                  <label nz-checkbox 
-                         [nzChecked]="appliedTaxes.pph21"
-                         (nzCheckedChange)="toggleTax('pph21', $event)">
-                    PPH 21 ({{ taxRates.pph21 | number:'1.2-2' }}%)
-                  </label>
-                  <ng-container *ngIf="appliedTaxes.pph21">
-                    <nz-input-number
-                      [(ngModel)]="calculatedTaxes.pph21"
-                      [ngModelOptions]="{standalone: true}"
-                      (ngModelChange)="onTaxManualEdit('pph21', $event)"
-                      [nzMin]="0"
-                      [nzStep]="1000"
-                      [nzFormatter]="formatNumber"
-                      [nzParser]="parseNumber"
-                      style="width: 200px; margin-left: 12px;"
-                      placeholder="Masukkan nilai pajak">
-                    </nz-input-number>
-                  </ng-container>
-                </div>
+          <nz-form-label nzSpan="4">
+            <label nz-checkbox 
+                   [(ngModel)]="taxEnabled.ppn"
+                   [ngModelOptions]="{standalone: true}"
+                   (ngModelChange)="onTaxCheckboxChange('ppn', $event)">
+              PPN
+            </label>
+          </nz-form-label>
+          <nz-form-control nzSpan="20" *ngIf="taxEnabled.ppn">
+            <div nz-row [nzGutter]="8">
+              <div nz-col [nzSpan]="12">
+                <nz-select
+                  [(ngModel)]="selectedTaxRateIds.ppn"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="onTaxRateChange('ppn')"
+                  nzAllowClear
+                  nzPlaceHolder="Pilih tarif"
+                  style="width: 100%;">
+                  <nz-option 
+                    *ngFor="let rate of ppnRates" 
+                    [nzValue]="rate.id" 
+                    [nzLabel]="rate.category + ' (' + (rate.rate | number:'1.2-2') + '%)'">
+                  </nz-option>
+                </nz-select>
               </div>
+              <div nz-col [nzSpan]="12">
+                <nz-input-number
+                  [(ngModel)]="calculatedTaxes.ppn"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="onTaxManualEdit('ppn', $event)"
+                  [nzMin]="0"
+                  [nzStep]="1000"
+                  [nzFormatter]="formatNumber"
+                  [nzParser]="parseNumber"
+                  style="width: 100%;"
+                  placeholder="Nilai PPN">
+                </nz-input-number>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
 
-              <!-- Column 2 -->
-              <div class="tax-column">
-                <!-- PPH 22 -->
-                <div class="tax-item-row">
-                  <label nz-checkbox 
-                         [nzChecked]="appliedTaxes.pph22"
-                         (nzCheckedChange)="toggleTax('pph22', $event)">
-                    PPH 22 ({{ taxRates.pph22 | number:'1.2-2' }}%)
-                  </label>
-                  <ng-container *ngIf="appliedTaxes.pph22">
-                    <nz-input-number
-                      [(ngModel)]="calculatedTaxes.pph22"
-                      [ngModelOptions]="{standalone: true}"
-                      (ngModelChange)="onTaxManualEdit('pph22', $event)"
-                      [nzMin]="0"
-                      [nzStep]="1000"
-                      [nzFormatter]="formatNumber"
-                      [nzParser]="parseNumber"
-                      style="width: 200px; margin-left: 12px;"
-                      placeholder="Masukkan nilai pajak">
-                    </nz-input-number>
-                  </ng-container>
-                </div>
+        <!-- PPH 21 -->
+        <nz-form-item>
+          <nz-form-label nzSpan="4">
+            <label nz-checkbox 
+                   [(ngModel)]="taxEnabled.pph21"
+                   [ngModelOptions]="{standalone: true}"
+                   (ngModelChange)="onTaxCheckboxChange('pph21', $event)">
+              PPH 21
+            </label>
+          </nz-form-label>
+          <nz-form-control nzSpan="20" *ngIf="taxEnabled.pph21">
+            <div nz-row [nzGutter]="8">
+              <div nz-col [nzSpan]="12">
+                <nz-select
+                  [(ngModel)]="selectedTaxRateIds.pph21"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="onTaxRateChange('pph21')"
+                  nzAllowClear
+                  nzPlaceHolder="Pilih tarif"
+                  style="width: 100%;">
+                  <nz-option 
+                    *ngFor="let rate of pph21Rates" 
+                    [nzValue]="rate.id" 
+                    [nzLabel]="rate.category + ' (' + (rate.rate | number:'1.2-2') + '%)'">
+                  </nz-option>
+                </nz-select>
+              </div>
+              <div nz-col [nzSpan]="12">
+                <nz-input-number
+                  [(ngModel)]="calculatedTaxes.pph21"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="onTaxManualEdit('pph21', $event)"
+                  [nzMin]="0"
+                  [nzStep]="1000"
+                  [nzFormatter]="formatNumber"
+                  [nzParser]="parseNumber"
+                  style="width: 100%;"
+                  placeholder="Nilai PPH 21">
+                </nz-input-number>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
 
-                <!-- PPH 23 -->
-                <div class="tax-item-row">
-                  <label nz-checkbox 
-                         [nzChecked]="appliedTaxes.pph23"
-                         (nzCheckedChange)="toggleTax('pph23', $event)">
-                    PPH 23 ({{ taxRates.pph23 | number:'1.2-2' }}%)
-                  </label>
-                  <ng-container *ngIf="appliedTaxes.pph23">
-                    <nz-input-number
-                      [(ngModel)]="calculatedTaxes.pph23"
-                      [ngModelOptions]="{standalone: true}"
-                      (ngModelChange)="onTaxManualEdit('pph23', $event)"
-                      [nzMin]="0"
-                      [nzStep]="1000"
-                      [nzFormatter]="formatNumber"
-                      [nzParser]="parseNumber"
-                      style="width: 200px; margin-left: 12px;"
-                      placeholder="Masukkan nilai pajak">
-                    </nz-input-number>
-                  </ng-container>
-                </div>
+        <!-- PPH 22 -->
+        <nz-form-item>
+          <nz-form-label nzSpan="4">
+            <label nz-checkbox 
+                   [(ngModel)]="taxEnabled.pph22"
+                   [ngModelOptions]="{standalone: true}"
+                   (ngModelChange)="onTaxCheckboxChange('pph22', $event)">
+              PPH 22
+            </label>
+          </nz-form-label>
+          <nz-form-control nzSpan="20" *ngIf="taxEnabled.pph22">
+            <div nz-row [nzGutter]="8">
+              <div nz-col [nzSpan]="12">
+                <nz-select
+                  [(ngModel)]="selectedTaxRateIds.pph22"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="onTaxRateChange('pph22')"
+                  nzAllowClear
+                  nzPlaceHolder="Pilih tarif"
+                  style="width: 100%;">
+                  <nz-option 
+                    *ngFor="let rate of pph22Rates" 
+                    [nzValue]="rate.id" 
+                    [nzLabel]="rate.category + ' (' + (rate.rate | number:'1.2-2') + '%)'">
+                  </nz-option>
+                </nz-select>
+              </div>
+              <div nz-col [nzSpan]="12">
+                <nz-input-number
+                  [(ngModel)]="calculatedTaxes.pph22"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="onTaxManualEdit('pph22', $event)"
+                  [nzMin]="0"
+                  [nzStep]="1000"
+                  [nzFormatter]="formatNumber"
+                  [nzParser]="parseNumber"
+                  style="width: 100%;"
+                  placeholder="Nilai PPH 22">
+                </nz-input-number>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <!-- PPH 23 -->
+        <nz-form-item>
+          <nz-form-label nzSpan="4">
+            <label nz-checkbox 
+                   [(ngModel)]="taxEnabled.pph23"
+                   [ngModelOptions]="{standalone: true}"
+                   (ngModelChange)="onTaxCheckboxChange('pph23', $event)">
+              PPH 23
+            </label>
+          </nz-form-label>
+          <nz-form-control nzSpan="20" *ngIf="taxEnabled.pph23">
+            <div nz-row [nzGutter]="8">
+              <div nz-col [nzSpan]="12">
+                <nz-select
+                  [(ngModel)]="selectedTaxRateIds.pph23"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="onTaxRateChange('pph23')"
+                  nzAllowClear
+                  nzPlaceHolder="Pilih tarif"
+                  style="width: 100%;">
+                  <nz-option 
+                    *ngFor="let rate of pph23Rates" 
+                    [nzValue]="rate.id" 
+                    [nzLabel]="rate.category + ' (' + (rate.rate | number:'1.2-2') + '%)'">
+                  </nz-option>
+                </nz-select>
+              </div>
+              <div nz-col [nzSpan]="12">
+                <nz-input-number
+                  [(ngModel)]="calculatedTaxes.pph23"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="onTaxManualEdit('pph23', $event)"
+                  [nzMin]="0"
+                  [nzStep]="1000"
+                  [nzFormatter]="formatNumber"
+                  [nzParser]="parseNumber"
+                  style="width: 100%;"
+                  placeholder="Nilai PPH 23">
+                </nz-input-number>
               </div>
             </div>
           </nz-form-control>

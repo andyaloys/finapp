@@ -129,11 +129,11 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 
         // TaxRate mappings
-        CreateMap<TaxRate, TaxRateDto>();
+        CreateMap<TaxRate, TaxRateDto>()
+            .ForMember(dest => dest.TaxTypeName, opt => opt.MapFrom(src => src.TaxType.ToString()));
         CreateMap<CreateTaxRateDto, TaxRate>();
         CreateMap<UpdateTaxRateDto, TaxRate>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.TaxCode, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
     }
 }

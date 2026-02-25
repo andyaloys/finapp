@@ -26,6 +26,7 @@ public class UnitOfWork : IUnitOfWork
     public IItemRepository Items { get; }
     public ISequenceNumberRepository SequenceNumbers { get; }
     public IAnggaranMasterRepository AnggaranMasters { get; }
+    public ITaxRateRepository TaxRates { get; }
 
     public UnitOfWork(AppDbContext context)
     {
@@ -46,6 +47,7 @@ public class UnitOfWork : IUnitOfWork
         Items = new ItemRepository(context);
         SequenceNumbers = new SequenceNumberRepository(context);
         AnggaranMasters = new AnggaranMasterRepository(context);
+        TaxRates = new TaxRateRepository(context);
     }
 
     public async Task<int> SaveChangesAsync()

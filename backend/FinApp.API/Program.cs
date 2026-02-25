@@ -2,11 +2,17 @@ using FinApp.API.Extensions;
 using FinApp.API.Middlewares;
 using FinApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Serialize enums as strings instead of integers
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -36,6 +42,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Auto-migrate database on startup (for Docker)
+// Commented out - using manual SQL migrations instead
+/*
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -49,5 +57,6 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"Database migration failed: {ex.Message}");
     }
 }
+*/
 
 app.Run();

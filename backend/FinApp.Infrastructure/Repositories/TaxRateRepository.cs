@@ -5,70 +5,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinApp.Infrastructure.Repositories;
 
-public class TaxRateRepository : ITaxRateRepository
+public class TaxRateRepository : Repository<TaxRate>, ITaxRateRepository
 {
-    private readonly AppDbContext _context;
-
-    public TaxRateRepository(AppDbContext context)
+    public TaxRateRepository(AppDbContext context) : base(context)
     {
-        _context = context;
     }
 
-    public async Task<TaxRate?> GetByIdAsync(int id)
+    public async Task<IEnumerable<TaxRate>> GetByTaxTypeAsync(TaxType taxType)
     {
-        return await _context.TaxRates.FindAsync(id);
-    }
-
-    public async Task<TaxRate?> GetByCodeAsync(string taxCode)
-    {
-        return await _context.TaxRates
-            .FirstOrDefaultAsync(t => t.TaxCode == taxCode);
-    }
-
-    public async Task<IEnumerable<TaxRate>> GetAllAsync()
-    {
-        return await _context.TaxRates
-            .OrderBy(t => t.TaxCode)
+        return await _dbSet
+            .Where(tr => tr.TaxType == taxType && tr.IsActive)
+            .OrderBy(tr => tr.DisplayOrder)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<TaxRate>> GetAllActiveAsync()
+    public async Task<TaxRate?> GetDefaultByTaxTypeAsync(TaxType taxType)
     {
-        return await _context.TaxRates
-            .Where(t => t.IsActive)
-            .OrderBy(t => t.TaxCode)
+        return await _dbSet
+            .FirstOrDefaultAsync(tr => tr.TaxType == taxType && tr.IsDefault && tr.IsActive);
+    }
+
+    public async Task<IEnumerable<TaxRate>> GetActiveTaxRatesAsync()
+    {
+        return await _dbSet
+            .Where(tr => tr.IsActive)
+            .OrderBy(tr => tr.TaxType)
+            .ThenBy(tr => tr.DisplayOrder)
             .ToListAsync();
-    }
-
-    public async Task<bool> ExistsByCodeAsync(string taxCode, int? excludeId = null)
-    {
-        var query = _context.TaxRates.Where(t => t.TaxCode == taxCode);
-        
-        if (excludeId.HasValue)
-        {
-            query = query.Where(t => t.Id != excludeId.Value);
-        }
-        
-        return await query.AnyAsync();
-    }
-
-    public async Task AddAsync(TaxRate taxRate)
-    {
-        await _context.TaxRates.AddAsync(taxRate);
-    }
-
-    public void Update(TaxRate taxRate)
-    {
-        _context.TaxRates.Update(taxRate);
-    }
-
-    public void Delete(TaxRate taxRate)
-    {
-        _context.TaxRates.Remove(taxRate);
-    }
-
-    public async Task<bool> SaveChangesAsync()
-    {
-        return await _context.SaveChangesAsync() > 0;
     }
 }

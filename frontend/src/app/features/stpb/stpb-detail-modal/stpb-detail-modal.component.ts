@@ -15,10 +15,10 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { AnggaranMasterService } from '../../../core/services/anggaran-master.service';
 import { StpbService } from '../../../core/services/stpb.service';
 import { PenerimaService } from '../../../core/services/penerima.service';
-import { TaxRateService } from '../../../core/services/tax-rate.service';
+import { TaxRateService } from '../../../services/taxrate.service';
+import { TaxRateDto } from '../../../models/taxrate.model';
 import { CreateStpbDetailDto, StpbDetailDto } from '../../../core/models/stpb-detail.model';
 import { Penerima } from '../../../core/models/penerima.model';
-import { TaxRatesForCalculation } from '../../../core/models/tax-rate.model';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 
 @Component({
@@ -65,9 +65,19 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
   items: any[] = [];
   suppliers: Penerima[] = [];
   
-  // Tax rates & applied taxes
-  taxRates: TaxRatesForCalculation = { ppn: 0, pph21: 0, pph22: 0, pph23: 0 };
-  appliedTaxes = { ppn: false, pph21: false, pph22: false, pph23: false };
+  // Tax rates - all available rates per type
+  ppnRates: TaxRateDto[] = [];
+  pph21Rates: TaxRateDto[] = [];
+  pph22Rates: TaxRateDto[] = [];
+  pph23Rates: TaxRateDto[] = [];
+  
+  // Selected tax rate IDs
+  selectedTaxRateIds = { ppn: null as string | null, pph21: null as string | null, pph22: null as string | null, pph23: null as string | null };
+  
+  // Tax enabled flags (checkbox state)
+  taxEnabled = { ppn: false, pph21: false, pph22: false, pph23: false };
+  
+  // Calculated tax values
   calculatedTaxes = { ppn: 0, pph21: 0, pph22: 0, pph23: 0 };
   manualEditFlags = { ppn: false, pph21: false, pph22: false, pph23: false };
   
@@ -207,14 +217,33 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
   }
 
   loadTaxRates(): void {
-    this.taxRateService.getTaxRatesForCalculation().subscribe({
+    // Load all active tax rates for each type
+    this.taxRateService.getByTaxType('PPN').subscribe({
       next: (rates) => {
-        this.taxRates = rates;
-        console.log('Tax rates loaded:', this.taxRates);
+        this.ppnRates = rates.sort((a, b) => a.displayOrder - b.displayOrder);
       },
-      error: () => {
-        this.message.error('Gagal memuat data tarif pajak');
-      }
+      error: () => this.message.error('Gagal memuat tarif PPN')
+    });
+
+    this.taxRateService.getByTaxType('PPH21').subscribe({
+      next: (rates) => {
+        this.pph21Rates = rates.sort((a, b) => a.displayOrder - b.displayOrder);
+      },
+      error: () => this.message.error('Gagal memuat tarif PPH 21')
+    });
+
+    this.taxRateService.getByTaxType('PPH22').subscribe({
+      next: (rates) => {
+        this.pph22Rates = rates.sort((a, b) => a.displayOrder - b.displayOrder);
+      },
+      error: () => this.message.error('Gagal memuat tarif PPH 22')
+    });
+
+    this.taxRateService.getByTaxType('PPH23').subscribe({
+      next: (rates) => {
+        this.pph23Rates = rates.sort((a, b) => a.displayOrder - b.displayOrder);
+      },
+      error: () => this.message.error('Gagal memuat tarif PPH 23')
     });
   }
 
@@ -228,32 +257,44 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
   calculateTaxes(): void {
     const nilaiTransaksi = this.detailForm.value.nilaiTransaksi || 0;
     
-    // Calculate each tax if applied and not manually edited
-    if (!this.manualEditFlags.ppn) {
-      // PPN = (((100/111) × Nilai Transaksi) × (11/12)) × Rate
-      this.calculatedTaxes.ppn = this.appliedTaxes.ppn 
-        ? Math.round(((100/111) * nilaiTransaksi * (11/12)) * (this.taxRates.ppn / 100))
-        : 0;
+    // Calculate each tax if enabled and not manually edited
+    if (!this.manualEditFlags.ppn && this.taxEnabled.ppn && this.selectedTaxRateIds.ppn) {
+      const selectedRate = this.ppnRates.find(r => r.id === this.selectedTaxRateIds.ppn);
+      if (selectedRate) {
+        // PPN = (((100/111) × Nilai Transaksi) × (11/12)) × Rate
+        this.calculatedTaxes.ppn = Math.round(((100/111) * nilaiTransaksi * (11/12)) * (selectedRate.rate / 100));
+      }
+    } else if (!this.taxEnabled.ppn) {
+      this.calculatedTaxes.ppn = 0;
     }
       
-    if (!this.manualEditFlags.pph21) {
-      this.calculatedTaxes.pph21 = this.appliedTaxes.pph21
-        ? Math.round(nilaiTransaksi * (this.taxRates.pph21 / 100))
-        : 0;
+    if (!this.manualEditFlags.pph21 && this.taxEnabled.pph21 && this.selectedTaxRateIds.pph21) {
+      const selectedRate = this.pph21Rates.find(r => r.id === this.selectedTaxRateIds.pph21);
+      if (selectedRate) {
+        this.calculatedTaxes.pph21 = Math.round(nilaiTransaksi * (selectedRate.rate / 100));
+      }
+    } else if (!this.taxEnabled.pph21) {
+      this.calculatedTaxes.pph21 = 0;
     }
       
-    if (!this.manualEditFlags.pph22) {
-      // PPH 22 = (100/111) * Nilai Transaksi * Rate
-      this.calculatedTaxes.pph22 = this.appliedTaxes.pph22
-        ? Math.round((100/111) * nilaiTransaksi * (this.taxRates.pph22 / 100))
-        : 0;
+    if (!this.manualEditFlags.pph22 && this.taxEnabled.pph22 && this.selectedTaxRateIds.pph22) {
+      const selectedRate = this.pph22Rates.find(r => r.id === this.selectedTaxRateIds.pph22);
+      if (selectedRate) {
+        // PPH 22 = (100/111) * Nilai Transaksi * Rate
+        this.calculatedTaxes.pph22 = Math.round((100/111) * nilaiTransaksi * (selectedRate.rate / 100));
+      }
+    } else if (!this.taxEnabled.pph22) {
+      this.calculatedTaxes.pph22 = 0;
     }
       
-    if (!this.manualEditFlags.pph23) {
-      // PPH 23 = (100/111) * Nilai Transaksi * Rate
-      this.calculatedTaxes.pph23 = this.appliedTaxes.pph23
-        ? Math.round((100/111) * nilaiTransaksi * (this.taxRates.pph23 / 100))
-        : 0;
+    if (!this.manualEditFlags.pph23 && this.taxEnabled.pph23 && this.selectedTaxRateIds.pph23) {
+      const selectedRate = this.pph23Rates.find(r => r.id === this.selectedTaxRateIds.pph23);
+      if (selectedRate) {
+        // PPH 23 = (100/111) * Nilai Transaksi * Rate
+        this.calculatedTaxes.pph23 = Math.round((100/111) * nilaiTransaksi * (selectedRate.rate / 100));
+      }
+    } else if (!this.taxEnabled.pph23) {
+      this.calculatedTaxes.pph23 = 0;
     }
 
     // Update form values (for submission)
@@ -265,65 +306,34 @@ export class StpbDetailModalComponent implements OnInit, OnChanges {
     }, { emitEvent: false });
   }
 
-  onTaxCheckboxChange(taxType?: 'ppn' | 'pph21' | 'pph22' | 'pph23'): void {
-    console.log('Tax checkbox changed:', taxType, 'checked:', this.appliedTaxes[taxType!]);
-    if (taxType) {
-      if (!this.appliedTaxes[taxType]) {
-        // Unchecking - reset manual edit flag and value
-        this.manualEditFlags[taxType] = false;
-        this.calculatedTaxes[taxType] = 0;
-        console.log('Unchecked, reset to 0');
-      } else {
-        // Checking - calculate immediately
-        this.manualEditFlags[taxType] = false; // Reset manual edit flag
-        const nilaiTransaksi = this.detailForm.value.nilaiTransaksi || 0;
-        const rate = this.taxRates[taxType] || 0;
-        this.calculatedTaxes[taxType] = Math.round(nilaiTransaksi * (rate / 100));
-        console.log(`Tax ${taxType} calculated:`, this.calculatedTaxes[taxType], 'from', nilaiTransaksi, 'x', rate, '%');
-        console.log('appliedTaxes:', this.appliedTaxes);
-        console.log('calculatedTaxes:', this.calculatedTaxes);
-      }
-      
-      // Update form value immediately
-      this.detailForm.patchValue({
-        [taxType]: this.calculatedTaxes[taxType]
-      }, { emitEvent: false });
-    }
+  onTaxRateChange(taxType: 'ppn' | 'pph21' | 'pph22' | 'pph23'): void {
+    // Reset manual edit flag when tax rate changes
+    this.manualEditFlags[taxType] = false;
+    // Recalculate taxes
     this.calculateTaxes();
   }
 
-  toggleTax(taxType: 'ppn' | 'pph21' | 'pph22' | 'pph23', checked: boolean): void {
-    console.log('Toggle tax:', taxType, 'checked:', checked);
-    this.appliedTaxes[taxType] = checked;
+  onTaxCheckboxChange(taxType: 'ppn' | 'pph21' | 'pph22' | 'pph23', checked: boolean): void {
+    this.taxEnabled[taxType] = checked;
     
-    if (checked) {
-      // Calculate tax value
-      this.manualEditFlags[taxType] = false;
-      const nilaiTransaksi = this.detailForm.value.nilaiTransaksi || 0;
-      const rate = this.taxRates[taxType] || 0;
-      
-      if (taxType === 'ppn') {
-        // PPN = (((100/111) × Nilai Transaksi) × (11/12)) × Rate
-        this.calculatedTaxes[taxType] = Math.round(((100/111) * nilaiTransaksi * (11/12)) * (rate / 100));
-      } else if (taxType === 'pph22' || taxType === 'pph23') {
-        // PPH 22 & 23 menggunakan faktor (100/111)
-        this.calculatedTaxes[taxType] = Math.round((100/111) * nilaiTransaksi * (rate / 100));
-      } else {
-        // PPH 21
-        this.calculatedTaxes[taxType] = Math.round(nilaiTransaksi * (rate / 100));
-      }
-      
-      console.log(`Tax ${taxType} calculated:`, this.calculatedTaxes[taxType]);
-    } else {
-      // Reset
-      this.manualEditFlags[taxType] = false;
+    if (!checked) {
+      // If unchecked, clear selection and value
+      this.selectedTaxRateIds[taxType] = null;
       this.calculatedTaxes[taxType] = 0;
+      this.manualEditFlags[taxType] = false;
+    } else {
+      // If checked, auto-select default rate if available
+      const rates = taxType === 'ppn' ? this.ppnRates :
+                    taxType === 'pph21' ? this.pph21Rates :
+                    taxType === 'pph22' ? this.pph22Rates :
+                    this.pph23Rates;
+      
+      const defaultRate = rates.find(r => r.isDefault);
+      if (defaultRate) {
+        this.selectedTaxRateIds[taxType] = defaultRate.id;
+      }
+      this.manualEditFlags[taxType] = false;
     }
-    
-    // Update form value
-    this.detailForm.patchValue({
-      [taxType]: this.calculatedTaxes[taxType]
-    }, { emitEvent: false });
     
     this.calculateTaxes();
   }

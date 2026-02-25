@@ -15,14 +15,11 @@ public class TaxRateConfiguration : IEntityTypeConfiguration<TaxRate>
         builder.Property(t => t.Id)
             .ValueGeneratedOnAdd();
 
-        builder.Property(t => t.TaxCode)
+        builder.Property(t => t.TaxType)
             .IsRequired()
-            .HasMaxLength(20);
+            .HasConversion<string>();
 
-        builder.HasIndex(t => t.TaxCode)
-            .IsUnique();
-
-        builder.Property(t => t.TaxName)
+        builder.Property(t => t.Category)
             .IsRequired()
             .HasMaxLength(100);
 
@@ -30,9 +27,23 @@ public class TaxRateConfiguration : IEntityTypeConfiguration<TaxRate>
             .IsRequired()
             .HasPrecision(5, 2);
 
+        builder.Property(t => t.Description)
+            .HasMaxLength(500);
+
+        builder.Property(t => t.ReferenceCode)
+            .HasMaxLength(50);
+
+        builder.Property(t => t.IsDefault)
+            .IsRequired()
+            .HasDefaultValue(false);
+
         builder.Property(t => t.IsActive)
             .IsRequired()
             .HasDefaultValue(true);
+
+        builder.Property(t => t.DisplayOrder)
+            .IsRequired()
+            .HasDefaultValue(1);
 
         builder.Property(t => t.CreatedAt)
             .IsRequired();

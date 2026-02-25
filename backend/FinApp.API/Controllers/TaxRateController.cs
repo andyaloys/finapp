@@ -30,7 +30,7 @@ public class TaxRateController : BaseApiController
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _taxRateService.GetByIdAsync(id);
         return Ok(result);
@@ -44,16 +44,27 @@ public class TaxRateController : BaseApiController
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateTaxRateDto dto)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTaxRateDto dto)
     {
         var result = await _taxRateService.UpdateAsync(id, dto);
         return Ok(result);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _taxRateService.DeleteAsync(id);
+        return Ok(result);
+    }
+
+    [HttpGet("by-type/{taxType}")]
+    public async Task<IActionResult> GetByTaxType(string taxType)
+    {
+        if (!Enum.TryParse<Domain.Entities.TaxType>(taxType, true, out var taxTypeEnum))
+        {
+            return BadRequest("Invalid tax type");
+        }
+        var result = await _taxRateService.GetByTaxTypeAsync(taxTypeEnum);
         return Ok(result);
     }
 }

@@ -103,29 +103,31 @@ public class StpbPdfService : IStpbPdfService
             // Detail table
             column.Item().PaddingTop(15).Table(table =>
             {
-                // Define columns with COA
+                // Define columns with COA and Penerima
                 table.ColumnsDefinition(columns =>
                 {
                     columns.ConstantColumn(30);    // No
-                    columns.RelativeColumn(2);      // COA
-                    columns.RelativeColumn(3);      // Uraian (dikurangi untuk memberi ruang ke kolom angka)
-                    columns.RelativeColumn(2);      // Jumlah (dapat menampung 9.000.000.000)
-                    columns.RelativeColumn(1.5f);   // PPN (dapat menampung 900.000.000)
-                    columns.RelativeColumn(1.5f);   // PPh (dapat menampung 900.000.000)
+                    columns.RelativeColumn(1.5f);   // COA
+                    columns.RelativeColumn(2);      // Penerima
+                    columns.RelativeColumn(3);      // Uraian (diperbesar)
+                    columns.RelativeColumn(1.5f);   // Jumlah (dikurangi)
+                    columns.RelativeColumn(1.2f);   // PPN (dikurangi)
+                    columns.RelativeColumn(1.2f);   // PPh (dikurangi)
                 });
 
                 // Header
                 table.Header(header =>
                 {
-                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("No");
-                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("COA");
-                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("Uraian");
-                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("Jumlah");
-                    header.Cell().ColumnSpan(2).Border(1).Padding(5).AlignCenter().Text("Pajak Pungut / Setor");
+                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("No").FontSize(8);
+                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("COA").FontSize(8);
+                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("Penerima").FontSize(8);
+                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("Uraian").FontSize(8);
+                    header.Cell().RowSpan(2).Border(1).Padding(5).AlignCenter().AlignMiddle().Text("Jumlah").FontSize(8);
+                    header.Cell().ColumnSpan(2).Border(1).Padding(5).AlignCenter().Text("Pajak Pungut / Setor").FontSize(8);
 
                     // Second row of header
-                    header.Cell().Border(1).Padding(5).AlignCenter().Text("PPN");
-                    header.Cell().Border(1).Padding(5).AlignCenter().Text("PPh");
+                    header.Cell().Border(1).Padding(5).AlignCenter().Text("PPN").FontSize(8);
+                    header.Cell().Border(1).Padding(5).AlignCenter().Text("PPh").FontSize(8);
                 });
 
                 // Data rows
@@ -138,19 +140,27 @@ public class StpbPdfService : IStpbPdfService
                     // Build COA string
                     var coa = $"{detail.KodeProgram}.{detail.KodeKegiatan}.{detail.KodeOutput}.{detail.KodeSuboutput}.{detail.KodeKomponen}.{detail.KodeSubkomponen}.{detail.KodeAkun}.{detail.NoItem}";
 
-                    table.Cell().Border(1).Padding(5).AlignCenter().Text((i + 1).ToString());
+                    // Get penerima name
+                    var penerimaNama = detail.Penerima?.Nama ?? "-";
+
+                    table.Cell().Border(1).Padding(5).AlignCenter().Text((i + 1).ToString()).FontSize(8);
                     table.Cell().Border(1).Padding(5).Text(coa).FontSize(8);
-                    table.Cell().Border(1).Padding(5).Text(detail.Keterangan ?? "-");
-                    table.Cell().Border(1).Padding(5).AlignRight().Text($"{detail.JumlahHarga:N0}");
-                    table.Cell().Border(1).Padding(5).AlignRight().Text($"{detail.PPN:N0}");
-                    table.Cell().Border(1).Padding(5).AlignRight().Text($"{totalPph:N0}");
+                    table.Cell().Border(1).Padding(5).Text(penerimaNama).FontSize(8);
+                    table.Cell().Border(1).Padding(5).Text(detail.Keterangan ?? "-").FontSize(8);
+                    table.Cell().Border(1).Padding(5).AlignRight().Text($"{detail.JumlahHarga:N0}").FontSize(8);
+                    table.Cell().Border(1).Padding(5).AlignRight().Text($"{detail.PPN:N0}").FontSize(8);
+                    table.Cell().Border(1).Padding(5).AlignRight().Text($"{totalPph:N0}").FontSize(8);
                 }
 
                 // Total row
                 var totalJumlah = detailsList.Sum(d => d.JumlahHarga);
-                table.Cell().ColumnSpan(3).Border(1).Padding(5).AlignCenter().Text("Jumlah").Bold();
-                table.Cell().Border(1).Padding(5).AlignRight().Text($"{totalJumlah:N0}").Bold();
-                table.Cell().ColumnSpan(2).Border(1).Padding(5).Text("");
+                var totalPpn = detailsList.Sum(d => d.PPN);
+                var totalPphAll = detailsList.Sum(d => d.PPH21 + d.PPH22 + d.PPH23);
+                
+                table.Cell().ColumnSpan(4).Border(1).Padding(5).AlignCenter().Text("Jumlah").Bold().FontSize(8);
+                table.Cell().Border(1).Padding(5).AlignRight().Text($"{totalJumlah:N0}").Bold().FontSize(8);
+                table.Cell().Border(1).Padding(5).AlignRight().Text($"{totalPpn:N0}").Bold().FontSize(8);
+                table.Cell().Border(1).Padding(5).AlignRight().Text($"{totalPphAll:N0}").Bold().FontSize(8);
             });
 
             // Closing statement

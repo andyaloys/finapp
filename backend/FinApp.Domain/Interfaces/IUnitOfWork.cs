@@ -18,6 +18,7 @@ public interface IUnitOfWork : IDisposable
     IItemRepository Items { get; }
     ISequenceNumberRepository SequenceNumbers { get; }
     IAnggaranMasterRepository AnggaranMasters { get; }
+    ITaxRateRepository TaxRates { get; }
     Task<int> SaveChangesAsync();
     Task BeginTransactionAsync();
     Task CommitTransactionAsync();

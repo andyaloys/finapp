@@ -1,11 +1,11 @@
 using FinApp.Core.DTOs.TaxRate;
 using FluentValidation;
 
-namespace FinApp.Core.Validators.TaxRate;
+namespace FinApp.Core.Validators;
 
-public class UpdateTaxRateDtoValidator : AbstractValidator<UpdateTaxRateDto>
+public class UpdateTaxRateValidator : AbstractValidator<UpdateTaxRateDto>
 {
-    public UpdateTaxRateDtoValidator()
+    public UpdateTaxRateValidator()
     {
         RuleFor(x => x.Category)
             .NotEmpty().WithMessage("Kategori harus diisi")

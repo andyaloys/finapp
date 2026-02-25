@@ -12,18 +12,18 @@ namespace FinApp.Core.Services;
 
 public class TaxRateService : ITaxRateService
 {
-    private readonly ITaxRateRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IValidator<CreateTaxRateDto> _createValidator;
     private readonly IValidator<UpdateTaxRateDto> _updateValidator;
 
     public TaxRateService(
-        ITaxRateRepository repository,
+        IUnitOfWork unitOfWork,
         IMapper mapper,
         IValidator<CreateTaxRateDto> createValidator,
         IValidator<UpdateTaxRateDto> updateValidator)
     {
-        _repository = repository;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
@@ -31,21 +31,21 @@ public class TaxRateService : ITaxRateService
 
     public async Task<ApiResponse<List<TaxRateDto>>> GetAllAsync()
     {
-        var taxRates = await _repository.GetAllAsync();
+        var taxRates = await _unitOfWork.TaxRates.GetAllAsync();
         var dtos = _mapper.Map<List<TaxRateDto>>(taxRates);
         return ApiResponse<List<TaxRateDto>>.SuccessResponse(dtos);
     }
 
     public async Task<ApiResponse<List<TaxRateDto>>> GetAllActiveAsync()
     {
-        var taxRates = await _repository.GetAllActiveAsync();
+        var taxRates = await _unitOfWork.TaxRates.GetActiveTaxRatesAsync();
         var dtos = _mapper.Map<List<TaxRateDto>>(taxRates);
         return ApiResponse<List<TaxRateDto>>.SuccessResponse(dtos);
     }
 
-    public async Task<ApiResponse<TaxRateDto>> GetByIdAsync(int id)
+    public async Task<ApiResponse<TaxRateDto>> GetByIdAsync(Guid id)
     {
-        var taxRate = await _repository.GetByIdAsync(id);
+        var taxRate = await _unitOfWork.TaxRates.GetByIdAsync(id);
         
         if (taxRate == null)
         {
@@ -64,24 +64,26 @@ public class TaxRateService : ITaxRateService
             throw new ValidationException(validationResult.Errors.First().ErrorMessage);
         }
 
-        // Check if tax code already exists
-        if (await _repository.ExistsByCodeAsync(dto.TaxCode))
+        // Check if IsDefault is true, ensure no other default exists for the same TaxType
+        if (dto.IsDefault)
         {
-            throw new ValidationException($"Kode pajak '{dto.TaxCode}' sudah digunakan");
+            var existingDefault = await _unitOfWork.TaxRates.GetDefaultByTaxTypeAsync(dto.TaxType);
+            if (existingDefault != null)
+            {
+                existingDefault.IsDefault = false;
+            }
         }
 
         var taxRate = _mapper.Map<TaxRate>(dto);
-        taxRate.CreatedAt = DateTime.UtcNow;
-        taxRate.IsActive = true;
 
-        await _repository.AddAsync(taxRate);
-        await _repository.SaveChangesAsync();
+        await _unitOfWork.TaxRates.AddAsync(taxRate);
+        await _unitOfWork.SaveChangesAsync();
 
         var resultDto = _mapper.Map<TaxRateDto>(taxRate);
         return ApiResponse<TaxRateDto>.SuccessResponse(resultDto, "Tarif pajak berhasil ditambahkan");
     }
 
-    public async Task<ApiResponse<TaxRateDto>> UpdateAsync(int id, UpdateTaxRateDto dto)
+    public async Task<ApiResponse<TaxRateDto>> UpdateAsync(Guid id, UpdateTaxRateDto dto)
     {
         var validationResult = await _updateValidator.ValidateAsync(dto);
         if (!validationResult.IsValid)
@@ -89,35 +91,50 @@ public class TaxRateService : ITaxRateService
             throw new ValidationException(validationResult.Errors.First().ErrorMessage);
         }
 
-        var taxRate = await _repository.GetByIdAsync(id);
+        var taxRate = await _unitOfWork.TaxRates.GetByIdAsync(id);
         
         if (taxRate == null)
         {
             throw new NotFoundException($"Tarif pajak dengan ID {id} tidak ditemukan");
         }
 
-        _mapper.Map(dto, taxRate);
-        taxRate.UpdatedAt = DateTime.UtcNow;
+        // Check if IsDefault is changed to true
+        if (dto.IsDefault && !taxRate.IsDefault)
+        {
+            var existingDefault = await _unitOfWork.TaxRates.GetDefaultByTaxTypeAsync(taxRate.TaxType);
+            if (existingDefault != null && existingDefault.Id != id)
+            {
+                existingDefault.IsDefault = false;
+            }
+        }
 
-        _repository.Update(taxRate);
-        await _repository.SaveChangesAsync();
+        _mapper.Map(dto, taxRate);
+
+        await _unitOfWork.SaveChangesAsync();
 
         var resultDto = _mapper.Map<TaxRateDto>(taxRate);
         return ApiResponse<TaxRateDto>.SuccessResponse(resultDto, "Tarif pajak berhasil diupdate");
     }
 
-    public async Task<ApiResponse<bool>> DeleteAsync(int id)
+    public async Task<ApiResponse<bool>> DeleteAsync(Guid id)
     {
-        var taxRate = await _repository.GetByIdAsync(id);
+        var taxRate = await _unitOfWork.TaxRates.GetByIdAsync(id);
         
         if (taxRate == null)
         {
             throw new NotFoundException($"Tarif pajak dengan ID {id} tidak ditemukan");
         }
 
-        _repository.Delete(taxRate);
-        await _repository.SaveChangesAsync();
+        await _unitOfWork.TaxRates.DeleteAsync(id);
+        await _unitOfWork.SaveChangesAsync();
 
         return ApiResponse<bool>.SuccessResponse(true, "Tarif pajak berhasil dihapus");
+    }
+
+    public async Task<ApiResponse<List<TaxRateDto>>> GetByTaxTypeAsync(TaxType taxType)
+    {
+        var taxRates = await _unitOfWork.TaxRates.GetByTaxTypeAsync(taxType);
+        var dtos = _mapper.Map<List<TaxRateDto>>(taxRates);
+        return ApiResponse<List<TaxRateDto>>.SuccessResponse(dtos);
     }
 }

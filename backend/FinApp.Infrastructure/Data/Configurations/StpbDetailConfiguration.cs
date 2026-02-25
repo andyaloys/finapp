@@ -110,6 +110,27 @@ public class StpbDetailConfiguration : IEntityTypeConfiguration<StpbDetail>
         builder.Property(x => x.Keterangan)
             .HasColumnType("text");
 
+        // Tax columns
+        builder.Property(x => x.PPN)
+            .HasColumnType("decimal(18,2)")
+            .IsRequired();
+
+        builder.Property(x => x.PPH21)
+            .HasColumnType("decimal(18,2)")
+            .IsRequired();
+
+        builder.Property(x => x.PPH22)
+            .HasColumnType("decimal(18,2)")
+            .IsRequired();
+
+        builder.Property(x => x.PPH23)
+            .HasColumnType("decimal(18,2)")
+            .IsRequired();
+
+        builder.Property(x => x.NilaiBersih)
+            .HasColumnType("decimal(18,2)")
+            .IsRequired();
+
         builder.Property(x => x.CreatedAt);
 
         builder.Property(x => x.UpdatedAt)
@@ -124,6 +145,27 @@ public class StpbDetailConfiguration : IEntityTypeConfiguration<StpbDetail>
         builder.HasOne(x => x.Penerima)
             .WithMany(p => p.Stpbs)
             .HasForeignKey(x => x.PenerimaId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // Tax Rate relationships
+        builder.HasOne(x => x.PpnTaxRate)
+            .WithMany()
+            .HasForeignKey(x => x.PpnTaxRateId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne(x => x.Pph21TaxRate)
+            .WithMany()
+            .HasForeignKey(x => x.Pph21TaxRateId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne(x => x.Pph22TaxRate)
+            .WithMany()
+            .HasForeignKey(x => x.Pph22TaxRateId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne(x => x.Pph23TaxRate)
+            .WithMany()
+            .HasForeignKey(x => x.Pph23TaxRateId)
             .OnDelete(DeleteBehavior.SetNull);
     }
 }

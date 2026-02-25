@@ -7,17 +7,15 @@ public class CreateTaxRateDtoValidator : AbstractValidator<CreateTaxRateDto>
 {
     public CreateTaxRateDtoValidator()
     {
-        RuleFor(x => x.TaxCode)
-            .NotEmpty().WithMessage("Kode pajak tidak boleh kosong")
-            .MaximumLength(20).WithMessage("Kode pajak maksimal 20 karakter");
-
-        RuleFor(x => x.TaxName)
-            .NotEmpty().WithMessage("Nama pajak tidak boleh kosong")
-            .MaximumLength(100).WithMessage("Nama pajak maksimal 100 karakter");
+        RuleFor(x => x.Category)
+            .NotEmpty().WithMessage("Kategori harus diisi")
+            .MaximumLength(100).WithMessage("Kategori maksimal 100 karakter");
 
         RuleFor(x => x.Rate)
-            .NotEmpty().WithMessage("Tarif tidak boleh kosong")
-            .GreaterThan(0).WithMessage("Tarif harus lebih besar dari 0")
-            .LessThanOrEqualTo(100).WithMessage("Tarif tidak boleh lebih dari 100%");
+            .GreaterThan(0).WithMessage("Rate harus lebih dari 0")
+            .LessThanOrEqualTo(100).WithMessage("Rate maksimal 100%");
+
+        RuleFor(x => x.DisplayOrder)
+            .GreaterThan(0).WithMessage("Display order harus lebih dari 0");
     }
 }

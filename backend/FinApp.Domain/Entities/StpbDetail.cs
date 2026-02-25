@@ -53,7 +53,13 @@ public class StpbDetail : BaseEntity
     public string? Keterangan { get; set; }
     public int? PenerimaId { get; set; }
     
-    // Tax/Potongan
+    // Tax/Potongan - Foreign keys to TaxRate
+    public Guid? PpnTaxRateId { get; set; }
+    public Guid? Pph21TaxRateId { get; set; }
+    public Guid? Pph22TaxRateId { get; set; }
+    public Guid? Pph23TaxRateId { get; set; }
+    
+    // Tax/Potongan - Calculated values
     public decimal PPN { get; set; }
     public decimal PPH21 { get; set; }
     public decimal PPH22 { get; set; }
@@ -64,4 +70,8 @@ public class StpbDetail : BaseEntity
     public Stpb Stpb { get; set; } = null!;
     public Item? Item { get; set; }
     public Penerima? Penerima { get; set; }
+    public TaxRate? PpnTaxRate { get; set; }
+    public TaxRate? Pph21TaxRate { get; set; }
+    public TaxRate? Pph22TaxRate { get; set; }
+    public TaxRate? Pph23TaxRate { get; set; }
 }

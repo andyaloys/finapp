@@ -39,6 +39,7 @@
       [nzShowSizeChanger]="true"
       [nzPageSizeOptions]="[10, 20, 50]"
       (nzPageSizeChange)="onPageSizeChange($event)"
+      [nzShowTotal]="totalTemplate"
       class="modern-table">
       <thead>
         <tr>
@@ -90,6 +91,10 @@
         </tr>
       </tbody>
     </nz-table>
+
+    <ng-template #totalTemplate let-total let-range="range">
+      Menampilkan {{ range[0] }}-{{ range[1] }} dari {{ total }} data
+    </ng-template>
   </div>
 
   <nz-modal
