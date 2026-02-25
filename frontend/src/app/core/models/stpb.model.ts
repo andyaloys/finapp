@@ -8,6 +8,7 @@ export interface Stpb {
   tanggalSTPB: Date;
   nomorSTPB: string;
   keterangan?: string;
+  alasanDikembalikan?: string;
   totalNilai: number;
   status: StpbStatus;
   statusDisplay: string;

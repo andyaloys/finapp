@@ -17,6 +17,7 @@ public class Stpb : BaseEntity
     
     // Additional Information
     public string? Keterangan { get; set; }
+    public string? AlasanDikembalikan { get; set; }
     
     // Navigation properties
     public PpkBendahara PpkBendahara { get; set; } = null!;

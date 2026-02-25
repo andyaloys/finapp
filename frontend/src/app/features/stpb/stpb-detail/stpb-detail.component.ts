@@ -11,6 +11,7 @@ import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { FormsModule } from '@angular/forms';
 import { StpbService } from '../../../core/services/stpb.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -18,6 +19,7 @@ import { Stpb } from '../../../core/models/stpb.model';
 import { StpbDetail } from '../../../core/models/stpb-detail.model';
 import { StpbStatus, getStatusClass, getStatusDisplay } from '../../../core/models/stpb-status.enum';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { KembalikanModalComponent } from './kembalikan-modal.component';
 
 @Component({
   selector: 'app-stpb-detail',
@@ -34,6 +36,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
     NzDescriptionsModule,
     NzDividerModule,
     NzInputModule,
+    NzAlertModule,
     PageHeaderComponent
   ],
   templateUrl: './stpb-detail.component.html',
@@ -43,6 +46,7 @@ export class StpbDetailComponent implements OnInit {
   stpb: Stpb | null = null;
   loading = false;
   currentUser: any;
+  alasanKembalikan = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -88,6 +92,14 @@ export class StpbDetailComponent implements OnInit {
            this.stpb.status === StpbStatus.Kirim;
   }
 
+  canKembalikan(): boolean {
+    if (!this.stpb || !this.currentUser) return false;
+    
+    const role = this.currentUser.role;
+    return (role === 'PPK' || role === 'Bendahara') && 
+           (this.stpb.status === StpbStatus.Kirim || this.stpb.status === StpbStatus.Approve);
+  }
+
   approve(): void {
     if (!this.stpb) return;
 
@@ -111,18 +123,35 @@ export class StpbDetailComponent implements OnInit {
   kembalikan(): void {
     if (!this.stpb) return;
 
-    this.modal.confirm({
+    this.alasanKembalikan = '';
+    
+    const modal = this.modal.create({
       nzTitle: 'Konfirmasi Kembalikan',
-      nzContent: `Apakah Anda yakin ingin mengembalikan SPTB ${this.stpb.nomorSTPB}?`,
-      nzOnOk: () => {
-        this.stpbService.kembalikan(this.stpb!.id, '').subscribe({
-          next: () => {
-            this.message.success('SPTB berhasil dikembalikan');
-            this.router.navigate(['/stpb']);
-          },
-          error: (error) => {
-            this.message.error(error.error?.message || 'Gagal mengembalikan SPTB');
-          }
+      nzContent: KembalikanModalComponent,
+      nzData: {
+        nomorSTPB: this.stpb.nomorSTPB,
+        alasan: this.alasanKembalikan
+      },
+      nzOnOk: (component) => {
+        const alasan = component.alasan?.trim();
+        
+        if (!alasan) {
+          this.message.warning('Alasan pengembalian harus diisi');
+          return false;
+        }
+
+        return new Promise((resolve, reject) => {
+          this.stpbService.kembalikan(this.stpb!.id, alasan).subscribe({
+            next: () => {
+              this.message.success('SPTB berhasil dikembalikan');
+              this.router.navigate(['/stpb']);
+              resolve(true);
+            },
+            error: (error) => {
+              this.message.error(error.error?.message || 'Gagal mengembalikan SPTB');
+              reject(error);
+            }
+          });
         });
       }
     });

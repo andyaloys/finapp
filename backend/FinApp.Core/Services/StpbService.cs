@@ -320,9 +320,9 @@ public class StpbService : IStpbService
         if (stpb == null)
             throw new NotFoundException($"STPB with ID {id} not found");
 
-        // Validate status
-        if (stpb.Status != StpbStatus.Kirim)
-            throw new ValidationException("STPB hanya dapat dikembalikan dari status Kirim");
+        // Validate status - can be returned from Kirim or Approve
+        if (stpb.Status != StpbStatus.Kirim && stpb.Status != StpbStatus.Approve)
+            throw new ValidationException("STPB hanya dapat dikembalikan dari status Kirim atau Approve");
 
         // Validate user authority
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
@@ -352,6 +352,7 @@ public class StpbService : IStpbService
         }
 
         stpb.Status = StpbStatus.Dikembalikan;
+        stpb.AlasanDikembalikan = alasan;
         stpb.UpdatedAt = DateTime.UtcNow;
 
         await _unitOfWork.Stpbs.UpdateAsync(stpb);

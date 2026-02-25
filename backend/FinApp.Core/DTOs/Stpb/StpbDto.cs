@@ -16,6 +16,7 @@ public class StpbDto
     
     public decimal TotalNilai { get; set; }
     public string? Keterangan { get; set; }
+    public string? AlasanDikembalikan { get; set; }
     
     public Guid CreatedBy { get; set; }
     public string CreatorName { get; set; } = string.Empty;

@@ -39,6 +39,13 @@
       <nz-descriptions-item nzTitle="Keterangan" [nzSpan]="2" *ngIf="stpb.keterangan">
         {{ stpb.keterangan }}
       </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Alasan Dikembalikan" [nzSpan]="2" *ngIf="stpb.alasanDikembalikan">
+        <nz-alert 
+          nzType="warning" 
+          [nzMessage]="stpb.alasanDikembalikan"
+          nzShowIcon>
+        </nz-alert>
+      </nz-descriptions-item>
     </nz-descriptions>
 
     <nz-divider></nz-divider>
@@ -90,13 +97,24 @@
 
     <nz-divider></nz-divider>
 
-    <!-- Action Buttons (Only for PPK/Bendahara with status Kirim) -->
-    <div class="action-buttons" *ngIf="canApprove()">
-      <button nz-button nzType="primary" nzSize="large" (click)="approve()">
+    <!-- Action Buttons for PPK/Bendahara -->
+    <div class="action-buttons" *ngIf="canApprove() || canKembalikan()">
+      <button 
+        *ngIf="canApprove()"
+        nz-button 
+        nzType="primary" 
+        nzSize="large" 
+        (click)="approve()">
         <i nz-icon nzType="check-circle"></i>
         Approve
       </button>
-      <button nz-button nzType="default" nzDanger nzSize="large" (click)="kembalikan()">
+      <button 
+        *ngIf="canKembalikan()"
+        nz-button 
+        nzType="default" 
+        nzDanger 
+        nzSize="large" 
+        (click)="kembalikan()">
         <i nz-icon nzType="close-circle"></i>
         Kembalikan
       </button>
